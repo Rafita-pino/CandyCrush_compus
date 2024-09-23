@@ -39,14 +39,16 @@
 @;		R0 = número de repeticiones detectadas (mínimo 1)
 	.global cuenta_repeticiones
 cuenta_repeticiones:
-		push {r4-r6, lr}
+		push {r4-r7, lr}
 		
 		mov r5, #COLUMNS
-		mla r6, r1, r5, r2
-		add r4, r0, r6			@;R4 apunta al elemento (f,c) de mat[][]
-		ldrb r5, [r4]
+		mla r6, r1, r5, r2		@;fila*num_COL+col
+		add r4, r0, r6			@;R4 apunta al elemento (f,c) de mat[][]->r6+dir.base
+		ldrb r5, [r4]			
 		and r5, #7				@;R5 es el valor filtrado (sin marcas de gel.)
 		mov r0, #1				@;R0 = número de repeticiones
+		
+		@;orientació check 
 		cmp r3, #0
 		beq .Lconrep_este
 		cmp r3, #1
@@ -57,11 +59,78 @@ cuenta_repeticiones:
 		beq .Lconrep_norte
 		b .Lconrep_fin
 		
-
-@; ATENCIÓN: FALTA CÓDIGO PARA CONTAR LAS REPETICIONES EN CADA ORIENTACIÓN
-
+	.Lconrep_este:
+		add r4, #1				@;Desplaçament seg. column (este)
+		mov r7, #COLUMNS
+		sub r7, #1				@;r7 = COLUMNS (amb index - 1)	
+		cmp r2, r7				@;Comprovar si som al borde de la mat.
+		bgt .Lconrep_fin		@;Si pos. fora matriu ACABAR
+	.Lbucle_este:
+		ldrb r6, [r4]
+		and r6, #7				@;Mascara bits 0..2
+		cmp r6, r5				
+		bne .Lconrep_fin		@;Si no son iguals ACABAR
+		add r0, #1				@;Sino INCREMENTAR rep.
+		add r4, #1
+		add r2, #1              @;Actualitzar index col.
+		cmp r2, r7
+		ble .Lbucle_este		@;Si pos <= borde, REPETIR
+		b .Lconrep_fin			@;Sino ACABAR
+			
+	.Lconrep_sur:
+		add r4, #COLUMNS        @;Desplaçament seg. fila (sur, +9 pos.)
+		mov r7, #ROWS
+		sub r7, #1				@;r7 = ROWS (amb index - 1)
+		cmp r1, r7				@;Comprovar si som al borde de la mat.
+		bgt .Lconrep_fin		@;Si pos. fora matriu, ACABAR
+	.Lbucle_sur:
+		ldrb r6, [r4]
+		and r6, #7				@;Mascara bits 0..2
+		cmp r6, r5
+		bne .Lconrep_fin		@;Si no iguals, ACABAR
+		add r0, #1				@;Sino, INCREMENTAR repetició
+		add r4, #COLUMNS		@;Avançar a la següent fila
+		add r1, #1				@;Actualitzar index fila
+		cmp r1, r7
+		ble .Lbucle_sur			@;Si <= borde, REPETIR
+		b .Lconrep_fin			@;Sino, ACABAR
 		
-		pop {r4-r6, pc}
+	.Lconrep_oeste:
+		sub r4, #1				@;Desplaçament seg. column (oest)
+		mov r7, #0				@;r7 = borde esquerra (columna 0)
+		cmp r2, r7				@;Comprovar si som al borde esquerra
+		blt .Lconrep_fin		@;Si fora matriu, ACABAR
+	.Lbucle_oeste:
+		ldrb r6, [r4]
+		and r6, #7				@;Mascara bits 0..2
+		cmp r6, r5
+		bne .Lconrep_fin		@;Si no iguals, ACABAR
+		add r0, #1				@;Sino, INCREMENTAR repetició
+		sub r4, #1				@;Retrocedir a la columna anterior
+		sub r2, #1				@;Actualitzar index columna
+		cmp r2, r7
+		bge .Lbucle_oeste		@;Si >= borde, REPETIR
+		b .Lconrep_fin			@;Sino, ACABAR
+		
+	.Lconrep_norte:
+		sub r4, #COLUMNS		@;Desplaçament seg. fila (nord)
+		mov r7, #0				@;r7 = borde superior (fila 0)
+		cmp r1, r7				@;Comprovar si som al borde superior
+		blt .Lconrep_fin		@;Si fora matriu, ACABAR
+	.Lbucle_norte:
+		ldrb r6, [r4]
+		and r6, #7				@;Mascara bits 0..2
+		cmp r6, r5
+		bne .Lconrep_fin		@;Si no iguals, ACABAR
+		add r0, #1				@;Sino, INCREMENTAR repetició
+		sub r4, #COLUMNS		@;Retrocedir a la fila anterior
+		sub r1, #1				@;Actualitzar index fila
+		cmp r1, r7
+		bge .Lbucle_norte		@;Si >= borde, REPETIR
+		b .Lconrep_fin			@;Sino, ACABAR
+	
+	.Lconrep_fin:	
+		pop {r4-r7, pc}
 
 
 @;TAREA 1F;
