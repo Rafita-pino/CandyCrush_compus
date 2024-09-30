@@ -1,8 +1,8 @@
 ﻿@;=                                                          	     	=
 @;=== candy1_init.s: rutinas para inicializar la matriz de juego	  ===
 @;=                                                           	    	=
-@;=== Programador tarea 1A: rafael.pinor@estudiants.urv.cat				  ===
-@;=== Programador tarea 1B: rafael.pinor@estudiants.urv.cat				  ===
+@;=== Programador tarea 1A: rafael.pinor@estudiants.urv.cat			  ===
+@;=== Programador tarea 1B: rafael.pinor@estudiants.urv.cat			  ===
 @;=                                                       	        	=
 
 
@@ -54,7 +54,7 @@
 @;		R8 = valor per accedir a mapa config // Bits 4..3
 	.global inicializa_matriz
 inicializa_matriz:
-		push {r0-r8, lr}		@;guardar registros utilizados
+	push {r0-r8, lr}		@;guardar registros utilizados
 		mov r4, r0				@; r0 = direccion base de la matriz
 		mov r3, r1				@; r3 = num mapa config				
 		ldr r5, =mapas
@@ -75,10 +75,8 @@ inicializa_matriz:
 				b .L_fi			  @; pasamos hasta el final
 				
 			.L_random:
-				mov r3, #0
 				mov r0, #6			  @; pasamos rango maximo
 				bl mod_random		  
-				add r0, #1			  @; sumamos 1 para no obtener 0
 				add r3, r7, r0		  @; sumamos al valor inicial el resultado y lo guardamos en r3
 				strb r3, [r4, r6]	  @; subimos a la matriz de juego el resultado para cuenta_repeticiones
 				
@@ -102,7 +100,7 @@ inicializa_matriz:
 			add r1, #1
 			cmp r1, #ROWS @;comparamos con el numero de filas para recorerlas todas
 			blo .L_fori
-		pop {r0-r8, pc}			
+	pop {r0-r8, pc}			
 
 @;TAREA 1B;
 @; recombina_elementos(*matriz): rutina para generar una nueva matriz de juego
@@ -144,6 +142,7 @@ recombina_elementos:
 @;		R0 = el rango del número aleatorio (n)
 @;	Resultado:
 @;		R0 = el número aleatorio dentro del rango especificado (0..n-1)
+
 @;=                                                               		=
 @;=== candy1_init.s: rutinas para inicializar la matriz de juego	  ===
 @;=                                                               		=
@@ -151,7 +150,6 @@ recombina_elementos:
 	.global mod_random
 mod_random:
 		push {r2-r4, lr}
-		
 		cmp r0, #2				@;compara el rango de entrada con el mínimo
 		movlo r0, #2			@;si menor, fija el rango mínimo
 		and r0, #0xFF			@;filtra los 8 bits de menos peso
@@ -172,8 +170,6 @@ mod_random:
 		mov r0, r4
 		
 		pop {r2-r4, pc}
-
-
 
 
 @; random(): rutina para obtener un número aleatorio de 32 bits, a partir de
