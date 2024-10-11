@@ -1,8 +1,8 @@
 ﻿@;=                                                               		=
 @;=== candy1_comb.s: rutinas para detectar y sugerir combinaciones    ===
 @;=                                                               		=
-@;=== Programador tarea 1G: xxx.xxx@estudiants.urv.cat				  ===
-@;=== Programador tarea 1H: yyy.yyy@estudiants.urv.cat				  ===
+@;=== Programador tarea 1G: gerard.ros@estudiants.urv.cat				  ===
+@;=== Programador tarea 1H: gerard.ros@estudiants.urv.cat				  ===
 @;=                                                             	 	=
 
 
@@ -26,12 +26,72 @@
 @;		R0 = dirección base de la matriz de juego
 @;	Resultado:
 @;		R0 = 1 si hay una secuencia, 0 en otro caso
+@;		R1 = index de les files
+@;		R2 = index de les columnes
+@;		R3 = index del desplaçament
+@;		R4 = direcció base de la matriu de joc
+@;		R5 = número de columnes
+@;		R6 = número de files
+@;		R7 = casella actual del recorregut
+@;		R9 = auxiliar columnes
+@;		R11 = auxiliar
+
 	.global hay_combinacion
 hay_combinacion:
-		push {lr}
+	push {r1-r12, lr}
+	
+		mov r4, r0 @; r4 = direcció base de la matriu de joc
+		mov r1, #0 @; r1 = index de files
+		mov r2, #0 @; r2 = index de columnes
+		mov r3, #0 @; r3 = index de desplaçament
+		mov r5, #COLUMNS
+		mov r6, #ROWS
 		
+		b .Lif_es_valid
 		
-		pop {pc}
+		.Lwhile:
+			add r1, #1
+			
+			.Lif_es_valid:
+				ldrb r7, [r4, r3] 	@; r7 = casella actual
+				and r11, r7, #0x07
+				cmp r11, #0x07		@; si r7 es un bloc solid o un forat no es valid
+				beq .Lendwhile
+				cmp r11, #0x00		@; si r7 es un bloc buit no es valid
+				beq .Lendwhile
+			.Lendif_es_valid:
+		
+			.Lif_ultima_columna:
+				sub r9, r5, #1
+				cmp r2, r9
+				bge .Lif_es_ultima_fila
+			.Lendif_ultima_columna:
+			
+			.Lif_igual_posterior_horitzontal:
+				add r3, #1 @; r3 = r3 + 1
+				ldrb r8, [r4, r3] @; r8 = casilla posterior horizontal
+				sub r3, #1
+				cmp r7, r8
+				beq .Lif_es_ultima_fila
+			.Lendif_igual_posterior_horitzontal:
+			
+		.Lendwhile:
+		mov r0, #0
+		add r3, #1	@; incrementem el desplaçament
+		add r2, #1	@; incrementem l'index de les columnes
+		
+		sub r9, r5, #1	@; r9 = columnes - 1
+		cmp r2, r9
+		ble .Lif_actual_es_valida
+		
+		mov r2, #0
+		
+		sub r9, r6, #1
+		cmp r1, r9
+		blt .Lwhile
+		
+	.Lfi:
+		pop {r1-r12, pc}
 
 
 
