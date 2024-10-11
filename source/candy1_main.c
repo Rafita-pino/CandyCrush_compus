@@ -58,6 +58,7 @@
 #define T_INACT		192		// tiempo de inactividad del usuario (3 seg. aprox.)
 #define T_MOSUG		64		// tiempo entre mostrar sugerencias (1 seg. aprox.)
 
+#define MAX_REPES	100	 // numero de inicializtacions de la matriu
 
 /* variables globales */
 char matrix[ROWS][COLUMNS];		// matriz global de juego
@@ -452,7 +453,7 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 int main(void)
 {
 	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
-	
+	int fallos = 0;
 	seed32 = time(NULL);		// fija semilla de números aleatorios
 	consoleDemoInit();			// inicialización de pantalla de texto
 	printf("candyNDS (prueba tarea 1A)\n");
@@ -460,22 +461,41 @@ int main(void)
 
 	do							// bucle principal de pruebas
 	{
+		int repes =0;
 		inicializa_matriz(matrix, level);
 		escribe_matriz_testing(matrix);
 		retardo(3);
-		printf("\x1b[39m\x1b[3;8H (pulse A o B)");
-		do
-		{	swiWaitForVBlank();
-			scanKeys();					// esperar pulsación tecla 'A' o 'B'
-		} while (!(keysHeld() & (KEY_A | KEY_B)));
-		printf("\x1b[3;8H              ");
+		
+		do{	
+			printf("\x1b[39m\x1b[4;8H (pulse A o B)");
+			printf("\x1b[38m\x1b[2;0H Llevas %d fallos (TOTAL) y \n%d reinicializaciones (lvl %d)", fallos, repes, level);
+			for (int i = 0; i < ROWS; i++){ //buscamos posicion por posicion a ver si se han generado repeticiones
+				for(int j = 0; j < COLUMNS; j++){
+					if(cuenta_repeticiones(matrix, i, j, 2) >= 3 || cuenta_repeticiones(matrix, i, j, 3) >=3) fallos++;
+				}
+			}
+			inicializa_matriz(matrix, level); //volvemos a inicializar la matriz para probar que no es coincidencia que haya salido bien :)
+			escribe_matriz_testing(matrix);
+			repes++;
+			swiWaitForVBlank();
+			scanKeys(); // pulsación tecla 'A' o 'B'
+			if (keysHeld() & KEY_B){
+				printf("\x1b[39m\x1b[4;0H Per passar de nivell es la A");
+				retardo(25);
+				printf("\x1b[4;0H                             ");
+			} 
+		} while (!(keysHeld() & (KEY_A)) && repes <= MAX_REPES );
+		printf("\x1b[3;22H                ");
 		retardo(3);
-		if (keysHeld() & KEY_A)			// si pulsa 'A',
-		{								// pasa a siguiente nivel
-			level = (level + 1) % MAXLEVEL;
+								// pasa a siguiente nivel
+			level = (level + 1); //% MAXLEVEL;
 			printf("\x1b[38m\x1b[1;8H %d", level);
-		}
-	} while (1);
+
+	} while (level <= MAXLEVEL);
+	
+	printf("candyNDS (prueba tarea 1A)\n");
+	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
+	printf("\x1b[38m\x1b[2;0H  prova acabada. TOTAL ERRORS: %d", fallos);
 	return(0);
 }
 
