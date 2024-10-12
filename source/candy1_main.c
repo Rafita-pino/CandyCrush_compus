@@ -480,7 +480,7 @@ int main(void)
 			swiWaitForVBlank();
 			scanKeys(); // pulsación tecla 'A' o 'B'
 			if (keysHeld() & KEY_B){
-				printf("\x1b[39m\x1b[4;0H Per passar de nivell es la A");
+				printf("\x1b[39m\x1b[4;0H Per passar de0 nivell es la A");
 				retardo(25);
 				printf("\x1b[4;0H                             ");
 			} 
@@ -492,10 +492,12 @@ int main(void)
 			printf("\x1b[38m\x1b[1;8H %d", level);
 
 	} while (level <= MAXLEVEL);
-	
-	printf("candyNDS (prueba tarea 1A)\n");
-	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
-	printf("\x1b[38m\x1b[2;0H  prova acabada. TOTAL ERRORS: %d", fallos);
+	do{
+		printf("\x1b[39m\x1b[3;0H                                                                         ");
+		printf("\x1b[39m\x1b[4;0H FINAL DE LES PROVES, \n TOTAL ERRORS: %d", fallos);
+		printf("\x1b[39m\x1b[6;0H                                                                         ");
+		retardo(100);
+	}while(1);
 	return(0);
 }
 
