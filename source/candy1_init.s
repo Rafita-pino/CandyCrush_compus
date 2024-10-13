@@ -72,25 +72,25 @@ inicializa_matriz:
 				tst r3, #0x07
 				beq .L_random
 				strb r7, [r4, r6] @; guardamos el resultado en la matriz de juego si r3=! 000
-				b .L_llamaCuentaRepes
+				b .L_fi
 				
 			.L_random:
 				mov r0, #6			  @; pasamos rango maximo
 				bl mod_random		  
 				add r3, r7, r0		  @; sumamos al valor inicial el resultado y lo guardamos en r3
 				strb r3, [r4, r6]	  @; subimos a la matriz de juego el resultado para cuenta_repeticiones
-				.L_llamaCuentaRepes:
-					mov r0, r4			   @; volvemos a poner la direccion base de la matriz de juego en r0
-					mov r3, #2			   @; direccion 2
-					bl cuenta_repeticiones @; llamamos a cuenta_repeticiones para comprovar que no tenemos secuencias
-					cmp r0, #3			   @; comparamos el resultado de cuenta_repeticiones con 3
-					bge .L_random 		   @; si >= 3, es que tenemos secuencia de >= 3
-					
-					mov r0, r4			   @; volvemos a poner la direccion base de la matriz de juego en r0
-					mov r3, #3			   @; direccion 3 (REPETIMOS PROCESO EN DIRECCION 3)
-					bl cuenta_repeticiones 
-					cmp r0, #3			   
-					bge .L_random 		   
+				
+				mov r0, r4			   @; volvemos a poner la direccion base de la matriz de juego en r0
+				mov r3, #2			   @; direccion 2
+				bl cuenta_repeticiones @; llamamos a cuenta_repeticiones para comprovar que no tenemos secuencias
+				cmp r0, #3			   @; comparamos el resultado de cuenta_repeticiones con 3
+				bge .L_random 		   @; si >= 3, es que tenemos secuencia de >= 3
+				
+				mov r0, r4			   @; volvemos a poner la direccion base de la matriz de juego en r0
+				mov r3, #3			   @; direccion 3 (REPETIMOS PROCESO EN DIRECCION 3)
+				bl cuenta_repeticiones 
+				cmp r0, #3			   
+				bge .L_random 		   
 				
 			.L_fi:
 				add r6, #1 @; avanza desplazamiento de posiciones						   
