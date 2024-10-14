@@ -22,6 +22,7 @@
 #define PUNT_COM7	300					// puntos combinación de 7 elementos
 
 
+
 	// candy1_conf.s //
 extern unsigned char max_mov[MAXLEVEL];		// movimientos máximos por nivel
 extern short pun_obj[MAXLEVEL];				// objetivo de puntos por nivel

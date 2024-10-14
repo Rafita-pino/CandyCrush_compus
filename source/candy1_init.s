@@ -146,7 +146,7 @@ recombina_elementos:
 		.L_FilaMatJoc:
 			mov r2, #0					@;inicializamos columnas
 			mov r3, #COLUMNS			@;guardamos max COLUMNS en r3
-			mul r12, r1, r3		@;r12 = fila * COLUMNS
+			mul r12, r1, r3				@;r12 = fila * COLUMNS
 			.L_colMatJoc:
 				add r6, r12, r2				@; preparamos puntero ((j*COLUMNS)+i)
 				ldrb r3, [r4, r6]			@; r3 = contenido mat_joc[r1][r2]
@@ -156,6 +156,8 @@ recombina_elementos:
 				and r5, #0x07				@; mascara para bits 2..0
 				cmp r5, #0x07				@; comparamos con bloque solido (7) i con hueco (15) bits 2..0 = 111
 				beq .L_copia2				@; lo copiamos directamente a mat_recomb2 y a mat_recomb1
+				cmp r5, #0x00				@; comparamos con gelatinas vacias (8,16) bits 2..0 = 000
+				beq .L_copia2
 				
 				@;MASCARA DE BITS 4..3 PARA OTROS CASOS
 				mov r5, r3, lsr#3			
@@ -164,52 +166,53 @@ recombina_elementos:
 				beq .L_gSimple				@; si r5, bucle gelatina simple
 				cmp r5, #0x02				@; comparamos con gelatina doble (10)
 				beq .L_gDoble				@; si r5, bucle gelatina doble
-				cmp r5, #0x00				@; comparamos con element simple (00)
+				cmp r5, #0x00				@; comparamos con elemento simple (00)
 				beq .L_copia				@; si r5, elemento simple 
 				b .L_FiMatJoc				@; sino es ninguno pasamos de casilla
 				.L_gSimple:		@; bule para gelatina simple (01)
+					strb r3, [r8, r6]			@; guardamos valor exacto en a mat_recomb2 (misma posicion)
 					sub r5, r3, #8				@; r5 = elemento simple (r5 = gel. simple - 8)
 					strb r5, [r7, r6]			@; guardamos en mat_recomb1 (misma posicion)
-					mov r5, #8					@; codigo base de gelatina simple
-					strb r5, [r8, r6]			@; guardamos en a mat_recomb2 (misma posicion)
 					b .L_FiMatJoc				@; final
 				.L_gDoble:		@; bule para gelatina doble (10)
+					strb r3, [r8, r6]			@; guardamos valor exacto en a mat_recomb2 (misma posicion)
 					sub r5, r3, #16				@; r5 = elemento doble (r5 = gel.doble - 16)
-					strb r5, [r7, r6]			@; guardamos en mat_recomb1 (misma posicion)
-					mov r5, #16					@; codigo base de gelatina simple
-					strb r5, [r8, r6]			@; guardamos en a mat_recomb2 (misma posicion)
+					strb r5, [r7, r6]			@; guardamos en mat_recomb1 (misma posicion)				
 					b .L_FiMatJoc				@; final 
 				.L_copia:		@; bule para copiar en mat_recomb1 
 					strb r3, [r7, r6]			@; guardamos valor en mat_recomb1 en la posicion actual
+					strb r3, [r8, r6]			@; guardamos valor exacto en a mat_recomb2 (misma posicion)
 					b .L_FiMatJoc				@; final
 				.L_copia2:		@; bule para copiar en mat_recomb2
-					strb r3, [r8, r6]			@; copio el valor de la matriz de juego a mat_recomb2
-					mov r3, #0					@; bloque solido (7) o hueco (15) = 0
-					strb r3, [r7, r6]			@; guardamos en mat_recomb1 un 0 en la posicion del bloque solido/hueco
+					strb r3, [r8, r6]			@; copio el valor de la matriz de juego directo a mat_recomb2
+					mov r3, #0					@; bloque solido (7), hueco (15), gelatinas vacias (8,16) = 0
+					strb r3, [r7, r6]			@; guardamos en mat_recomb1 un 0 en la posicion del bloque solido/hueco/gel.vacia
 				.L_FiMatJoc:
-				@; siguiente posici�n
-				add r6, #1					@; avanza posicion
+				@; siguiente posicion
 				add r2, #1					@; avanza columna
 				cmp r2, #COLUMNS			@; miramos si estamos en final de fila
 				blo .L_colMatJoc			@; avanza al siguiente elemento si esta al final de fila
 				
 			add r1, #1					@; avanza fila
 			cmp r1, #ROWS				@; miramos si estamos en final de columna
-			blo .L_FilaMatJoc		@; avanza al siguiente elemento siempre que no est� al final
+			blo .L_FilaMatJoc		@; avanza al siguiente elemento siempre que no este al final
 			
+	@;UNA VEZ ACABADA LAS COPIAS, EMPEZAMOS LA RECOMBINACION :)		
+	
 	.L_IniRecomb2:
 		mov r6, #0					@; inicializamos puntero
 		mov r1, #0					@; inicializamos filas
 		.L_FilaRecomb2:
-			mov r2, #0					@; inicializamos columnas
+			mov r2, #0					@;inicializamos columnas
+			mov r3, #COLUMNS			@;guardamos max COLUMNS en r3
+			mul r12, r1, r3				@;r12 = fila * COLUMNS
 			.L_ColRecomb2:
-				mov r3, #COLUMNS			@; r3 = COLUMNS
-				mul r12, r1, r3				@; r12 = index files * COLUMNS
-				add r6, r12, r2				@; preparamos puntero (i*COLUMNS +j)
-				ldrb r3, [r8, r6]			@; r3 = valor casilla (r1, r2) de mat_recomb2
-				mov r0, r3					@; copiamos en r0 el contenido de r3 para no perderlo
-				and r0, #0x07	  			@; procesamos los bits 2..0 del contenido de r0 (R1,R2)
-				tst r0, #0x07
+				add r6, r12, r2				@; preparamos puntero ((j*COLUMNS)+i)
+				ldrb r3, [r4, r6]			@; r3 = contenido mat_joc[r1][r2]
+				
+				mov r5, r3					@; copiamos en r5 el contenido de r3 para no perderlo
+				and r5, #0x07	  			@; procesamos los bits 2..0 del contenido de r5 (R1,R2)
+				tst r5, #0x07
 				beq .L_FiRecomb2			@; si el codigo es 0, 8 o 16, pasamos al siguiente
 				b .L_Random				
 				mov r9, #0					@; inicializamos el contador de interaciones
@@ -217,32 +220,32 @@ recombina_elementos:
 				mov r0, #COLUMNS*ROWS
 				bl mod_random				@; numero aleatorio de la matriz
 				mov r10, r0
-				ldrb r0, [r7, r10]			@; r0 = valor de mat_recomb1 de la casilla aleatoria
+				ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
 				
 				add r9, #1					@; incrementamos el contador de iteraciones maximas
-				cmp r9, #2000				@; maximo de iteraciones = 2000 
+				cmp r9, #2000	@; MAX_ITERACIONES 
 				beq .L_FINAL				@; terminamos el programa para evitar bucles infinitos
-				cmp r0, #0					@; comparamos con un elemento ya usado
+				cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
 				beq .L_Random				@; si esta usado repetimos proceso de random
 				
-				add r0, r3					@; a�adimos random al codigo base
-				strb r0, [r8, r6]			@; cargamos valor random (r0) en mat_recomb2 en posicion r6
+				strb r5, [r8, r6]			@; cargamos valor (r5) en mat_recomb2
 				mov r0, r8					@; direccion base de la matriz
 				mov r11, r3					@; guardamos el valor de r3 en r11
 				mov r3, #2					@; direccion 2 para cuenta_repeticiones
 				bl cuenta_repeticiones		
-				mov r3, r11					@; recuperamos valor de r3
 				cmp r0, #3					@; si r0>=3 tenemos secuencia
-				bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
+				bge .L_Random				@; repetimos proceso para evitar secuencias
 				mov r0, r8					@; direccion base de la matriz
-				mov r11, r3					@; guardamos el valor de r3 en r11
 				mov r3, #3					@; direccion 3 para cuenta_repeticiones
 				bl cuenta_repeticiones		
-				mov r3, r11					@; recuperamos valor de r3
 				cmp r0, #3					@; si r0>=3 tenemos secuencia
 				bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
+				
+				
+				@;add r5, @;FALTA AÑADIR EL POSIBLE CODIGO DE GELATINA 
 				mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
-				strb r3, [r7, r10]			@; sino hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
+				strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
+				mov r3, r11					@; recuperamos valor de r3
 
 		.L_FiRecomb2:
 			add r6, #1					@; avanza posicion
@@ -274,6 +277,7 @@ recombina_elementos:
 		add r1, #1					@; avanza fila
 		cmp r1, #ROWS				@; miramos si estamos en final columna
 		blo .L_buclefilasFIN		@; avanza al siguiente elemento
+
 		pop {r0-r12, pc}
 
 

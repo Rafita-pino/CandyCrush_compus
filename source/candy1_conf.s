@@ -14,7 +14,7 @@
 @;						(MAXLEVEL está definida en 'include/candy1_incl.h')
 @;	cada límite debe ser un número entre 3 y 99.
 		.global max_mov
-	max_mov:	.byte 20, 27, 31, 45, 52, 32, 21, 90, 50 
+	max_mov:	.byte 20, 27, 31, 45, 52, 32, 21, 90, 50, 20 
 
 
 @; objetivo de puntos para cada nivel;
@@ -24,7 +24,7 @@
 @;	incrementando a medida que se rompan elementos.
 		.align 1
 		.global pun_obj
-	pun_obj:	.hword -1000, -830, -500, 0, -240, -500, -200, -900, 0
+	pun_obj:	.hword -1000, -830, -500, 0, -240, -500, -200, -900, 0, 0
 
 
 
