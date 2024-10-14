@@ -455,9 +455,14 @@ int main(void)
 	do							// bucle principal de pruebas
 	{
 		copia_matriz(matrix, mapas[level]);	// sustituye a inicializa_matriz()
-		escribe_matriz_testing(matrix);
-		if (hay_secuencia(matrix))			// si hay secuencias
+		escribe_matriz(matrix);
+		if (hay_secuencia(matrix))	// si hay secuencias
+		{			
 			printf("\x1b[39m\x1b[3;0H hay secuencia: SI");
+			retardo(50);
+			elimina_secuencias(matrix, mat_mar);
+			escribe_matriz(mat_mar);
+		}
 		else
 			printf("\x1b[39m\x1b[3;0H hay secuencia: NO");
 		retardo(3);
