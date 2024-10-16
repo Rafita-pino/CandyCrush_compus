@@ -33,21 +33,21 @@
 @;		R5 = número de columnes
 @;		R6 = número de files
 @;		R7 = casella actual del recorregut
-@;		R8 = auxiliar casella horitzontal
+@;		R8 = auxiliar 
 @;		R9 = auxiliar columnes
-@;		R10 = auxiliar casella vertical
-@;		R11 = auxiliar
+@;		R10 = auxiliar casella horitzontal
+@;		R11 = auxiliar casella vertical
 
 	.global hay_combinacion
 hay_combinacion:
 	push {r1-r11, lr}
 	
-		mov r4, r0 @; r4 = direcció base de la matriu de joc
-		mov r1, #0 @; r1 = index de files
-		mov r2, #0 @; r2 = index de columnes
-		mov r3, #0 @; r3 = index de desplaçament
-		mov r5, #COLUMNS
-		mov r6, #ROWS
+		mov r1, #0 			@; r1 = index de files
+		mov r2, #0 			@; r2 = index de columnes
+		mov r3, #0 			@; r3 = index de desplaçament
+		mov r4, r0 			@; r4 = direcció base de la matriu de joc
+		mov r5, #COLUMNS	@; r5 = columnes
+		mov r6, #ROWS		@; r6 = files
 		
 		b .Lif_es_valid
 		
@@ -56,83 +56,83 @@ hay_combinacion:
 			
 			.Lif_es_valid:
 				ldrb r7, [r4, r3] 	@; r7 = casella actual
-				and r11, r7, #0x07
-				cmp r11, #0x07		@; si r7 es un bloc solid o un forat no es valid
+				and r8, r7, #0x07
+				cmp r8, #0x07		@; si r7 es un bloc solid o un forat no es valid
 				beq .Lendwhile
-				cmp r11, #0x00		@; si r7 es un bloc buit no es valid
+				cmp r8, #0x00		@; si r7 es un bloc buit no es valid
 				beq .Lendwhile
 			.Lendif_es_valid:
 		
 			.Lif_ultima_columna:
-				sub r9, r5, #1
-				cmp r2, r9
+				sub r9, r5, #1		@; r9 = penúltima columna
+				cmp r2, r9			@; si encara no estem a la última posició comprovem si és l'ulima fila
 				bge .Lif_es_ultima_fila
 			.Lendif_ultima_columna:
 			
 			.Lif_igual_posterior_horitzontal:
-				add r3, #1 @; r3 = r3 + 1
-				ldrb r8, [r4, r3] @; r8 = casilla posterior horizontal
-				sub r3, #1
-				cmp r7, r8
+				add r3, #1 			@; r3++
+				ldrb r10, [r4, r3] 	@; r10 = casella posterior horizontal
+				sub r3, #1			@; r3--
+				cmp r7, r10			@; si casella actual i post. horitzontal són iguals comprovem si estem a la ult. fila
 				beq .Lif_es_ultima_fila
 			.Lendif_igual_posterior_horitzontal:
 
 			.Lif_posterior_horitzontal_valida:
-				and r11, r8, #0x07
-				cmp r11, #0x07
-				beq .Lif_es_ultima_fila
-				cmp r11, #0x00
+				and r8, r10, #0x07
+				cmp r8, #0x07		@; si r10 es un bloc solid o un forat no es valid
+				beq .Lif_es_ultima_fila	
+				cmp r8, #0x00		@; si r10 es un bloc buit no es valid
 				beq .Lif_es_ultima_fila
 			.Lendif_posterior_horitzontal_valida:
 			
-			@; Intercanvi horitzontal
-				strb r8, [r4, r3]
+			@; fem un intercanvi horitzontal
+				strb r10, [r4, r3]
 				add r3, #1
 				strb r7, [r4, r3]
 				sub r3, #1
 				
-			@; Comprovar primera casella
+			@; comprovem si hi ha una combinació a la primera casella
 				bl detecta_orientacion
 				cmp r0, #6
-				bne .Lif_sequencia_trobada_horitzontal
+				bne .Lif_sequencia_horitzontal
 				
-			@; Comprovar segona casella
+			@; comprovem si hi ha una combinació a la segona casella
 				add r2, #1
 				bl detecta_orientacion
 				sub r2, #1
 				cmp r0, #6
-				bne .Lif_sequencia_trobada_horitzontal
+				bne .Lif_sequencia_horitzontal
 				
-			@; Desfer intercanvi horitzontal
+			@; desfem l'intercanvi horitzontal
 				strb r7, [r4, r3]
 				add r3, #1
-				strb r8, [r4, r3]
+				strb r10, [r4, r3]
 				sub r3, #1
 			
 			.Lif_es_ultima_fila:
-				sub r9, r6, #1 @; r9 = files - 1
+				sub r9, r6, #1 		@; r9 = files - 1
 				cmp r1, r9
 				bge .Lendwhile
 			.Lendif_es_ultima_fila:
 			
 			.Lif_posterior_vertical_igual:
-				add r3, r5 @; r3 = r3 + columnes
-				ldrb r10, [r4, r3] @; r10 = casilla posterior vertical
+				add r3, r5 			@; r3 = r3 + columnes
+				ldrb r11, [r4, r3] 	@; r11 = casilla posterior vertical
 				sub r3, r5
-				cmp r7, r10
+				cmp r7, r11
 				beq .Lendwhile
 			.Lendif_posterior_vertical_igual:
 			
 			.Lif_posterior_vertical_valida:
-				and r11, r10, #0x07
-				cmp r11, #0x07
+				and r8, r11, #0x07
+				cmp r8, #0x07
 				beq .Lendwhile
-				cmp r11, #0x00
+				cmp r8, #0x00
 				beq .Lendwhile
 			.Lendif_posterior_vertical_valida:
 			
 			@; Intercanvi vertical
-				strb r10, [r4, r3]
+				strb r11, [r4, r3]
 				add r3, r5
 				strb r7, [r4, r3]
 				sub r3, r5 @; r3 = r3 - columnes
@@ -141,7 +141,7 @@ hay_combinacion:
 			@; Comprovar primera casella
 				bl detecta_orientacion
 				cmp r0, #6
-				bne .Lif_sequencia_trobada_vertical
+				bne .Lif_sequencia_vertical
 				
 				
 			@; Comprovar segona casella
@@ -149,36 +149,36 @@ hay_combinacion:
 				bl detecta_orientacion
 				sub r1, #1
 				cmp r0, #6
-				bne .Lif_sequencia_trobada_vertical
+				bne .Lif_sequencia_vertical
 				
 			@; Desfer intercanvi vertical
 				strb r7, [r4, r3]
 				add r3, r5 @; r3 = r3 + columnes
-				strb r10, [r4, r3]
+				strb r11, [r4, r3]
 				sub r3, r5 @; r3 = r3 - columnes
 			b .Lendwhile
 			
-			.Lif_sequencia_trobada_horitzontal:
+			.Lif_sequencia_horitzontal:
 				@; Desfer intercanvi horitzontal
 				strb r7, [r4, r3]
 				add r3, #1
-				strb r8, [r4, r3]
+				strb r10, [r4, r3]
 				sub r3, #1
 				
 				mov r0, #1
 				b .Lfi
-			.Lifend_sequencia_trobada_horitzontal:
+			.Lifend_sequencia_horitzontal:
 			
-			.Lif_sequencia_trobada_vertical:
+			.Lif_sequencia_vertical:
 				@; Desfer intercanvi vertical
 				strb r7, [r4, r3]
 				add r3, r5 @; r3 = r3 + columnes
-				strb r10, [r4, r3]
+				strb r11, [r4, r3]
 				sub r3, r5
 				
 				mov r0, #1
 				b .Lfi
-			.Lendif_sequencia_trobada_horitzontal:
+			.Lendif_sequencia_horitzontal:
 			
 		.Lendwhile:
 		mov r0, #0
@@ -217,13 +217,235 @@ hay_combinacion:
 @;		R0 = dirección base de la matriz de juego
 @;		R1 = dirección del vector de posiciones (unsigned char *), donde se
 @;				guardarán las coordenadas (x1,y1,x2,y2,x3,y3), consecutivamente.
+@;	Resultado:
+@;		R2 = index de les columnes
+@;		R3 = auxiliar
+@;		R4 = direcció base de la matriu de joc
+@;		R5 = direcció del vector de les posicions
+@;		R6 = index de desplaçament
+@;		R7 = index fila*columnes
+@;		R8 = auxiliar 
+@;		R9 = auxiliar casella horitzontal
+@;		R10 = auxiliar 
+@;		R11 = files
+@; 		R12 = columnes
 
 	.global sugiere_combinacion
 sugiere_combinacion:
-		push {lr}
+		push {r2-r12, lr}
 		
+			mov r4, r0	@; r4 = direcció base de la matriu
+			mov r5, r1	@; r5 = auxiliar que guarda r1
+			mov r6, #0	@; r6 = index de desplaçament
+			mov r11, #ROWS
+			mov r12, #COLUMNS
+			
+			.Lindex_aleatori:
+				mov r0, r11
+				bl mod_random
+				mov r1, r0	@; r1 = fila aleatoria
+				
+				mov r0, r12
+				bl mod_random
+				mov r2, r0 @; r2 = columna aleatoria
+				
+				mul r7, r1, r12	@; r7 = index fila * columnes
+				add r6, r7, r2	@; r6 = r7 + index columna
+				
+			.Lendindex_aleatori:
+			
+			.Lwhile2:
+			
+				.Lif_actual_valida:
+					ldrb r8, [r4, r6]	@; r8 = casella actual
+					and r3, r8, #0x07
+					cmp r3, #0x07
+					beq .Lindex
+					cmp r3, #0x00
+					beq .Lindex
+				.Lendif_actual_valida:
+				
+				.Lif_ultima_columna2:
+					sub r7, r12, #1
+					cmp r2, r7
+					bge .Lif_ultima_fila
+				.Lendif_ultima_columna2:
+				
+				.Lif_posterior_horizontal_igual:
+					add r6, #1
+					ldrb r9, [r4, r6]	@; r9 = casilla posterior horizontal
+					sub r6, #1
+					cmp r8, r9
+					beq .Lif_ultima_fila
+				.Lendif_posterior_horizontal_igual:
+				
+				.Lif_posterior_horitzontal_valida2:
+					and r3, r9, #0x07
+					cmp r3, #0x07
+					beq .Lif_ultima_fila
+					cmp r3, #0x00
+					beq .Lif_ultima_fila
+				.Lendif_posterior_horitzontal_valida2:
+				
+				.Lintercanvi_horizontal:
+					add r6, #1
+					strb r8, [r4, r6]
+					sub r6, #1
+					strb r9, [r4, r6]
+				.Lendintecanvi_horizontal:
+				
+				.Lcomprovar_horizontal:
+					@; Primera casilla
+					bl detecta_orientacion
+					mov r3, r0	@; r3 = c.ori
+					mov r10, r4	@; r10 = auxiliar que guarda r4
+					mov r4, #0	@; r4 = c.p.i
+					cmp r3, #6
+					bne .Lsugerencia_horizontal
+					mov r4, r10	@; r4 vuelve a su valor
+					
+					@; Segunda casilla
+					add r2, #1	@; índice columna++
+					bl detecta_orientacion
+					mov r3, r0	@; r3 = c.ori
+					mov r10, r4	@; r10 = auxiliar que guarda r4
+					mov r4, #1	@; r4 = c.p.i
+					cmp r3, #6
+					bne .Lsugerencia_horizontal
+					mov r4, r10	@; r4 vuelve a su valor
+					sub r2, #1	@; índice columna--
+				.Lendcomprovar_horizontal:
+				
+				.Ldesfer_intercanvi_horizontal:
+					add r6, #1
+					strb r9, [r4, r6]
+					sub r6, #1
+					strb r8, [r4, r6]
+				.Lenddesfer_intercanvi_horizontal:
+				
+				.Lif_ultima_fila:
+					sub r7, r11, #1	@; r7 = filas - 1
+					cmp r1, r7
+					bge .Lindex
+				.Lendif_ultima_fila:
+				
+				.Lif_posterior_vertical_igual2:
+					add r6, r12		@; r6 = desplazamiento + columnas
+					ldrb r9, [r4, r6]	@; r9 = casilla posterior vertical
+					sub r6, r12
+					cmp r8, r9
+					beq .Lindex
+				.Lendif_posterior_vertical_igual2:
+				
+				.Lposterior_vertical_valida:
+					and r3, r9, #0x07
+					cmp r3, #0x07
+					beq .Lindex
+					cmp r3, #0x00
+					beq .Lindex
+				.Lendposterior_vertical_valida:
+				
+				.Lintercambio_verticalSC:
+					add r6, r12	@; r6 = desplazamiento + columnas
+					strb r8, [r4, r6]
+					sub r6, r12
+					strb r9, [r4, r6]
+				.Lendintercambio_verticalSC:
+				
+				.Lcomprovar_vertical:
+					@; Primera casilla
+					bl detecta_orientacion
+					mov r3, r0	@; r3 = c.ori
+					mov r10, r4	@; r10 = auxiliar que guarda r4
+					mov r4, #2	@; r4 = c.p.i
+					cmp r3, #6
+					bne .Lsugerencia_vertical
+					mov r4, r10	@; r4 vuelve a su valor
+					
+					@; Segunda casilla
+					add r1, #1	@; índice fila++
+					bl detecta_orientacion
+					mov r3, r0	@; r3 = c.ori
+					mov r10, r4	@; r10 = auxiliar que guarda r4
+					mov r4, #3	@; r4 = c.p.i
+					cmp r3, #6
+					bne .Lsugerencia_vertical
+					mov r4, r10	@; r4 vuelve a su valor
+					sub r1, #1	@; índice fila--
+				.Lendcomprovar_vertical:
+				
+				.Ldesfer_intercanvi_vertical:
+					add r6, r12	@; r6 = desplazamiento + columnas
+					strb r9, [r4, r6]
+					sub r6, r12
+					strb r8, [r4, r6]
+				.Lenddesfer_intercanvi_vertical:
+				
+				b .Lindex
+				
+				.Lsugerencia_vertical:
+					mov r0, r5	@; r0 = direccion vector
+					bl genera_posiciones
+					mov r4, r10
+					
+					@; Deshacer intercambio
+					add r6, r12	@; r6 = desplazamiento + columnas
+					strb r9, [r4, r6]
+					sub r6, r12
+					strb r8, [r4, r6]
+					b .Lendwhile
+				.Lendsugerencia_vertical:
+				
+				.Lsugerencia_horizontal:
+					mov r0, r5	@; r0 = direccion vector
+					bl genera_posiciones
+					mov r4, r10
+					
+					
+					@; Deshacer intercambio
+					add r6, #1
+					strb r9, [r4, r6]
+					sub r6, #1
+					strb r8, [r4, r6]
+					b .Lendwhile
+				.Lendgenerar_sugerencia_horizontal:
+				
+				.Lindex:
+					mul r7, r11, r12	@; r7 = filas * columnas
+					sub r7, #1
+					cmp r6, r7
+					bge .Lreiniciar
+					
+					add r2, #1
+					add r6, #1
+					
+					sub r7, r12, #1		@; r7 = columnas - 1
+					cmp r2, r7
+					ble .Lwhile
+					
+					mov r2, #0
+					
+					sub r7, r11, #1		@; r7 = filas - 1
+					cmp r1, r7
+					bge .Lreiniciar
+					
+					add r1, #1	@; índice fila++
+					b .Lwhile
+					
+					.Lreiniciar:
+						mov r1, #0	@; fila = 0
+						mov r2, #0	@; columna = 0
+						mov r6, #0	@; desplazamiento = 0
+						b .Lwhile
+					.Lendreiniciar:
+				.Lendindex:
+				
+				.Lendwhile2:
+			
+			mov r1, r0 @; r1 = dirección vector
+			mov r0, r4 @; r0 = dirección matriz
 		
-		pop {pc}
+		pop {r2-r12, pc}
 
 
 
