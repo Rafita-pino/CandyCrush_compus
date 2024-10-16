@@ -38,7 +38,7 @@
 
 	.global hay_combinacion
 hay_combinacion:
-	push {r1-r12, lr}
+	push {r1-r11, lr}
 	
 		mov r4, r0 @; r4 = direcció base de la matriu de joc
 		mov r1, #0 @; r1 = index de files
@@ -90,13 +90,13 @@ hay_combinacion:
 				sub r3, #1
 				
 			@; Comprovar primera casella
-				bl detectar_orientacion
+				bl detecta_orientacion
 				cmp r0, #6
 				bne .Lif_sequencia_trobada_horitzontal
 				
 			@; Comprovar segona casella
 				add r2, #1
-				bl detectar_orientacion
+				bl detecta_orientacion
 				sub r2, #1
 				cmp r0, #6
 				bne .Lif_sequencia_trobada_horitzontal
@@ -137,14 +137,14 @@ hay_combinacion:
 				
 				
 			@; Comprovar primera casella
-				bl detectar_orientacion
+				bl detecta_orientacion
 				cmp r0, #6
 				bne .Lif_sequencia_trobada_vertical
 				
 				
 			@; Comprovar segona casella
 				add r1, #1
-				bl detectar_orientacion
+				bl detecta_orientacion
 				sub r1, #1
 				cmp r0, #6
 				bne .Lif_sequencia_trobada_vertical
@@ -185,7 +185,7 @@ hay_combinacion:
 		
 		sub r9, r5, #1	@; r9 = columnes - 1
 		cmp r2, r9
-		ble .Lif_actual_es_valida
+		ble .Lif_es_valid
 		
 		mov r2, #0
 		
@@ -194,7 +194,7 @@ hay_combinacion:
 		blt .Lwhile
 		
 	.Lfi:
-		pop {r1-r12, pc}
+		pop {r1-r11, pc}
 
 
 
