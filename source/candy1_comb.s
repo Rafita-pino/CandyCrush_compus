@@ -33,7 +33,9 @@
 @;		R5 = número de columnes
 @;		R6 = número de files
 @;		R7 = casella actual del recorregut
+@;		R8 = auxiliar casella horitzontal
 @;		R9 = auxiliar columnes
+@;		R10 = auxiliar casella vertical
 @;		R11 = auxiliar
 
 	.global hay_combinacion
@@ -215,6 +217,7 @@ hay_combinacion:
 @;		R0 = dirección base de la matriz de juego
 @;		R1 = dirección del vector de posiciones (unsigned char *), donde se
 @;				guardarán las coordenadas (x1,y1,x2,y2,x3,y3), consecutivamente.
+
 	.global sugiere_combinacion
 sugiere_combinacion:
 		push {lr}
