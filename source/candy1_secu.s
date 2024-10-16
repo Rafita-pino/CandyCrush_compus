@@ -72,7 +72,7 @@ hay_secuencia:
 						@; Forat (15)
 						@; No utilitzat (23)
 						
-					and r5, #0x07				@; filtrar els bits 2..0 (3 bits baixos)
+					@;and r5, #0x07				@; filtrar els bits 2..0 (3 bits baixos)
 					tst r5, #0x07				@; FZ true si 2..0 son 0
 					beq .Lignore				@; ignorar si espai buit, gel.s vacia, gel.d. vacia
 					cmp r5, #0x07				@; mirar si bits 2..0 son tots 1
