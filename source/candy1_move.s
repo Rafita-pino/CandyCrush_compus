@@ -151,10 +151,21 @@ cuenta_repeticiones:
 @;				quedar movimientos pendientes; 0 si no ha movido nada 
 	.global baja_elementos
 baja_elementos:
-		push {lr}
+		push {r4, lr}
+		mov  r4, r0				@;r4 = dir. matriu joc
+	
+		bl baja_verticales 
+		cmp r0, #1				@;Hi ha hagut moviment?
+		beq .Lmoviment			@;Si hi ha hagut moviment, ACABAR
 		
+		bl baja_laterales		@;Sino, intentar baixar laterals
+		cmp r0, #1				@;Hi ha hagut moviment?
+		beq .Lmoviment			@;@;Si hi ha hagut moviment, ACABAR
 		
-		pop {pc}
+		mov r0, #0				@;Asegurar 0 moviments
+		
+	.Lmoviment:					@;Hi han hagut moviments (r0 = 1)
+		pop {r4, pc}
 
 
 
@@ -171,7 +182,30 @@ baja_elementos:
 @;		R0 = 1 indica que se ha realizado algún movimiento; 0 si no ha movido nada  
 baja_verticales:
 		push {lr}
+		mov r0, #0				@;Indicador moviments a 0
+		mov r5, #COLUMNS		@;r5 numero columnes
+		mov r6, #ROWS			@;r6 numero de files
 		
+		sub r6, #1				@;ajustament fila [0..8]
+	
+	.Lbucle_filas:
+		mov r7, r5				@;r7 = index columnes
+	.Lbucle_columnas:
+		cmp r7, #0				@;tota la fila recorreguda?
+		beq .Lpuja_fila			@;sí, seguent fila
+		
+		sub r7, #1
+		mla r1, r6, r5, r7		@;r1 = fila*num_COL+col
+		add r1, r4				@;R1 apunta al element (f,c) de mat[][]->r1+dir.base
+		ldrb r2, [r1]			@;r2 = valor de la casella
+		
+		and r2, #7				@;rentat de gelatines
+		cmp r2, #0				@;casella buida?
+		bne .Lbucle_columnas	@;Sino, seguent columna
+		
+		
+	
+	.Lpuja_fila:
 		
 		pop {pc}
 
