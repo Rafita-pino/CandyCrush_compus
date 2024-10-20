@@ -151,7 +151,7 @@ recombina_elementos:
 				add r6, r12, r2				@; preparamos puntero ((j*COLUMNS)+i)
 				ldrb r3, [r4, r6]			@; r3 = contenido mat_joc[r1][r2]
 				cmp r3, #0					@; comparamos con vacio (0)
-				beq .L_copia2				@; lo copiamos directamente a mat_recomb2
+				beq .L_copia				@; lo copiamos directamente a mat_recomb2
 				mov r5, r3					@; copiamos el mat_joc[r1][r2] en r5 para no perderlo
 				and r5, #0x07				@; mascara para bits 2..0
 				cmp r5, #0x07				@; comparamos con bloque solido (7) i con hueco (15) bits 2..0 = 111
@@ -179,7 +179,7 @@ recombina_elementos:
 					sub r5, r3, #16				@; r5 = elemento doble (r5 = gel.doble - 16)
 					strb r5, [r7, r6]			@; guardamos en mat_recomb1 (misma posicion)				
 					b .L_FiMatJoc				@; final 
-				.L_copia:		@; bule para copiar en mat_recomb1 
+				.L_copia:		@; bule para copiar en mat_recomb1 y mat_recomb2
 					strb r3, [r7, r6]			@; guardamos valor en mat_recomb1 en la posicion actual
 					strb r3, [r8, r6]			@; guardamos valor exacto en a mat_recomb2 (misma posicion)
 					b .L_FiMatJoc				@; final
@@ -241,11 +241,12 @@ recombina_elementos:
 				cmp r0, #3					@; si r0>=3 tenemos secuencia
 				bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
 				
-				
-				@;add r5, @;FALTA AÑADIR EL POSIBLE CODIGO DE GELATINA 
+				mov r3, r11					@; recuperamos valor de r3
+				add r5, r5, r3				@; añadimos posible codigo de gelatina de mat_joc
+				strb r5, [r8 , r6]			@; subimos a mat_recomb2 el codigo final
 				mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
 				strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
-				mov r3, r11					@; recuperamos valor de r3
+				
 
 		.L_FiRecomb2:
 			add r6, #1					@; avanza posicion

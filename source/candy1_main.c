@@ -454,11 +454,11 @@ int main(void)
 	consoleDemoInit();			// inicialización de pantalla de texto
 	printf("candyNDS (prueba tarea 1A)\n");
 	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
+	inicializa_matriz(matrix, level);
+	escribe_matriz_testing(matrix);
 
 	do							// bucle principal de pruebas
 	{
-		inicializa_matriz(matrix, level);
-		escribe_matriz_testing(matrix);
 		retardo(3);
 		printf("\x1b[39m\x1b[3;8H (pulse A o B)");
 		do
@@ -467,10 +467,16 @@ int main(void)
 		} while (!(keysHeld() & (KEY_A | KEY_B)));
 		printf("\x1b[3;8H              ");
 		retardo(3);
-		if (keysHeld() & KEY_A)			// si pulsa 'A',
+		if (keysHeld() & KEY_B)			// si pulsa 'A',
+		{								// pasa a siguiente nivel
+			recombina_elementos(matrix);				// 1B
+		}
+		else if (keysHeld() & KEY_A)			// si pulsa 'A',
 		{								// pasa a siguiente nivel
 			level = (level + 1) % MAXLEVEL;
 			printf("\x1b[38m\x1b[1;8H %d", level);
+			inicializa_matriz(matrix, level);
+			escribe_matriz_testing(matrix);
 		}
 	} while (1);
 	return(0);
