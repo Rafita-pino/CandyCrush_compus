@@ -181,7 +181,7 @@ baja_elementos:
 @;	Resultado:
 @;		R0 = 1 indica que se ha realizado algún movimiento; 0 si no ha movido nada  
 baja_verticales:
-		push {lr}
+		push {r1-r3, r5-r11, lr}
 		mov r0, #0				@;Indicador moviments a 0
 		mov r5, #COLUMNS		@;r5 numero columnes
 		mov r6, #ROWS			@;r6 numero de files
@@ -248,7 +248,7 @@ baja_verticales:
 		sub r6, #1				@;Decrement (adalt) fila
 		cmp r6, #0				@;Comprovar si s'han processat totes les files
 		bge	.Lbucle_columnas	@;Sino, continuar bucle
-		pop {pc}
+		pop {r1-r3, r5-r11, pc}
 
 
 @; baja_laterales(mat): rutina para bajar elementos hacia las posiciones vacías

@@ -446,58 +446,85 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 /* ---------------------------------------------------------------- */
 /* candy1_main.c : función principal main() para test de tarea 1E 	*/
 /* ---------------------------------------------------------------- */
-#define NUMTESTS 14
-short nmap[] = {4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 8};
-short posX[] = {0, 0, 0, 0, 4, 4, 4, 0, 0, 5, 4, 1, 1, 1};
-short posY[] = {2, 2, 2, 2, 4, 4, 4, 0, 0, 0, 4, 3, 3, 5};
-short cori[] = {0, 1, 2, 3, 0, 1, 2, 0, 3, 0, 0, 1, 3, 0};
-short resp[] = {1, 2, 1, 1, 2, 1, 1, 3, 1, 3, 5, 2, 4, 2};
+#define NUMTESTS 9
+short nmap[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+//short posX[] = {0, 0, 0, 0, 4, 4, 4, 0, 0, 5, 4, 1, 1, 1};
+//short posY[] = {2, 2, 2, 2, 4, 4, 4, 0, 0, 0, 4, 3, 3, 5};
+//short cori[] = {0, 1, 2, 3, 0, 1, 2, 0, 3, 0, 0, 1, 3, 0};
+//short resp[] = {1, 2, 1, 1, 2, 1, 1, 3, 1, 3, 5, 2, 4, 2};
 
 int main(void)
 {
-	unsigned char level;			// nivel del juego
-	unsigned char ntest = 0;		// número de test
-	unsigned char result;			// resultado de cuenta_repeticiones()
+    unsigned char level;          //nivell joc
+    unsigned char ntest = 0;      //nombre test
+    bool original_viewed = false;  //flag, controla repr. matriu original
+    char matrix_copy[ROWS][COLUMNS];  //per copiar la mat. original
 
-	consoleDemoInit();			// inicialización de pantalla de texto
-	printf("candyNDS (prueba tarea 1E)\n");
-	level = nmap[0];
-	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
-	copia_matriz(matrix, mapas[level]);
-	escribe_matriz_testing(matrix);
-	do							// bucle principal de pruebas
-	{
-		printf("\x1b[39m\x1b[2;0H test %d: posXY (%d, %d), c.ori %d",
-									ntest, posX[ntest], posY[ntest], cori[ntest]);
-		printf("\x1b[39m\x1b[3;0H resultado esperado: %d", resp[ntest]);
-		
-		result = cuenta_repeticiones(matrix, posY[ntest], posX[ntest], cori[ntest]);
-		
-		printf("\x1b[39m\x1b[4;0H resultado obtenido: %d", result);
-		retardo(3);
-		printf("\x1b[38m\x1b[5;19H (pulse A/B)");
-		do
-		{	swiWaitForVBlank();
-			scanKeys();					// esperar pulsación tecla 'A' o 'B'
-		} while (!(keysHeld() & (KEY_A | KEY_B)));
-		printf("\x1b[2;0H                               ");
-		printf("\x1b[3;0H                               ");
-		printf("\x1b[4;0H                               ");
-		printf("\x1b[38m\x1b[5;19H            ");
-		retardo(3);
-		if (keysHeld() & KEY_A)		// si pulsa 'A',
-		{
-			ntest++;				// siguiente test
-			if ((ntest < NUMTESTS) && (nmap[ntest] != level))
-			{				// si número de mapa del siguiente test diferente
-				level = nmap[ntest];		// del número de mapa actual,
-				printf("\x1b[38m\x1b[1;8H %d", level); // cambiar el mapa actual
-				copia_matriz(matrix, mapas[level]);
-				escribe_matriz_testing(matrix);
-			}
-		}
-	} while (ntest < NUMTESTS);		// bucle de pruebas
-	printf("\x1b[38m\x1b[5;19H (fin tests)");
-	do { swiWaitForVBlank(); } while(1);	// bucle infinito
-	return(0);
+    consoleDemoInit();            // inicialització de pantalla de text
+
+    //carregar nivell inicial
+    level = nmap[0];
+    printf("\x1b[38m\x1b[0;0H Nivell: %d", level);
+
+    //inicialitzo matriu joc i faig una copia
+    copia_matriz(matrix, mapas[level]);
+    copia_matriz(matrix_copy, matrix);  
+    escribe_matriz_testing(matrix); 
+
+    do  // bucle principal
+    {
+        printf("\x1b[39m\x1b[1;0H Test %d: Nivell %d", ntest, nmap[ntest]);
+
+        //instruccions per pantalla
+        printf("\x1b[38m\x1b[2;0H (A:aplica 1F, B:mat. orig, Right:next)");
+
+        //wait a tecles
+        do
+        {
+            swiWaitForVBlank();
+            scanKeys();
+        } while (!(keysHeld() & (KEY_A | KEY_B | KEY_RIGHT)));
+
+        //'A', aplicar baja_elementos
+        if (keysHeld() & KEY_A)
+        {
+            baja_elementos(matrix);  // Executar rutina
+            escribe_matriz_testing(matrix);
+            original_viewed = true;  // Marca que s'ha aplicat la rutina
+        }
+
+        //'B', mostrar mat. orig.
+        if ((keysHeld() & KEY_B) && original_viewed)
+        {
+            escribe_matriz_testing(matrix_copy);
+        }
+
+        //'Right' next test
+        if (keysHeld() & KEY_RIGHT)
+        {
+            ntest++;  
+			//canviar necessari
+            if ((ntest < NUMTESTS) && (nmap[ntest] != level))
+            {
+                level = nmap[ntest];  //canvi de mapa
+                printf("\x1b[38m\x1b[0;8H %d", level);
+                copia_matriz(matrix, mapas[level]);
+                copia_matriz(matrix_copy, matrix);
+                escribe_matriz_testing(matrix);  //mostrar nova matriu
+                original_viewed = false;  //reset flag -> matriu no vista
+            }
+        }
+
+        //esborrar les línies de text després de cada acció
+        printf("\x1b[1;0H                               ");
+        printf("\x1b[2;0H                               ");
+        retardo(3);  //aplicar retard (visual)
+
+    } while (ntest < NUMTESTS);
+
+    printf("\x1b[38m\x1b[8;0H (fi proves)");
+    do { swiWaitForVBlank(); } while(1);  //bucle joc infinit 
+
+    return 0;
 }
+
