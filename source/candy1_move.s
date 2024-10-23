@@ -191,22 +191,63 @@ baja_verticales:
 	.Lbucle_filas:
 		mov r7, r5				@;r7 = index columnes
 	.Lbucle_columnas:
-		cmp r7, #0				@;tota la fila recorreguda?
-		beq .Lpuja_fila			@;sí, seguent fila
+		sub r7, #1				@;Ajustament columna
+		cmp r7, #0				@;Tota la fila recorreguda?	
+		blt .Lpuja_fila			@;Sí, seguent fila
 		
-		sub r7, #1
 		mla r1, r6, r5, r7		@;r1 = fila*num_COL+col
 		add r1, r4				@;R1 apunta al element (f,c) de mat[][]->r1+dir.base
 		ldrb r2, [r1]			@;r2 = valor de la casella
 		
-		and r2, #7				@;rentat de gelatines
-		cmp r2, #0				@;casella buida?
+		and r2, #7				@;Rentat de gelatines
+		cmp r2, #0				@;Casella buida?
 		bne .Lbucle_columnas	@;Sino, seguent columna
 		
+	.Lbuscar_adalt:
+		mov r8, r6				@;Copiar fila a r8
+	.Lbucle_cerca:
+		sub r8, #1				@;Desp. columna adalt
+		cmp r8, #0				@;Comprovació primera fila
+		blt .Lgenerar_casella	@;Si estem, generar element
+		mla r3, r8, r5, r7		
+		add r3, r4				@;Apuntar a la posició superior
+		ldrb r9, [r3]			@;Càrrega valor a r9
 		
+		and r9, #7				@;Treure mascara element
+		cmp r9, #0				@;Si és una pos. buida, saltar adalt
+		beq .Lbucle_cerca
+		
+		cmp r9, #7				@;Comprovació que no sigui un bloc sòlid
+		beq .Lbucle_columnas	@;Mirar següent columna, no es pot baixar cap
+		
+		ldrb r10, [r1]          @;Cargar valor de la casella actual (buida)
+		and r10, #0x18          @;r10 = gelatina casella buida
+		orr r9, r10             @;Afegir gelatina al element nou
+		strb r9, [r1]           @;Guardar valor
+		
+		ldrb r11, [r3]          @;r11 = valor casella superior
+		and r11, #0x18     		@;Guardar bits gelatina
+		orr r11, #0             @;Borrar valor base (nomès guardo gelatina)
+		strb r11, [r3]          @;Actualitzar memoria amb el valor
+		
+		mov r0, #1              @;Marcar moviment
+		b .Lbucle_columnas
 	
-	.Lpuja_fila:
+	.Lgenerar_casella:
+		mov r0, #6
+		bl mod_random
+		add r0, #1				@;Ajustar valor a [1..6]
+		ldrb r10, [r1]          @;r10 = valor casella buida
+		and r10, #0x18	 	    @;Guardar gelatina casella buida
+		orr r0, r10             @;Afegir gelatina al element nou
+		strb r0, [r1]           @;Actualitzar memoria amb el valor
+		mov r0, #1				@;Marcar moviment
+		b .Lbucle_columnas		@;Següent columna
 		
+	.Lpuja_fila:
+		sub r6, #1				@;Decrement (adalt) fila
+		cmp r6, #0				@;Comprovar si s'han processat totes les files
+		bge	.Lbucle_columnas	@;Sino, continuar bucle
 		pop {pc}
 
 
