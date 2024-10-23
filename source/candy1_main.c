@@ -9,7 +9,7 @@
 	Programador 1: xxx.xxx@estudiants.urv.cat
 	Programador 2: yyy.yyy@estudiants.urv.cat
 	Programador 3: zzz.zzz@estudiants.urv.cat
-	Programador 4: uuu.uuu@estudiants.urv.cat
+	Programador 4: gerard.ros@estudiants.urv.cat
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
@@ -65,7 +65,7 @@ char mat_mar[ROWS][COLUMNS];	// matriz de marcas
 unsigned char pos_sug[6];		// posiciones de una sugerencia de combinación
 
 unsigned int seed32;			// semilla de números aleatorios
-
+int i;
 
 #ifdef TRUCOS
 
@@ -239,181 +239,6 @@ void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
 
 
 
-/* procesa_pulsacion(mat,p,*m,g): procesa la pulsación de la pantalla táctil
-	y, en caso de que se genere alguna secuencia, decrementa el número de
-	movimientos y retorna un código diferente de cero.
-*/
-unsigned char procesa_pulsacion(char mat[][COLUMNS], 
-							short p, unsigned char *m, unsigned char g)
-{
-	unsigned char mX, mY, dX, dY;	// variables de posiciones de intercambio
-	unsigned char result = 0;
-	
-	if (procesa_touchscreen(mat, &mX, &mY, &dX, &dY))
-	{
-		intercambia_posiciones(mat, mX, mY, dX, dY);
-		escribe_matriz(mat);
-		if (hay_secuencia(mat))
-		{
-			(*m)--;				// un movimiento utilizado
-			borra_puntuaciones();
-			result = 1;			// notifica que hay secuencia
-#ifdef TRUCOS
-			guarda_backup(mat, p, *m, g);
-#endif
-		}
-		else						
-		{				// si no se genera secuencia,
-			retardo(3);			// deshace el cambio
-			intercambia_posiciones(mat, mX, mY, dX, dY);
-			escribe_matriz(mat);
-		}
-	}
-	while (keysHeld() & KEY_TOUCH)	// espera liberación
-	{	swiWaitForVBlank();			// pantalla táctil
-		scanKeys();
-	}
-	return(result);
-}
-
-
-#ifdef TRUCOS
-
-/* testing(*est,mat,lev,*p,*m,*g): función para detectar pulsaciones de botones
-	que permiten al programador efectuar determinados trucos de testeo del
-	programa (ver comentarios sobre los trucos al inicio de este fichero);
-	la función puede modificar (por referencia) las variables de información
-	puntos (p), movimientos restantes (m) o gelatinas (g), además de la variable
-	de estado del juego, fijando E_CHECK si debe haber un reinicio de nivel.
-*/
-void testing(unsigned char *est, char mat[][COLUMNS], unsigned char lev,
-							short *p, unsigned char *m, unsigned char *g)
-{
-	if (keysHeld() & KEY_B)
-	{	*p = 0;				// fuerza cambio de nivel (puntos y gelatinas a 0)
-		*g = 0;
-		*est = E_CHECK;
-	}
-	else if (keysHeld() & KEY_START)	
-	{	*m = 0;				// repite nivel (movimientos restantes a 0)
-		*est = E_CHECK;
-	}
-	else if (keysHeld() & KEY_LEFT)	
-	{							// control de backup
-		control_backup();
-		escribe_matriz(mat);
-		actualiza_contadores(lev, *p, *m, *g);
-	}
-}
-
-#endif
-
-
-
-/* procesa_rotura(mat,lev,*p,m,*g): procesa la eliminación de secuencias y
-	actualiza el nuevo valor de puntos y gelatinas (parámetros pasados por
-	referencia); utiliza la variable globla mat_mar[][]; también se pasan
-	los parámetros lev (level) y m (moves) con el fin de llamar a la función
-	de actualización de contadores.
-*/
-void procesa_rotura(char mat[][COLUMNS], unsigned char lev,
-								short *p, unsigned char m, unsigned char *g)
-{
-	elimina_secuencias(mat, mat_mar);
-	escribe_matriz(mat);
-	*p += calcula_puntuaciones(mat_mar);
-	if (*g > 0) *g = cuenta_gelatinas(matrix);
-	actualiza_contadores(lev, *p, m, *g);
-#ifdef TRUCOS
-	guarda_backup(mat, *p, m, *g);
-#endif
-}
-
-
-
-/* procesa_caida(mat,p,m,g): procesa la caída de elementos; la función devuelve
-	un código que representa las siguientes situaciones:
-		PC_FALLING (0):	ha habido caída de algún elemento
-		PC_ENDNOSQ (1):	no ha habido caída y no se han formado nuevas secuencias
-		PC_ENDSEQ  (2):	no ha habido caída y se han formado nuevas secuencias
-*/
-unsigned char procesa_caida(char mat[][COLUMNS],
-								short p, unsigned char m, unsigned char g)
-{
-	unsigned char result = PC_FALLING;
-
-	retardo(3);			// tiempo para ver la bajada
-	if (baja_elementos(mat))
-	{
-		escribe_matriz(mat);
-#ifdef TRUCOS			
-		guarda_backup(mat, p, m, g);
-#endif
-	}
-	else
-	{						// cuando ya no hay más bajadas
-		if (hay_secuencia(matrix))
-		{
-			retardo(3);		// tiempo para ver la secuencia
-			result = PC_ENDSEQ;
-		}
-		else result = PC_ENDNOSQ;
-	}
-	return(result);
-}
-
-
-
-/* comprueba_jugada(mat,*lev,p,m,g): comprueba las posibles situaciones que se
-	pueden generar después de una jugada; la función devuelve un código que
-	representa dichas situaciones:
-		CJ_CONT   (0):	no ha pasado nada especial, seguir jugando en el mismo nivel
-		CJ_LEVEL  (1):	el nivel se ha superado o no, hay que reiniciar nivel actual o siguiente
-		CJ_RCOMB  (2):	se ha producido una recombinación y se han generado nuevas combinaciones
-		CJ_RNOCMB (3):	se ha producido una recombinación pero no hay nuevas combinaciones
-*/
-unsigned char comprueba_jugada(char mat[][COLUMNS], unsigned char *lev,
-								short p, unsigned char m, unsigned char g)
-{
-	unsigned char result = CJ_CONT;
-	
-	if (((p >= 0) && (g == 0)) || (m == 0) || !hay_combinacion(mat))
-	{
-		if ((p >= 0) && (g == 0)) 	printf("\x1b[39m\x1b[6;20H _SUPERADO_");
-		else if (m == 0)			printf("\x1b[39m\x1b[6;20H _REPETIR_");
-		else						printf("\x1b[39m\x1b[6;20H _BARAJAR_");
-		
-		printf("\x1b[39m\x1b[8;20H (pulse A)");
-		while (!(keysHeld() & KEY_A))
-		{	swiWaitForVBlank();
-			scanKeys();						// espera pulsación 'A'
-		}
-		printf("\x1b[6;20H           ");
-		printf("\x1b[8;20H           "); 	// borra mensajes
-		borra_puntuaciones();
-		if (((p >= 0) && (g == 0)) || (m == 0))
-		{
-			if ((p >= 0) && (g == 0))  			// si nivel superado
-				*lev =	(*lev + 1) % MAXLEVEL;	 	// incrementa nivel
-			printf("\x1b[2;8H      ");				// borra puntos anteriores
-			result = CJ_LEVEL;
-		}
-		else					// si no hay combinaciones
-		{
-			recombina_elementos(mat);
-			escribe_matriz(mat);
-			if (!hay_combinacion(mat))  result = CJ_RNOCMB;
-			else						result = CJ_RCOMB;
-#ifdef TRUCOS
-			guarda_backup(mat, p, m, g);
-#endif
-		}
-	}
-	return(result);
-}
-
-
-
 
 /* procesa_sugerencia(mat,lap): según el valor del parámetro lap (número de
 	vertical blanks esperando a que el usuario realice un movimiento), esta
@@ -450,24 +275,34 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 int main(void)
 {
 	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
-	
 	consoleDemoInit();			// inicialización de pantalla de texto
-	printf("candyNDS (prueba tarea 1G)\n");
+	printf("candyNDS (prueba tarea 1G-1H)\n");
 	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
 
 	do							// bucle principal de pruebas
 	{
 		copia_matriz(matrix, mapas[level]);	// sustituye a inicializa_matriz()
 		escribe_matriz_testing(matrix);
-		if (hay_combinacion(matrix))			// si hay combinaciones
+		if (hay_combinacion(matrix)) {			// si hay combinaciones
 			printf("\x1b[39m\x1b[3;0Hhay combinacion: SI");
-		else
+			sugiere_combinacion(matrix, pos_sug);
+			for(int x=0; x<5; x++) {
+				borra_puntuaciones();
+				retardo(5);
+				oculta_elementos(matrix, pos_sug);
+				escribe_matriz_testing(matrix);
+				retardo(5);
+				muestra_elementos(matrix, pos_sug);
+				escribe_matriz_testing(matrix);
+			}
+		} else
 			printf("\x1b[39m\x1b[3;0Hhay combinacion: NO");
 		retardo(3);
 		printf("\x1b[39m\x1b[3;19H (pulse A/B)");
 		do
 		{	swiWaitForVBlank();
 			scanKeys();					// esperar pulsación tecla 'A' o 'B'
+			
 		} while (!(keysHeld() & (KEY_A | KEY_B)));
 		printf("\x1b[3;0H                               ");
 		retardo(3);

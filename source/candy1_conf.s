@@ -38,7 +38,17 @@
 @;		16+:	gelatina doble (a sumarle código de elemento)
 		.global mapas
 	mapas:
+		.byte 0,15,0,15,0,7,0,15,15
+		.byte 0,0,7,0,0,7,0,0,15
+		.byte 10,3,8,1,1,8,3,3,0
+		.byte 10,1,9,0,0,20,3,4,7
+		.byte 17,2,15,15,3,19,4,3,15
+		.byte 3,2,10,0,0,20,0,15,0
+		.byte 2,3,15,0,0,16,0,0,15
+		.byte 0,0,8,0,0,8,0,0,0
+		.byte 0,4,7,0,0,7,0,0,15
 
+		
 	@; mapa 0: todo aleatorio
 		.byte 0,0,0,0,0,0,0,0,0
 		.byte 0,0,0,0,0,0,0,0,0
@@ -82,17 +92,6 @@
 		.byte 0,0,8,8,8,8,0,0,15
 		.byte 0,0,0,0,0,0,0,0,15
 		.byte 0,0,0,0,0,0,0,0,15
-
-	@; mapa 4: gelatinas dobles (+ elementos prefijados)
-		.byte 0,15,0,15,0,7,0,15,15
-		.byte 0,0,7,0,0,7,0,0,15
-		.byte 10,3,8,1,1,8,3,3,0
-		.byte 10,1,9,0,0,20,3,4,7
-		.byte 17,2,15,15,3,19,4,3,15
-		.byte 3,2,10,0,0,20,0,15,0
-		.byte 2,3,15,0,0,16,0,0,15
-		.byte 0,0,8,0,0,8,0,0,0
-		.byte 0,4,7,0,0,7,0,0,15
 
 	@; mapa 5: secuencias en horizontal de 3, 4 y 5 elementos
 		.byte 1,1,1,15,2,2,2,2,7
