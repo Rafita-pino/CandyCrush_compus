@@ -478,7 +478,8 @@ int main(void)
         //instruccions per pantalla
         printf("\x1b[38m\x1b[2;0H (A:aplica 1F, B:mat. orig, Right:next)");
 
-        //wait a tecles
+        //wait a les tecles
+
         do
         {
             swiWaitForVBlank();
@@ -514,7 +515,9 @@ int main(void)
                 original_viewed = false;  //reset flag -> matriu no vista
             }
         }
-
+		//baja_elementos(matrix);
+		//escribe_matriz_testing(matrix);
+		
         //esborrar les línies de text després de cada acció
         printf("\x1b[1;0H                               ");
         printf("\x1b[2;0H                               ");

@@ -247,7 +247,7 @@ baja_verticales:
 	.Lpuja_fila:
 		sub r6, #1				@;Decrement (adalt) fila
 		cmp r6, #0				@;Comprovar si s'han processat totes les files
-		bge	.Lbucle_columnas	@;Sino, continuar bucle
+		bge	.Lbucle_filas		@;Sino, continuar bucle
 		pop {r1-r3, r5-r11, pc}
 
 
