@@ -124,7 +124,7 @@ Par�metros:
 @;		R1 = indice de fila
 @;		R2 = indice de columna
 @;		R3 = valor casilla matriz
-@;		R4 = direccion base de la matriz
+@;		R4 = direccion base de la matriz de juego
 @;		R5 = temporal
 @;		R6 = puntero
 @;		R7 = mat_recomb1
@@ -214,36 +214,41 @@ recombina_elementos:
 				and r5, #0x07	  			@; procesamos los bits 2..0 del contenido de r5 (R1,R2)
 				tst r5, #0x07
 				beq .L_FiRecomb2			@; si el codigo es 0, 8 o 16, pasamos al siguiente
-				b .L_Random				
-				mov r9, #0					@; inicializamos el contador de interaciones
-			.L_Random:
-				mov r0, #COLUMNS*ROWS
-				bl mod_random				@; numero aleatorio de la matriz
-				mov r10, r0
-				ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
+				mov r9, #0					@; inicializamos el contador de interaciones				
 				
-				add r9, #1					@; incrementamos el contador de iteraciones maximas
-				cmp r9, #2000	@; MAX_ITERACIONES 
-				beq .L_FINAL				@; terminamos el programa para evitar bucles infinitos
-				cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
-				beq .L_Random				@; si esta usado repetimos proceso de random
+				.L_Random:
+					mov r0, #COLUMNS*ROWS
+					bl mod_random				@; numero aleatorio de la matriz
+					mov r10, r0
+					ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
+					
+					add r9, #1					@; incrementamos el contador de iteraciones maximas
+					cmp r9, #2000				@; MAX_ITERACIONES 
+					bhs .L_FINAL				@; terminamos el programa para evitar bucles infinitos
+					cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
+					beq .L_Random				@; si esta usado repetimos proceso de random
+					strb r5, [r8, r6]			@; cargamos valor (r5) en mat_recomb2
+					mov r0, r8					@; direccion base de la matriz
+					mov r5, r3					@; guardamos el valor de r3 en r5 (mat_joc)
+					mov r3, #2					@; direccion 2 para cuenta_repeticiones
+					bl cuenta_repeticiones		
+					cmp r0, #3					@; si r0>=3 tenemos secuencia
+					bge .L_Random				@; repetimos proceso para evitar secuencias
+					mov r0, r8					@; direccion base de la matriz
+					mov r3, #3					@; direccion 3 para cuenta_repeticiones
+					bl cuenta_repeticiones		
+					cmp r0, #3					@; si r0>=3 tenemos secuencia
+					bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
 				
-				strb r5, [r8, r6]			@; cargamos valor (r5) en mat_recomb2
-				mov r0, r8					@; direccion base de la matriz
-				mov r11, r3					@; guardamos el valor de r3 en r11
-				mov r3, #2					@; direccion 2 para cuenta_repeticiones
-				bl cuenta_repeticiones		
-				cmp r0, #3					@; si r0>=3 tenemos secuencia
-				bge .L_Random				@; repetimos proceso para evitar secuencias
-				mov r0, r8					@; direccion base de la matriz
-				mov r3, #3					@; direccion 3 para cuenta_repeticiones
-				bl cuenta_repeticiones		
-				cmp r0, #3					@; si r0>=3 tenemos secuencia
-				bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
-				
-				mov r3, r11					@; recuperamos valor de r3
-				add r5, r5, r3				@; añadimos posible codigo de gelatina de mat_joc
-				strb r5, [r8 , r6]			@; subimos a mat_recomb2 el codigo final
+				mov r3, r5					@; recuperamos valor de mat_joc
+				ldrb r11, [r7, r6]			@; cogemos valor de mat_recomb1
+				mov r11, r5					@; valor de mat_joc (para saber si es gelatina o no)
+				and r11, #0x07	  			@; procesamos los bits 2..0 del contenido de r11 
+				tst r11, #0x07
+				moveq r11, r5				@; si es igual (8 o 16) copiamos valor de r5 en r11 otra vez
+				subeq r3, r3, r11			@; restamos al valor anterior (mat_joc) a su posible valor de gelatina (mat_recomb1)
+				addeq r5, r5, r3			@; añadimos posible codigo de gelatina de mat_joc SOLO SI EN R5 TENEMOS 8 O 16
+				strb r5, [r8, r6]			@; subimos a mat_recomb2 el codigo final
 				mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
 				strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
 				
