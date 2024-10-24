@@ -469,7 +469,7 @@ int main(void)
     //inicialitzo matriu joc i faig una copia
     copia_matriz(matrix, mapas[level]);
     copia_matriz(matrix_copy, matrix);  
-    escribe_matriz_testing(matrix); 
+    escribe_matriz(matrix); 
 
     do  // bucle principal
     {
@@ -490,14 +490,14 @@ int main(void)
         if (keysHeld() & KEY_A)
         {
             baja_elementos(matrix);  // Executar rutina
-            escribe_matriz_testing(matrix);
+            escribe_matriz(matrix);
             original_viewed = true;  // Marca que s'ha aplicat la rutina
         }
 
         //'B', mostrar mat. orig.
         if ((keysHeld() & KEY_B) && original_viewed)
         {
-            escribe_matriz_testing(matrix_copy);
+            escribe_matriz(matrix_copy);
         }
 
         //'Right' next test
@@ -511,7 +511,7 @@ int main(void)
                 printf("\x1b[38m\x1b[0;8H %d", level);
                 copia_matriz(matrix, mapas[level]);
                 copia_matriz(matrix_copy, matrix);
-                escribe_matriz_testing(matrix);  //mostrar nova matriu
+                escribe_matriz(matrix);  //mostrar nova matriu
                 original_viewed = false;  //reset flag -> matriu no vista
             }
         }
