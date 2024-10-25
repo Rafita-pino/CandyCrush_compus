@@ -76,7 +76,9 @@ inicializa_matriz:
 				
 			.L_random:
 				mov r0, #6			  @; pasamos rango maximo
-				bl mod_random		  
+				bl mod_random		 
+				tst r0, #0x00
+				addeq r0, #1			@; si es 0, sumamos 1
 				add r3, r7, r0		  @; sumamos al valor inicial el resultado y lo guardamos en r3
 				strb r3, [r4, r6]	  @; subimos a la matriz de juego el resultado para cuenta_repeticiones
 				
@@ -148,7 +150,6 @@ recombina_elementos:
 			mov r3, #COLUMNS			@;guardamos max COLUMNS en r3
 			mul r12, r1, r3				@;r12 = fila * COLUMNS
 			.L_colMatJoc:
-				add r6, r12, r2				@; preparamos puntero ((j*COLUMNS)+i)
 				ldrb r3, [r4, r6]			@; r3 = contenido mat_joc[r1][r2]
 				cmp r3, #0					@; comparamos con vacio (0)
 				beq .L_copia				@; lo copiamos directamente a mat_recomb2
@@ -188,7 +189,7 @@ recombina_elementos:
 					mov r3, #0					@; bloque solido (7), hueco (15), gelatinas vacias (8,16) = 0
 					strb r3, [r7, r6]			@; guardamos en mat_recomb1 un 0 en la posicion del bloque solido/hueco/gel.vacia
 				.L_FiMatJoc:
-				@; siguiente posicion
+				add r6, #1 					@; siguiente posicion
 				add r2, #1					@; avanza columna
 				cmp r2, #COLUMNS			@; miramos si estamos en final de fila
 				blo .L_colMatJoc			@; avanza al siguiente elemento si esta al final de fila
@@ -207,13 +208,15 @@ recombina_elementos:
 			mov r3, #COLUMNS			@;guardamos max COLUMNS en r3
 			mul r12, r1, r3				@;r12 = fila * COLUMNS
 			.L_ColRecomb2:
-				add r6, r12, r2				@; preparamos puntero ((j*COLUMNS)+i)
+			
 				ldrb r3, [r4, r6]			@; r3 = contenido mat_joc[r1][r2]
 				
 				mov r5, r3					@; copiamos en r5 el contenido de r3 para no perderlo
 				and r5, #0x07	  			@; procesamos los bits 2..0 del contenido de r5 (R1,R2)
-				tst r5, #0x07
+				cmp r5, #0x00
 				beq .L_FiRecomb2			@; si el codigo es 0, 8 o 16, pasamos al siguiente
+				cmp r5, #0x07				@; comparamos con bloque solido (7) i con hueco (15) bits 2..0 = 111
+				beq .L_FiRecomb2
 				mov r9, #0					@; inicializamos el contador de interaciones				
 				
 				.L_Random:
@@ -223,12 +226,13 @@ recombina_elementos:
 					ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
 					
 					add r9, #1					@; incrementamos el contador de iteraciones maximas
-					cmp r9, #2000				@; MAX_ITERACIONES 
-					bhs .L_FINAL				@; terminamos el programa para evitar bucles infinitos
+					cmp r9, #2048				@; MAX_ITERACIONES 
+					bhs .L_FiRecomb2			@; volvemos a empezar porque nos hemos quedado en bucle infinito
 					cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
 					beq .L_Random				@; si esta usado repetimos proceso de random
 					strb r5, [r8, r6]			@; cargamos valor (r5) en mat_recomb2
 					mov r0, r8					@; direccion base de la matriz
+					mov r11, r5					@; guardamos en r11 (mat_recomb2)
 					mov r5, r3					@; guardamos el valor de r3 en r5 (mat_joc)
 					mov r3, #2					@; direccion 2 para cuenta_repeticiones
 					bl cuenta_repeticiones		
@@ -240,21 +244,26 @@ recombina_elementos:
 					cmp r0, #3					@; si r0>=3 tenemos secuencia
 					bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
 				
-				mov r3, r5					@; recuperamos valor de mat_joc
-				ldrb r11, [r7, r6]			@; cogemos valor de mat_recomb1
-				mov r11, r5					@; valor de mat_joc (para saber si es gelatina o no)
-				and r11, #0x07	  			@; procesamos los bits 2..0 del contenido de r11 
-				tst r11, #0x07
-				moveq r11, r5				@; si es igual (8 o 16) copiamos valor de r5 en r11 otra vez
-				subeq r3, r3, r11			@; restamos al valor anterior (mat_joc) a su posible valor de gelatina (mat_recomb1)
-				addeq r5, r5, r3			@; añadimos posible codigo de gelatina de mat_joc SOLO SI EN R5 TENEMOS 8 O 16
-				strb r5, [r8, r6]			@; subimos a mat_recomb2 el codigo final
-				mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
-				strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
+				mov r3, r5					@; duplicamos valor de mat_joc
+				ldrb r11, [r7, r6]			@; cogemos valor de MATRECOMB1 de la posicion a la que va a ir el elemento
+				sub r3, r3, r11				@; restamos al valor anterior (mat_joc) a su posible valor de gelatina (mat_recomb1)
+				cmp r3, #8
+				beq .CopiaGelatina			@; si es 8 o 16 copiamos con suma de gelatina, sino no
+				cmp r3, #16
+				beq .CopiaGelatina
 				
+				b .SubstituirRecomb1
+				.CopiaGelatina:
+					add r5, r11, r3			@; añadimos posible codigo de gelatina de mat_joc SOLO SI EN R11/R3 TENEMOS 8 O 16
+					strb r5, [r8, r6]		@; subimos a mat_recomb2 el codigo final
+					
+				.SubstituirRecomb1:			@; sino tenemos gelatina, el codigo ya esta copiado y substituimos en recomb1
+					mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
+					strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
+					
 
 		.L_FiRecomb2:
-			add r6, #1					@; avanza posicion
+			add r6, #1					@; avanzamos posicion
 			add r2, #1					@; avanza columna
 			cmp r2, #COLUMNS			@; miramos si estamos en final de fila
 			blo .L_ColRecomb2		@; avanza al siguiente elemento
@@ -271,8 +280,8 @@ recombina_elementos:
 			mov r2, #0					@; inicializamos columnas
 			mov r3, #COLUMNS			@; r3 = COLUMNS
 			mul r12, r1, r3				@; r12 = index files * COLUMNS
+			add r6, r12, r2				@; preparamos puntero (i*COLUMNS +j)
 			.L_buclecolFIN:
-				add r6, r12, r2				@; preparamos puntero (i*COLUMNS +j)
 				ldrb r3, [r8, r6]			@; R3 = valor casilla (r1, r2) mat_recomb2
 				strb r3, [r4, r6]			@; guardamos en la matriz de juego el valor de mat_recomb2
 			.L_finalFIN:

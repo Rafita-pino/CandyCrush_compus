@@ -470,6 +470,7 @@ int main(void)
 		if (keysHeld() & KEY_B)			// si pulsa 'A',
 		{								// pasa a siguiente nivel
 			recombina_elementos(matrix);				// 1B
+			escribe_matriz_testing(matrix);
 		}
 		else if (keysHeld() & KEY_A)			// si pulsa 'A',
 		{								// pasa a siguiente nivel
