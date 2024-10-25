@@ -181,116 +181,76 @@ baja_elementos:
 @;	Resultado:
 @;		R0 = 1 indica que se ha realizado algún movimiento; 0 si no ha movido nada  
 baja_verticales:
-    push {r1-r3, r5-r11, lr}
-    mov r0, #0              @;Indicador moviments a 0
-    mov r5, #COLUMNS        @;r5 = número de columnes
-    mov r6, #ROWS           @;r6 = número de files
-    
-    sub r6, #1              @;Ajustament fila [0..8]
-
-@;Baixar elements
-.Lbucle_filas:
-    mov r7, r5              @;r7 = index columnes
-.Lbucle_columnas:
-    sub r7, #1              @;Ajustament columna
-    cmp r7, #0              @;fila recorreguda?
-    blt .Lpuja_fila         @;Sí, next fila
-
-    mla r1, r6, r5, r7      @;r1 = fila*num_COL+col
-    add r1, r4              @;r1 apunta al element (f,c) de mat[][]->r1+dir.base
-    ldrb r2, [r1]           @;r2 = valor casella
-
-    and r2, #7              @;Mascara de gelatina
-    cmp r2, #0              @;Casella buida?
-    bne .Lbucle_columnas    @;Si no, següent columna
-
-.Lbuscar_adalt:
-    mov r8, r6              @;Copiar rows a r8
-.Lbucle_cerca:
-    sub r8, #1              @;Desplaçar columna cap amunt
-    cmp r8, #0              @;Comprovació primera fila
-    blt .Lbucle_columnas    @;Si arribem, següent columna
-    mla r3, r8, r5, r7
-    add r3, r4              @;Apuntar a la posició superior
-    ldrb r9, [r3]           @;Carrega valor a r9
-
-    and r9, #7              @;mascara gelatina
-    cmp r9, #0              @;buida, seguir pujant
-    beq .Lbucle_cerca
-
-    cmp r9, #7              @;bloc solid?
-    beq .Lbucle_columnas    @;seg. col.
-
-    ldrb r10, [r1]          @;r10 = valor de la casella actual (buida)
-    and r10, #0x18          @;r10 = gelatina de la casella buida
-    orr r9, r10             @;Afegir gelatina al nou element
-    strb r9, [r1]           @;Guardar valor
-
-    ldrb r11, [r3]          @;r11 = valor de la casella superior
-    and r11, #0x18          @;Guardar bits de gelatina
-    orr r11, #0             @;Borrar valor base (només guardar gelatina)
-    strb r11, [r3]          @;Actualitzar memoria amb el valor
-
-    mov r0, #1              @;Marcar moviment
-    b .Lbucle_columnas
-
-.Lpuja_fila:
-    sub r6, #1              @;Decrementar fila (pujar)
-    cmp r6, #0              @;Comprovar si s'han processat totes les files
-    bge .Lbucle_filas       @;Si no, continuar bucle
-
-@;Generar nous elements a la fila més alta de cada columna
-    mov r9, #0              @;r9 = valor de la fila 0
-    mov r7, r5              @;r7 = index columnes
-.Lgenerar_nuevos_elementos:
-    sub r7, #1              @;Ajustament columna
-    cmp r7, #0              @;columnes recorregudes?
-    blt .fin_generar        @;Sí, sortir
-
-    mla r1, r9, r5, r7      @;r1 = fila 0 * COLUMNS + columna (punter a fila 0)
-    add r1, r4              @;r1 apunta al primer element de la columna
-
-    ldrb r2, [r1]           @;Carrega valor de la casella
-    and r2, #7              @;Limpar màscara de l'element
+		push {r1-r11, lr}
+		mov r1, #COLUMNS				
+		mov r2, #ROWS					
+		mov r11, #0						@;index moviments = 0 (v. inicial)
+		mla r3, r2, r1, r4				@;r3 = ROWS * COLUMNS + dir.matriu (ultima pos.)
+		sub r2, #1						@;Ajust. contador a [0..8]
+		sub r3, #1						@;Ajustament byte de més 
+		
+	.Lmain_loop:						@;Recorre matriu
+		ldrb r5, [r3]					@;r5 = valor actual 
+		and r6, r5, #7					@;Filtra mascara gelatina (0..2)
+		cmp r6, #0						@;buit?
+		bne .Lnext						@;Si no, next column
+		and r5, #24						@;Guardem valor gelatina (3..4) pos. inferior
+		cmp r2, #0						@;Primera fila?
+		beq .Ltractar_superior			@;Sí, posible generació valor
+		
+		sub r7, r3, #COLUMNS			@;Sino, el. superior (r7 = @pos. adalt de la buida)
+		mov r10, r2						@;r10 = cont. fila valor buit
+		b .Lcomp_forat					@;Salta a la rutina de tractament de forats
+		
+	.Ltractar_forat:					@;Cas el. a baixar és forat
+		sub r7, #COLUMNS				@;Posicionament casella superior
+		sub r10, #1						@;Decrementar fila (counter)
+		cmp r10, #0						@;Estem al borde superior?
+		beq .Ltractar_superior			@;Sí, intentar generar nou valor
+		
+	.Lcomp_forat:						@;Determina el. d'adalt valid, forat o bloc
+		ldrb r8, [r7]					@;r8 = el. d'adalt
+		and r9, r8, #15					@;filtrem bits (0..3) per mirar si es forat
+		cmp r9, #15						@;Es forat (15)?
+		beq .Ltractar_forat				@;Sí, buscar amunt
+		and r9, #7						@;No, veure si es buida (bits 0..2)
+		cmp r9, #0						@;Buida?
+		beq .Lnext						@;Sí,seguent columna
+		cmp r9, #7						@;No, bloc solid?
+		beq .Lnext						@;Sí, seguent columna
+		
+		and r8, #24						@;Si es element valid, agafar v. gelatina
+		add r9, r5						@;Valor a baixar + gelatina del d'abaix
+		strb r9, [r3]					@;Guarda el. baixat.
+		strb r8, [r7]					@;Deixar nomès gelatina al d'adalt.
+		
+		mov r11, #1						@;Moviment++
+		b .Lnext						@;Next position
+		
+	.Ltractar_superior:					@;Controla generacio primers elements 
+		mov r0, #6						@;r0 = 6 (max. rang pel mod_random)
+		bl mod_random					
+		add r0, #1						@;Correcció (+1) xq. no torni 0 
+		add r0, r5						@;Afegir gelatina al nou valor
+		strb r0, [r3]					@;Act. memòria amb nou el.
+		mov r11, #1						@;moviment++
 	
-    cmp r2, #0              @;Si la casella és buida
-    beq .Lgenerar_casella    @;Generar nou element aleatori
-	
-	@;Si la casella és un hueco, buscar cap avall
-    cmp r2, #15             @;Si es un hueco	@!!MAI SERÀ 15, FER COMPROVACIÓ ABANS DE AND DE MASCARA
-    beq .Lbuscar_hueco       @;Buscar cap avall un element buid
+	.Lnext:								@;Següent casella
+		sub r1, #1						@;Columnes(contador)--
+		cmp r1, #0						@;Primera columna?
+		bhi .LnoAct_Fila				@;Si no, mateixa fila.
+		sub r2, #1						@;Sí, files(contador) - 1 (pujem)
+		mov r1, #COLUMNS				@;Posicionament al final de la fila
+		
+	.LnoAct_Fila:						@;Tractament de files i columnes.
+		sub r3, #1						@;Mourens realment a la pos. anterior
+		cmp r3, r4						@;Acabar matriu?
+		bhs .Lmain_loop					@;Si pos. >= 1 pos., continuar
+											
+		mov r0, r11						@;Si no sortir, r0 = moviments
+		pop {r1-r11, pc}				
 
-    cmp r2, #7              @;Bloc solid?
-    beq .Lgenerar_nuevos_elementos  @;Si és solid, no generar, next columna
 
-@; Buscar cap avall per trobar una posició buida
-.Lbuscar_hueco:
-    mla r3, r9, r5, r7      @;Apuntar a la fila actual
-    add r3, r4
-    ldrb r2, [r3]           @;Càrrega valor de la casella actual
-    and r2, #7              @;Limpar màscara de gelatina
-    cmp r2, #0              @;Casella buida?
-    beq .Lgenerar_casella    @;Si és buida, generar element
-    cmp r2, #7              @;Bloc sòlid trobat?
-    beq .Lgenerar_nuevos_elementos  @;Si hi ha bloc sòlid, següent columna
-
-    add r9, #1              @;Avançar a la següent fila
-    cmp r9, #ROWS           @;Hem arribat al final?
-    blt .Lbuscar_hueco      @;Si no, seguir buscant
-
-.Lgenerar_casella:
-    mov r0, #6
-    bl mod_random
-    add r0, #1              @;Ajustar valor a [1..6]
-    ldrb r10, [r1]          @;r10 = valor de la casella buida
-    and r10, #0x18          @;Guardar gelatina de la casella buida
-    orr r0, r10             @;Afegir gelatina al nou element
-    strb r0, [r1]           @;Actualitzar memòria amb el valor
-
-    b .Lgenerar_nuevos_elementos   @;Seguir amb la següent columna
-
-.fin_generar:
-    pop {r1-r3, r5-r11, pc}  @;Restaurar registres i retornar
 
 
 
