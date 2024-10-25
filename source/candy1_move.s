@@ -186,8 +186,8 @@ baja_verticales:
 		mov r2, #ROWS					
 		mov r11, #0						@;index moviments = 0 (v. inicial)
 		mla r3, r2, r1, r4				@;r3 = ROWS * COLUMNS + dir.matriu (ultima pos.)
-		sub r2, #1						@;Ajust. contador a [0..8]
 		sub r3, #1						@;Ajustament byte de més 
+		sub r2, #1						@;Ajust. contador a [0..8]
 		
 	.Lmain_loop:						@;Recorre matriu
 		ldrb r5, [r3]					@;r5 = valor actual 
@@ -265,7 +265,74 @@ baja_verticales:
 @;		R0 = 1 indica que se ha realizado algún movimiento; 0 si no ha movido nada. 
 baja_laterales:
 		push {r1-r11,lr}
+		mov r11, #0
+		mov r1, #COLUMNS
+		mov r2, #ROWS
+		mla r3, r2, r1, r4
+		sub r3, #1
+		sub r2, #1
 		
+	.Lmain_bucle:
+		mov r10, #0
+		cmp r2, #0
+		beq .Lsaltar
+		ldrb r5, [r3]
+		and r6, r5, #7
+		cmp r6, #7						@;ordre
+		beq .Lsaltar
+		cmp r6, #0
+		bne .Lsaltar
+		and r6, r5, #24
+		
+		cmp r1, #COLUMNS				@;Podría adalt dreta?
+		beq .Lseg						@;Si no, salta seg
+		mov r7, r3
+		sub r7, r3, #COLUMNS
+		add r7, #1						@;Adalt dreta
+		ldrb r8, [r7]
+		and r8, #7
+		cmp r8, #0
+		beq .Lseg
+		cmp r8, #7
+		beq .Lseg
+		mov r10, #1						@;r10 = Possible moviment dreta
+		
+	.Lseg:
+		cmp r1, #1						@;Primera columna? (tampoc podría adalt esq.)
+		beq .Ldecisio
+		mov r7, r3
+		sub r7, r3, #COLUMNS
+		sub r7, #1						@;Adalt esquerra
+		ldrb r8, [r7]
+		and r8, #7
+		cmp r8, #0
+		beq .Ldecisio
+		cmp r8, #7
+		beq .Ldecisio
+		add r10, #2						@;r10 = Possible moviment a esq.
+		
+	.Ldecisio:
+		mov r7, r3
+		cmp r10, #0						@;Moviments?
+		beq .Lsaltar
+		cmp r10, #2
+		blo .Lright
+		beq .Lleft
+		bhi .Lchoose
+	
+	.Lright:
+		sub r7, #COLUMNS				
+		add r7, #1						@;Posició adalt dreta actual
+		
+	.Lleft:
+		sub r7, #COLUMNS				
+		sub r7, #1						@;Posició adalt esq. actual
+		
+	.Lchoose:
+	
+	.Lsaltar:
+	
+
 		pop {r1-r11, pc}
 
 
