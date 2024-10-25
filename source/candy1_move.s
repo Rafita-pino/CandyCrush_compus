@@ -66,7 +66,7 @@ cuenta_repeticiones:
 		mov r7, #COLUMNS
 		sub r7, #1				@;r7 = COLUMNS (amb index - 1)	
 		cmp r2, r7				@;Comprovar si som al borde de la mat.
-		bgt .Lconrep_fin		@;Si pos. fora matriu ACABAR
+		bge .Lconrep_fin		@;Si pos. fora matriu ACABAR
 	.Lbucle_este:
 		ldrb r6, [r4]
 		and r6, #7				@;Mascara bits 0..2
@@ -76,7 +76,7 @@ cuenta_repeticiones:
 		add r4, #1
 		add r2, #1              @;Actualitzar index col.
 		cmp r2, r7
-		ble .Lbucle_este		@;Si pos <= borde, REPETIR
+		blt .Lbucle_este		@;Si pos < borde, REPETIR
 		b .Lconrep_fin			@;Sino ACABAR
 			
 	.Lconrep_sur:
@@ -84,7 +84,7 @@ cuenta_repeticiones:
 		mov r7, #ROWS
 		sub r7, #1				@;r7 = ROWS (amb index - 1)
 		cmp r1, r7				@;Comprovar si som al borde de la mat.
-		bgt .Lconrep_fin		@;Si pos. fora matriu, ACABAR
+		bge .Lconrep_fin		@;Si pos. fora matriu, ACABAR
 	.Lbucle_sur:
 		ldrb r6, [r4]
 		and r6, #7				@;Mascara bits 0..2
@@ -94,14 +94,14 @@ cuenta_repeticiones:
 		add r4, #COLUMNS		@;Avançar a la següent fila
 		add r1, #1				@;Actualitzar index fila
 		cmp r1, r7
-		ble .Lbucle_sur			@;Si <= borde, REPETIR
+		blt .Lbucle_sur			@;Si < borde, REPETIR
 		b .Lconrep_fin			@;Sino, ACABAR
 		
 	.Lconrep_oeste:
 		sub r4, #1				@;Desplaçament seg. column (oest)
 		mov r7, #0				@;r7 = borde esquerra (columna 0)
 		cmp r2, r7				@;Comprovar si som al borde esquerra
-		blt .Lconrep_fin		@;Si fora matriu, ACABAR
+		ble .Lconrep_fin		@;Si fora matriu, ACABAR
 	.Lbucle_oeste:
 		ldrb r6, [r4]
 		and r6, #7				@;Mascara bits 0..2
@@ -111,14 +111,14 @@ cuenta_repeticiones:
 		sub r4, #1				@;Retrocedir a la columna anterior
 		sub r2, #1				@;Actualitzar index columna
 		cmp r2, r7
-		bge .Lbucle_oeste		@;Si >= borde, REPETIR
+		bgt .Lbucle_oeste		@;Si > borde, REPETIR
 		b .Lconrep_fin			@;Sino, ACABAR
 		
 	.Lconrep_norte:
 		sub r4, #COLUMNS		@;Desplaçament seg. fila (nord)
 		mov r7, #0				@;r7 = borde superior (fila 0)
 		cmp r1, r7				@;Comprovar si som al borde superior
-		blt .Lconrep_fin		@;Si fora matriu, ACABAR
+		ble .Lconrep_fin		@;Si fora matriu, ACABAR
 	.Lbucle_norte:
 		ldrb r6, [r4]
 		and r6, #7				@;Mascara bits 0..2
@@ -128,7 +128,7 @@ cuenta_repeticiones:
 		sub r4, #COLUMNS		@;Retrocedir a la fila anterior
 		sub r1, #1				@;Actualitzar index fila
 		cmp r1, r7
-		bge .Lbucle_norte		@;Si >= borde, REPETIR
+		bgt .Lbucle_norte		@;Si > borde, REPETIR
 		b .Lconrep_fin			@;Sino, ACABAR
 	
 	.Lconrep_fin:	

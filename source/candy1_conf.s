@@ -140,12 +140,12 @@
 	
 	@;MAPAS AFEGITS PER PROVAR
 	
-	@; mapa 9: el d'exemple del enunciat per a baja_laterales
+	@; mapa 9: el d'exemple del enunciat per a baja_laterales -> MODIFICAT PER COMPROVAR COMPTATGE GELATINES
 		.byte 15,3,4,7,2,7,7,7,7
 		.byte 12,2,15,15,3,0,7,7,7
 		.byte 7,7,15,8,12,9,7,7,7
 		.byte 0,5,5,6,3,4,7,7,7
-		.byte 2,3,18,1,4,9,7,7,7
+		.byte 3,2,18,1,4,9,7,7,7
 		.byte 7,7,7,7,7,7,7,7,7
 		.byte 7,7,7,7,7,7,7,7,7
 		.byte 7,7,7,7,7,7,7,7,7
