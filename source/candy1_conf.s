@@ -38,6 +38,15 @@
 @;		16+:	gelatina doble (a sumarle código de elemento)
 		.global mapas
 	mapas:
+		.byte 1, 1, 1, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 0, 2, 2, 2, 0, 0, 0
+		.byte 0, 0, 0, 0, 0, 0, 3, 3, 3
+		.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
 	@; mapa 0: sin secuencias
 		.byte 1, 3, 5, 2, 4, 6, 1, 2, 3
 		.byte 4, 6, 1, 5, 3, 2, 4, 6, 1
