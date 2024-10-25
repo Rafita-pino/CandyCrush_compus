@@ -238,15 +238,15 @@ baja_verticales:
 	.Lnext:								@;Següent casella
 		sub r1, #1						@;Columnes(contador)--
 		cmp r1, #0						@;Primera columna?
-		bhi .LnoAct_Fila				@;Si no, mateixa fila.
+		bgt .LnoAct_Fila				@;Si no, mateixa fila				
 		sub r2, #1						@;Sí, files(contador) - 1 (pujem)
 		mov r1, #COLUMNS				@;Posicionament al final de la fila
 		
 	.LnoAct_Fila:						@;Tractament de files i columnes.
 		sub r3, #1						@;Mourens realment a la pos. anterior
 		cmp r3, r4						@;Acabar matriu?
-		bhs .Lmain_loop					@;Si pos. >= 1 pos., continuar
-											
+		bge .Lmain_loop					@;Si pos. >= 1 pos., continuar			
+								
 		mov r0, r11						@;Si no sortir, r0 = moviments
 		pop {r1-r11, pc}				
 
@@ -264,10 +264,10 @@ baja_verticales:
 @;	Resultado:
 @;		R0 = 1 indica que se ha realizado algún movimiento; 0 si no ha movido nada. 
 baja_laterales:
-		push {lr}
+		push {r1-r11,lr}
 		
-		
-		pop {pc}
+		pop {r1-r11, pc}
+
 
 
 .end
