@@ -265,76 +265,102 @@ baja_verticales:
 @;		R0 = 1 indica que se ha realizado algún movimiento; 0 si no ha movido nada. 
 baja_laterales:
 		push {r1-r11,lr}
-		mov r11, #0
+		mov r11, #0						@;Contador moviments = 0
 		mov r1, #COLUMNS
 		mov r2, #ROWS
-		mla r3, r2, r1, r4
-		sub r3, #1
-		sub r2, #1
+		mla r3, r2, r1, r4				@;Ultima pos. matriu
+		sub r3, #1						@;Ajustar (index 0)
+		sub r2, #1						@;Rows(contador) --
 		
 	.Lmain_bucle:
-		mov r10, #0
-		cmp r2, #0
-		beq .Lsaltar
-		ldrb r5, [r3]
-		and r6, r5, #7
-		cmp r6, #7						@;ordre
-		beq .Lsaltar
-		cmp r6, #0
-		bne .Lsaltar
-		and r6, r5, #24
-		
+		mov r10, #0						@;Possible baixada a 0 (reiniciar)
+		cmp r2, #0						@;No volem tractar la primera fila
+		beq .Lsaltar					
+		ldrb r5, [r3]		
+		and r6, r5, #7					@;Treure gelatina
+		cmp r6, #7						@;Bloc sòlid?
+		beq .Lsaltar					@;Si, saltar
+		cmp r6, #0						@;No, buit?
+		bne .Lsaltar					@;No, saltar
+		and r6, r5, #24					@;Si, guardar gelatina posició
+		@;SUPERIOR DRETA
 		cmp r1, #COLUMNS				@;Podría adalt dreta?
-		beq .Lseg						@;Si no, salta seg
-		mov r7, r3
+		beq .Lseg						@;Si no, salta seg (mirar si es pot adalt esquerra)
+		mov r7, r3						@;Sí, comprovar si v. valid
 		sub r7, r3, #COLUMNS
-		add r7, #1						@;Adalt dreta
+		add r7, #1						@;r7 = Adalt dreta
 		ldrb r8, [r7]
-		and r8, #7
-		cmp r8, #0
+		and r8, #7						@;Traure gelatina
+		cmp r8, #0						@;Buit?
+		beq .Lseg						@;Mirar adalt esquerra
+		cmp r8, #7						@;Bloc sòlid? -> el mateix				
 		beq .Lseg
-		cmp r8, #7
-		beq .Lseg
-		mov r10, #1						@;r10 = Possible moviment dreta
-		
+		mov r10, #1						@;Sino, r10 = Possible baixada adalt dreta
+	@;SUPERIOR ESQUERRA	
 	.Lseg:
 		cmp r1, #1						@;Primera columna? (tampoc podría adalt esq.)
 		beq .Ldecisio
-		mov r7, r3
-		sub r7, r3, #COLUMNS
+		mov r7, r3						@;Si no esta a la primera columna, mirar adalt esq.
+		sub r7, r3, #COLUMNS			
 		sub r7, #1						@;Adalt esquerra
 		ldrb r8, [r7]
 		and r8, #7
 		cmp r8, #0
-		beq .Ldecisio
+		beq .Ldecisio	
 		cmp r8, #7
 		beq .Ldecisio
 		add r10, #2						@;r10 = Possible moviment a esq.
-		
+	
+	@;Saltar a següent, esquerra, dreta o triar
+	@;r10 -> valor < 2, dreta. valor = 2, esquerra. valor > 2, poden ser els dos
 	.Ldecisio:
 		mov r7, r3
 		cmp r10, #0						@;Moviments?
 		beq .Lsaltar
 		cmp r10, #2
-		blo .Lright
+		blt .Lright						
 		beq .Lleft
-		bhi .Lchoose
+		bgt .Lchoose
 	
 	.Lright:
 		sub r7, #COLUMNS				
 		add r7, #1						@;Posició adalt dreta actual
+		b .Lbaixar_elem
 		
 	.Lleft:
 		sub r7, #COLUMNS				
 		sub r7, #1						@;Posició adalt esq. actual
+	
+	.Lbaixar_elem:
+		ldrb r8, [r7]
+		and r9, r8, #7
+		add r9, r6						@;Afegir gelatina a casella a baixar
+		and r8, #24						@;r8 = gelatina adalt dreta
+		strb r9, [r3]					@;Guardar valor baixat amb gelatina corresponent
+		strb r8, [r7]					@;Deixar nomès gelatina a la pos. baixada
+		mov r11, #1						@;moviments++
+		b .Lsaltar						@;Següent element
 		
 	.Lchoose:
+		mov r0, #2						@;r0, rang mod_random (0..1)
+		bl mod_random
+		cmp r0, #0 						@;0 a left i 1 a right
+		beq .Lleft
+		b .Lright
 	
 	.Lsaltar:
+		sub r1, #1						@;Contador columna --
+		cmp r1, #0						@;Borde esquerra?
+		bgt .Lsame_row					@;No, seguir mateixa fila
+		sub r2, #1						@;Si no, canviar fila (contador)
+		mov r1, #COLUMNS				@;Reiniciar a la ultima columna de la nova fila
 	
-
+	.Lsame_row:
+		sub r3, #1						@;Retrocedir pos. real (@dir.)
+		cmp r3, r4						@;Principi matriu?
+		bge .Lmain_bucle				@;Si no, continuar				
+		
+		mov r0, r11						@;Retornar moviments per r0
 		pop {r1-r11, pc}
-
-
 
 .end
