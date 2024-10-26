@@ -230,6 +230,7 @@ recombina_elementos:
 					bhs .L_FiRecomb2			@; volvemos a empezar porque nos hemos quedado en bucle infinito
 					cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
 					beq .L_Random				@; si esta usado repetimos proceso de random
+					
 					strb r5, [r8, r6]			@; cargamos valor (r5) en mat_recomb2
 					mov r0, r8					@; direccion base de la matriz
 					mov r11, r5					@; guardamos en r11 (mat_recomb2)

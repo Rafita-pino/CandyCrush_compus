@@ -444,6 +444,68 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 
 
 
+/* cuenta(*mat): calcula dependiendo del modo que se le pase el numero de elementos
+	mode:
+		1--> solidos
+		2--> huecos
+		3--> calcula la suma de los basicos.
+*/
+unsigned char cuenta(char mat[][COLUMNS], int mode)
+{
+	unsigned char i, j, count = 0;
+
+	for (i = 0; i < ROWS; i++)			// para todas las filas
+	{
+		for (j = 0; j < COLUMNS; j++)	// para todas las columnas
+		{	
+			if (mode == 1 && mat[i][j] == 7)	count++;	// contamos solidos
+			if (mode == 2 && mat[i][j] == 15)	count++;	// contamos huecos
+			if (mode == 3) {
+				if (mat[i][j] != 15) {  // Exceptuando los huecos
+					if (mat[i][j] >= 1 && mat[i][j] <= 6) {
+						count += mat[i][j];  // Contamos basics
+					} else if (mat[i][j] >= 9 && mat[i][j] <= 14) {
+						count += (mat[i][j] - 8);  // Resta 8 y suma al count
+					} else if (mat[i][j] >= 17 && mat[i][j] <= 22) {
+						count += (mat[i][j] - 16);  // Resta 16 y suma al count
+					}
+				}
+			}
+
+		}
+	}
+	return(count);
+}
+
+
+
+
+/* cuenta_solidos(*mat): calcula cuantos solidos quedan en la matriz de
+	juego. */
+unsigned char cuenta_solidos(char mat[][COLUMNS])
+{
+	return(cuenta(mat, 1));
+}
+
+/* cuenta_huecos(*mat): calcula cuantos huecos quedan en la matriz de
+	juego. */
+unsigned char cuenta_huecos(char mat[][COLUMNS])
+{
+	return(cuenta(mat, 2));
+}
+
+/* cuenta_basics(*mat): calcula la suma de los elementos basicos incluyendo 
+	los que se encuentran dentro de gelatinas (sin contar el valor de gelatina) */
+unsigned char cuenta_basics(char mat[][COLUMNS])
+{
+	return(cuenta(mat, 3));
+}
+
+
+
+
+
+
 /* -------------------------------------------------------------------- */
 /* candy1_main.c : función principal main() para test de tarea 1A y 1B  */
 /*				(requiere tener implementada la tarea 1E)			    */
@@ -452,44 +514,94 @@ int main(void)
 {
 	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
 	unsigned char gel_ant= 0;
-	unsigned char gel_post= 0;		//gelatinas matriz anterior y posterior al recomb
+	unsigned char gel_post= 0;		//elementos matriz anterior y posterior al recomb
+	unsigned char huecos_ant= 0;
+	unsigned char huecos_post= 0;
+	unsigned char basics_ant= 0;
+	unsigned char basics_post= 0;
+	unsigned char solidos_ant= 0;
+	unsigned char solidos_post= 0;	
+	
 	char matrix_copia[ROWS][COLUMNS];		// matriz global de juego
 	int fallos = 0;
-	seed32 = time(NULL);		// fija semilla de nÃºmeros aleatorios
-	consoleDemoInit();			// inicializaciÃ³n de pantalla de texto
-	printf("candyNDS (prueba tarea 1A Y 1B)\n");
-	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
+	seed32 = time(NULL);		// fija semilla de numeros aleatorios
+	consoleDemoInit();			// inicializacion de pantalla de texto
+	
+	printf("\x1b[39m\x1b[0;0H candyNDS (prueba tarea 1A Y 1B)\n");
+	retardo(10);
+	printf("\x1b[39m\x1b[0;0H                                    ");
+	printf("\x1b[39m\x1b[0;0H lvl: %d", level);
+	
 	inicializa_matriz(matrix, level);
 	escribe_matriz_testing(matrix);
+	
 	do							// bucle principal de pruebas
 	{
-		//int repes =0;
+		printf("\x1b[39m\x1b[0;0H lvl: %d", level);
 		retardo(3);
 		
-			printf("\x1b[39m\x1b[4;8H (pulse A o B)");
-			printf("\x1b[38m\x1b[2;0H Llevas %d fallos lvl %d", fallos, level);
+			printf("\x1b[38m\x1b[4;0H (pulse A o B)");
+			printf("\x1b[38m\x1b[1;0H Llevas %d fallos", fallos);
 			do
 			{	swiWaitForVBlank();
 				scanKeys();					// esperar pulsación tecla 'A' o 'B'
 			} while (!(keysHeld() & (KEY_A | KEY_B)));
-			if (keysHeld() & KEY_B){
-				printf("\x1b[39m\x1b[3;0H Iniciando test");
-				copia_matriz(matrix_copia, matrix);
-				gel_ant = cuenta_gelatinas(matrix);
-				recombina_elementos(matrix);
+			
+			while (keysHeld() & KEY_B){
+				printf("\x1b[39m\x1b[2;0H Iniciando test");
+				copia_matriz(matrix_copia, matrix); //copiamos matriz antes del recomb para poder mostrarla despues
+				gel_ant = cuenta_gelatinas(matrix); // calculamos elementos de mat antes del recomb
+				huecos_ant = cuenta_huecos(matrix);
+				basics_ant = cuenta_basics(matrix);
+				solidos_ant = cuenta_solidos(matrix);
+				
+				recombina_elementos(matrix); // recombinamos
+				gel_post = cuenta_gelatinas(matrix); // calculamos elementos de mat despues del recomb
+				huecos_post = cuenta_huecos(matrix);
+				basics_post = cuenta_basics(matrix);
+				solidos_post = cuenta_solidos(matrix);
+				
 				escribe_matriz_testing(matrix);
-				gel_post = cuenta_gelatinas(matrix);
-				printf("\x1b[39m\x1b[4;0H Gelatinas anteriores: %d, gelatinas posteriores: %d", gel_ant, gel_post);
-				retardo (30);
-				printf("\x1b[39m\x1b[4;0H                                                     ");
-			} 
-			printf("\x1b[3;22H                ");
+				
+				if((gel_ant != gel_post) || (huecos_post != huecos_ant) || (basics_ant != basics_post) || (solidos_ant != solidos_post)) fallos++;
+				retardo (10);
+				do {
+					printf("\x1b[38m\x1b[7;18H Gel_ant: %d", gel_ant);
+					printf("\x1b[38m\x1b[8;18H Gel_post: %d",gel_post);
+					
+					printf("\x1b[38m\x1b[7;18H Huecos_ant: %d", huecos_ant);
+					printf("\x1b[38m\x1b[8;18H Huecos_post: %d",huecos_post);
+					
+					printf("\x1b[38m\x1b[7;18H Basics_ant: %d", basics_ant);
+					printf("\x1b[38m\x1b[8;18H Basics_post: %d",basics_post);
+					
+					printf("\x1b[38m\x1b[7;18H Solidos_ant: %d", solidos_ant);
+					printf("\x1b[38m\x1b[8;18H Solidos_post: %d",solidos_post);
+					printf("\x1b[39m\x1b[3;0H < matriz anterior | > matriz recombinada | A nivel+1 | B repetir");
+					
+					do
+					{	swiWaitForVBlank();
+						scanKeys();					// esperar pulsación tecla
+					} while (!(keysHeld() & (KEY_LEFT | KEY_RIGHT | KEY_A | KEY_B)));
+					
+					if(keysHeld() & KEY_LEFT){
+						escribe_matriz_testing(matrix_copia);
+					}else if(keysHeld() & KEY_RIGHT){
+						escribe_matriz_testing(matrix);
+					}
+					
+				} while (!(keysHeld() & (KEY_A | KEY_B)));
+				printf("\x1b[38m\x1b[2;0H                                                            ");
+				printf("\x1b[39m\x1b[3;0H                                                                 ");
+				gel_ant= 0;
+				gel_post= 0;
+			}
 			retardo(3);
 			if (keysHeld() & KEY_A){					// pasa a siguiente nivel
-				level = (level + 1); //% MAXLEVEL;
-				printf("\x1b[38m\x1b[1;8H %d", level);
+				level = (level + 1) % MAXLEVEL;
 				inicializa_matriz(matrix, level);
 				escribe_matriz_testing(matrix);
+
 			}
 	} while (1);
 
