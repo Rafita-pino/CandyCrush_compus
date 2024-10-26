@@ -245,18 +245,21 @@ recombina_elementos:
 					bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
 				
 				mov r3, r5					@; duplicamos valor de mat_joc
-				ldrb r11, [r7, r6]			@; cogemos valor de MATRECOMB1 de la posicion a la que va a ir el elemento
-				sub r3, r3, r11				@; restamos al valor anterior (mat_joc) a su posible valor de gelatina (mat_recomb1)
-				cmp r3, #8
-				beq .CopiaGelatina			@; si es 8 o 16 copiamos con suma de gelatina, sino no
-				cmp r3, #16
-				beq .CopiaGelatina
-				
+				mov r3, r3, lsr#3			
+				and r3, #0x03				@; nos quedan los bits (4..3)
+				cmp r3, #0x01				@; comparamos con gelatina simple (01)
+				beq .CopiaGelatina8			@; si r5, bucle gelatina simple
+				cmp r3, #0x02				@; comparamos con gelatina doble (10)
+				beq .CopiaGelatina16		@; si r5, bucle gelatina doble 	
 				b .SubstituirRecomb1
-				.CopiaGelatina:
-					add r5, r11, r3			@; añadimos posible codigo de gelatina de mat_joc SOLO SI EN R11/R3 TENEMOS 8 O 16
+				
+				.CopiaGelatina8:
+					add r5, #8			@; añadimos codigo de gelatina de mat_joc
 					strb r5, [r8, r6]		@; subimos a mat_recomb2 el codigo final
-					
+					b .SubstituirRecomb1
+				.CopiaGelatina16:
+					add r5, #16			@; añadimos codigo de gelatina de mat_joc
+					strb r5, [r8, r6]		@; subimos a mat_recomb2 el codigo final	
 				.SubstituirRecomb1:			@; sino tenemos gelatina, el codigo ya esta copiado y substituimos en recomb1
 					mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
 					strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
