@@ -482,123 +482,154 @@ sugiere_combinacion:
 @;	Resultado:
 @;		vector de posiciones (x1,y1,x2,y2,x3,y3), devuelto por referencia
 genera_posiciones:
-		push {r1-r5, lr}
+		push {r0-r4,lr}
+				
+			cmp r4, #0		@; Compara cpi amb 0 (esquerra)
+			beq .Lcpi0		
+			cmp r4, #1		@; Compara cpi amb 1 (dreta)
+			beq .Lcpi1		
+			cmp r4, #2		@; Compara cpi amb 2 (amunt)
+			beq .Lcpi2
+			cmp r4, #3		@; Compara cpi amb 3 (avall)
+			beq .Lcpi3
+			
+			b .Lfin			@; Si no coincideix amb cap, finalitza la rutina
+
+		.Lcpi0:
+			add r2, #1		@; Incrementa la columna 
+			strb r2, [r0]	@; Guarda la columna en vect_pos[]
+			sub r2, #1		@; Restaura el valor original de la columna
+			add r0, #1		@; Incrementa l'índex del vector
+			strb r1, [r0]	@; Guarda la fila en vect_pos[]
+			add r0, #1		@; Incrementa l'índex del vector
+			
+			b .Lcori		@; Salta per seleccionar orientació
+
+		.Lcpi1:
+			sub r2, #1		@; Decrementa la columna 
+			strb r2, [r0]
+			add r2, #1
+			add r0, #1
+			strb r1, [r0]
+			add r0, #1
+			
+			b .Lcori
+
 		
-		.Lprimer_punt:
-			cmp r4, #0
-			beq .Lcpi_0
-			cmp r4, #1
-			beq .Lcpi_1
-			cmp r4, #2
-			beq .Lcpi_2
-			cmp r4, #3
-			beq .Lcpi_3
+		.Lcpi2:
+			add r1, #1
+			strb r2, [r0]
+			add r0, #1
+			strb r1, [r0]
+			sub r1, #1
+			add r0, #1
 			
-			.Lcpi_0:
-				add r5, r2, #1		@; p.i a la dreta
-				strb r5, [r0, #0]	@; r5 = x1
-				strb r1, [r0, #1]	@; r1 = y1
-				b .Lendprimer_punt
-			.Lendcpi_0:
+			b .Lcori
+
+		.Lcpi3:
+			sub r1, #1
+			strb r2, [r0]
+			add r0, #1
+			strb r1, [r0]
+			add r1, #1
+			add r0, #1
 			
-			.Lcpi_1:
-				sub r5, r2, #1		@; p.i a la esquerra
-				strb r5, [r0, #0]	@; r5 = x1
-				strb r1, [r0, #1]	@; r1 = y1
-				b .Lendprimer_punt
-			.Lendcpi_1:
+		.Lcori:
+			cmp r3, #0		@; Compara ori amb 0 (Est)
+			beq .Lcori0
+			cmp r3, #1		@; Compara ori amb 1 (Sud)
+			beq .Lcori1
+			cmp r3, #2		@; Compara ori amb 2 (Oest)
+			beq .Lcori2
+			cmp r3, #3		@; Compara ori amb 3 (Nord)
+			beq .Lcori3
+			cmp r3, #4		@; Compara ori amb 4 (horitzontal)
+			beq .Lcori4
+			cmp r3, #5		@; Compara ori amb 5 (vertical)
+			beq .Lcori5
 			
-			.Lcpi_2:
-				add r5, r1, #1		@; p.i cap avall
-				strb r5, [r0, #1]	@; r5 = y1
-				strb r2, [r0, #0]	@; r2 = x1
-				b .Lendprimer_punt
-			.Lendcpi_2:
+			b .Lfin
 			
-			.Lcpi_3:
-				sub r5, r1, #1		@; p.i cap a dalt
-				strb r5, [r0, #1]	@; r5 = y1
-				strb r2, [r0, #0]	@; r2 = x1
-			.Lendcpi_3:
-			
-		.Lendprimer_punt:
+		.Lcori0:
+			add r2, #1                       @; Incrementa la columna (c + 1)
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+			add r2, #1                       @; Incrementa la columna de nou
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
 		
-		.Laltres_punts:
-			cmp r3, #0
-			beq .Lcori_0
-			cmp r3, #1
-			beq .Lcori_1
-			cmp r3, #2
-			beq .Lcori_2
-			cmp r3, #3
-			beq .Lcori_3
-			cmp r3, #4
-			beq .Lcori_4
-			cmp r3, #5
-			beq .Lcori_5
+			b .Lfin
+
+		.Lcori1:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila (f + 1)
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila de nou
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+	
+			b .Lfin
 			
-			.Lcori_0:
-				add r5, r2, #1	@; p.i al est (1)
-				strb r5, [r0, #2]	@; r5 = x2
-				strb r1, [r0, #3]	@; r1 = y2
-				add r5, #1	@; p.i al est (2)
-				strb r5, [r0, #4]	@; r5 = x2
-				strb r1, [r0, #5]	@; r1 = y2
-				b .Lendaltres_punts
-			.Lendcori_0:
-			
-			.Lcori_1:
-				add r5, r1, #1	@; p.i al sur (1)
-				strb r5, [r0, #3]	@; r5 = y2
-				strb r2, [r0, #2]	@; r2 = x2
-				add r5, #1	@; p.i al sur (2)
-				strb r5, [r0, #5]	@; r5 = y3
-				strb r2, [r0, #4]	@; r2 = x3
-				b .Lendaltres_punts
-			.Lendcori_1:
-			
-			.Lcori_2:
-				sub r5, r2, #1	@; p.i al oest (1)
-				strb r5, [r0, #2]	@; r5 = x2
-				strb r1, [r0, #3]	@; r1 = y2
-				sub r5, #1	@; p.i al oest (2)
-				strb r5, [r0, #4]	@; r5 = x2
-				strb r1, [r0, #5]	@; r1 = y2
-				b .Lendaltres_punts
-			.Lendcori_2:
-			
-			.Lcori_3:
-				sub r5, r1, #1	@; p.i al nort (1)
-				strb r5, [r0, #3]	@; r5 = y2
-				strb r2, [r0, #2]	@; r2 = x2
-				sub r5, #1	@; p.i al nort (2)
-				strb r5, [r0, #5]	@; r5 = y3
-				strb r2, [r0, #4]	@; r2 = x3
-				b .Lendaltres_punts
-			.Lendcori_3:
-			
-			.Lcori_4:
-				sub r5, r2, #1	@; p.i al oest (1)
-				strb r5, [r0, #2]	@; r5 = x2
-				strb r1, [r0, #3]	@; r1 = y2
-				add r5, #2	@; p.i al est (1)
-				strb r5, [r0, #4]	@; r5 = x3
-				strb r1, [r0, #5]	@; r1 = y3 
-				b .Lendaltres_punts
-			.Lendcori_4:
-			
-			.Lcori_5:
-				sub r5, r1, #1	@; p.i al sur (1)
-				strb r5, [r0, #3]	@; r5 = y2
-				strb r2, [r0, #2]	@; r1 = x2
-				add r5, #2	@; p.i al nort (1)
-				strb r5, [r0, #5]	@; r5 = y3
-				strb r2, [r0, #4]	@; r1 = x3
-			.Lendcori_5:
-			
-		.Lendaltres_punts:
+		.Lcori2:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila (f + 1)
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila de nou
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
 		
-	pop {r1-r5, pc}
+			b .Lfin
+
+		.Lcori3:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			sub r1, #1                      @; Disminueix la fila (f - 1)
+			strb r1, [r0]                    @; Guarda la fila disminuïda en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			sub r1, #1                      @; Disminueix la fila de nou
+			strb r1, [r0]                    @; Guarda la fila disminuïda en vect_pos[]
+
+			b .Lfin
+		
+		.Lcori4:
+			sub r2, #1                      @; Disminueix la columna (c - 1)
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+			add r2, #2                       @; Incrementa la columna dues vegades
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+			
+			b .Lfin
+			
+		.Lcori5:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			sub r1, #1                      @; Disminueix la fila (f - 1)
+			strb r1, [r0]                    @; Guarda la fila disminuïda en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r1, #2                       @; Incrementa la fila dues vegades
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+
+		.Lfin:
+
+
+			pop {r0-r4,pc}
 
 
 
