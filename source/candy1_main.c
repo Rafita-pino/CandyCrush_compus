@@ -521,7 +521,8 @@ int main(void)
 	int basics_ant= 0;
 	int basics_post= 0;
 	int solidos_ant= 0;
-	int solidos_post= 0;	
+	int solidos_post= 0;
+	int i;	
 	
 	char matrix_copia[ROWS][COLUMNS];		// matriz global de juego
 	int fallos = 0;
@@ -530,14 +531,13 @@ int main(void)
 	
 	printf("\x1b[39m\x1b[0;0H candyNDS (prueba tarea 1A Y 1B)\n");
 	retardo(10);
-	printf("\x1b[39m\x1b[0;0H                                    ");
-	
+
 	inicializa_matriz(matrix, level);
 	escribe_matriz_testing(matrix);
 	
 	do							// bucle principal de pruebas
 	{
-		printf("\x1b[39m\x1b[0;0H                   ");
+		printf("\x1b[39m\x1b[0;0H                                ");
 		printf("\x1b[39m\x1b[0;0H lvl: %d", level);
 		retardo(3);
 		
@@ -601,24 +601,31 @@ int main(void)
 				printf("\x1b[39m\x1b[3;0H                                                                 ");
 				printf("\x1b[39m\x1b[4;0H                                                                 ");
 				gel_ant= 0; gel_post= 0; gel_ant = 0; huecos_ant = 0; basics_ant = 0; solidos_ant = 0; gel_post = 0; huecos_post = 0; basics_post = 0; solidos_post = 0;
-				printf("\x1b[38m\x1b[7;18H                ");
-				printf("\x1b[38m\x1b[8;18H                ");
-				printf("\x1b[38m\x1b[9;18H                ");
-				printf("\x1b[38m\x1b[10;18H               ");
-				printf("\x1b[38m\x1b[11;18H               ");
-				printf("\x1b[38m\x1b[12;18H               ");
-				printf("\x1b[38m\x1b[13;18H               ");
-				printf("\x1b[38m\x1b[14;18H               ");
+				for (i=7; i<16;i++){
+					printf("\x1b[38m\x1b[%d;18H                                      ", i); //ponemos en blanco posiciones de la 7 a la 15
+				}
 			}
+			
 			retardo(3);
 			if (keysHeld() & KEY_A){					// pasa a siguiente nivel
-				level = (level + 1) % MAXLEVEL;
-				inicializa_matriz(matrix, level);
-				escribe_matriz_testing(matrix);
-
+				if (level <= MAXLEVEL){
+					level = (level + 1);
+					inicializa_matriz(matrix, level);
+					escribe_matriz_testing(matrix);
+				}
 			}
-	} while (1);
-
+			
+	} while (level<=MAXLEVEL);
+	
+	for (i=0; i<32;i++){
+		printf("\x1b[38m\x1b[%d;0H                                                           ", i);
+	}
+	retardo(3);
+	printf("\x1b[32m\x1b[10;0H********************************");
+	if(fallos == 0) printf("\x1b[32m\x1b[11;0H Felicidades, has acabado el \njuego de pruebas con %d fallos !!!!!", fallos);
+	if(fallos != 0) printf("\x1b[31m\x1b[11;0H Oh no! Se han encontrado %d \nfallos en el codigo, toca revisarlo!", fallos);
+	printf("\x1b[32m\x1b[14;0H********************************");
+	retardo (30);
 	return(0);
 }
 

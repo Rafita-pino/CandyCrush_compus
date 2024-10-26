@@ -225,10 +225,12 @@ recombina_elementos:
 					add r9, #1					@; incrementamos el contador de iteraciones maximas
 					mov r10, r0
 					ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
+					
 					cmp r9, #MAX_ITERACIONES	@; MAX_ITERACIONES definido en candy1_incl.i
 					
-					movhs r0, r8				@; si tenemos que volver a empezar, cargamos direccion matjoc en r0
-					bhs recombina_elementos
+					movhs r0, r4				@; si tenemos que volver a empezar, cargamos direccion matjoc en r0
+					bhs recombina_elementos		@; podria crearse un bucle infinito, pero como el enunciado dice que se asume
+												@; que siempre puede haber una posible reordenacion, pues... (a veces genera bucles infinitos)
 					
 					cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
 					beq .L_Random				@; si esta usado repetimos proceso de random
