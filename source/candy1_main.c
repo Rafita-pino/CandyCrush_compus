@@ -473,6 +473,7 @@ int cuenta(char mat[][COLUMNS], int mode)
 			}
 
 		}
+		
 	}
 	return(count);
 }
