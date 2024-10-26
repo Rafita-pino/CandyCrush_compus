@@ -459,6 +459,7 @@ int main(void)
 		escribe_matriz_testing(matrix);
 		if (hay_secuencia(matrix))	// si hay secuencias
 		{			
+		//holas
 			printf("\x1b[39m\x1b[3;0H hay secuencia: SI");
 			retardo(30);
 			elimina_secuencias(matrix, mat_mar);
