@@ -254,12 +254,12 @@ recombina_elementos:
 				b .SubstituirRecomb1
 				
 				.CopiaGelatina8:
-					add r5, #8			@; añadimos codigo de gelatina de mat_joc
-					strb r5, [r8, r6]		@; subimos a mat_recomb2 el codigo final
+					add r11, #8			@; añadimos codigo de gelatina de mat_joc
+					strb r11, [r8, r6]		@; subimos a mat_recomb2 el codigo final
 					b .SubstituirRecomb1
 				.CopiaGelatina16:
-					add r5, #16			@; añadimos codigo de gelatina de mat_joc
-					strb r5, [r8, r6]		@; subimos a mat_recomb2 el codigo final	
+					add r11, #16			@; añadimos codigo de gelatina de mat_joc
+					strb r11, [r8, r6]		@; subimos a mat_recomb2 el codigo final	
 				.SubstituirRecomb1:			@; sino tenemos gelatina, el codigo ya esta copiado y substituimos en recomb1
 					mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
 					strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)

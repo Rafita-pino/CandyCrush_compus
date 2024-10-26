@@ -58,6 +58,8 @@
 #define T_INACT		192		// tiempo de inactividad del usuario (3 seg. aprox.)
 #define T_MOSUG		64		// tiempo entre mostrar sugerencias (1 seg. aprox.)
 
+#define MAX_REPES	500
+
 
 
 /* variables globales */
@@ -442,46 +444,58 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 
 
 
-/* ---------------------------------------------------------------- */
-/* candy1_main.c : función principal main() para test de tarea 1A 	*/
-/*					(requiere tener implementada la tarea 1E)		*/
-/* ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* candy1_main.c : función principal main() para test de tarea 1A y 1B  */
+/*				(requiere tener implementada la tarea 1E)			    */
+/* -------------------------------------------------------------------- */
 int main(void)
 {
 	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
-	
-	seed32 = time(NULL);		// fija semilla de números aleatorios
-	consoleDemoInit();			// inicialización de pantalla de texto
-	printf("candyNDS (prueba tarea 1A)\n");
+	unsigned char gel_ant= 0;
+	unsigned char gel_post= 0;		//gelatinas matriz anterior y posterior al recomb
+	char matrix_copia[ROWS][COLUMNS];		// matriz global de juego
+	int fallos = 0;
+	seed32 = time(NULL);		// fija semilla de nÃºmeros aleatorios
+	consoleDemoInit();			// inicializaciÃ³n de pantalla de texto
+	printf("candyNDS (prueba tarea 1A Y 1B)\n");
 	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
 	inicializa_matriz(matrix, level);
 	escribe_matriz_testing(matrix);
-
 	do							// bucle principal de pruebas
 	{
+		//int repes =0;
 		retardo(3);
-		printf("\x1b[39m\x1b[3;8H (pulse A o B)");
-		do
-		{	swiWaitForVBlank();
-			scanKeys();					// esperar pulsación tecla 'A' o 'B'
-		} while (!(keysHeld() & (KEY_A | KEY_B)));
-		printf("\x1b[3;8H              ");
-		retardo(3);
-		if (keysHeld() & KEY_B)			// si pulsa 'A',
-		{								// pasa a siguiente nivel
-			recombina_elementos(matrix);				// 1B
-			escribe_matriz_testing(matrix);
-		}
-		else if (keysHeld() & KEY_A)			// si pulsa 'A',
-		{								// pasa a siguiente nivel
-			level = (level + 1) % MAXLEVEL;
-			printf("\x1b[38m\x1b[1;8H %d", level);
-			inicializa_matriz(matrix, level);
-			escribe_matriz_testing(matrix);
-		}
+		
+			printf("\x1b[39m\x1b[4;8H (pulse A o B)");
+			printf("\x1b[38m\x1b[2;0H Llevas %d fallos lvl %d", fallos, level);
+			do
+			{	swiWaitForVBlank();
+				scanKeys();					// esperar pulsación tecla 'A' o 'B'
+			} while (!(keysHeld() & (KEY_A | KEY_B)));
+			if (keysHeld() & KEY_B){
+				printf("\x1b[39m\x1b[3;0H Iniciando test");
+				copia_matriz(matrix_copia, matrix);
+				gel_ant = cuenta_gelatinas(matrix);
+				recombina_elementos(matrix);
+				escribe_matriz_testing(matrix);
+				gel_post = cuenta_gelatinas(matrix);
+				printf("\x1b[39m\x1b[4;0H Gelatinas anteriores: %d, gelatinas posteriores: %d", gel_ant, gel_post);
+				retardo (30);
+				printf("\x1b[39m\x1b[4;0H                                                     ");
+			} 
+			printf("\x1b[3;22H                ");
+			retardo(3);
+			if (keysHeld() & KEY_A){					// pasa a siguiente nivel
+				level = (level + 1); //% MAXLEVEL;
+				printf("\x1b[38m\x1b[1;8H %d", level);
+				inicializa_matriz(matrix, level);
+				escribe_matriz_testing(matrix);
+			}
 	} while (1);
+
 	return(0);
 }
+
 
 
 
