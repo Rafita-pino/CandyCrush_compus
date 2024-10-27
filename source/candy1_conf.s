@@ -49,10 +49,10 @@
 		.byte 3, 4, 5, 1, 6, 2, 3, 5, 1
 		.byte 5, 3, 2, 6, 4, 1, 5, 2, 3
 
-	@; mapa 1: con secuencias horizontales
-		.byte 1, 1, 1, 7, 7, 7, 7, 7, 7
-		.byte 7, 7, 7, 2, 2, 2, 7, 7, 7
-		.byte 7, 7, 7, 7, 7, 7, 3, 3, 3
+	@; mapa 1: con secuencias horizontales (facilmente visibles)
+		.byte 3, 3, 3, 7, 7, 7, 7, 7, 7
+		.byte 7, 7, 7, 12, 12, 12, 7, 7, 7
+		.byte 7, 7, 7, 7, 7, 7, 20, 20, 20
 		.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
 		.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
 		.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
@@ -60,18 +60,18 @@
 		.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
 		.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
 
-	@; mapa 2: con secuencias verticales
-		.byte 4, 0, 0, 0, 0, 0, 0, 0, 0
-		.byte 4, 0, 0, 0, 0, 0, 0, 0, 0
-		.byte 4, 0, 0, 0, 0, 0, 0, 0, 0
-		.byte 0, 5, 0, 0, 0, 0, 0, 0, 0
-		.byte 0, 5, 0, 0, 0, 0, 0, 0, 0
-		.byte 0, 5, 0, 0, 0, 0, 0, 0, 0
-		.byte 0, 0, 6, 0, 0, 0, 0, 0, 0
-		.byte 0, 0, 6, 0, 0, 0, 0, 0, 0
-		.byte 0, 0, 6, 0, 0, 0, 0, 0, 0
+	@; mapa 2: con secuencias verticales (facilmente visibles)
+		.byte 5, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 5, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 5, 0, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 13, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 13, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 13, 0, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 21, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 21, 0, 0, 0, 0, 0, 0
+		.byte 0, 0, 21, 0, 0, 0, 0, 0, 0
 		
-	@; mapa 3: con secuencias verticales y horizontales sin cruce
+	@; mapa 3: con secuencias verticales y horizontales sin cruce (facilmente visibles)
 		.byte 7, 7, 7, 0, 0, 0, 0, 0, 0
 		.byte 0, 0, 0, 8, 8, 8, 0, 0, 0
 		.byte 0, 0, 0, 0, 0, 0, 9, 9, 9
@@ -82,7 +82,7 @@
 		.byte 0, 0, 11, 0, 0, 0, 0, 0, 0
 		.byte 0, 0, 11, 0, 0, 0, 0, 0, 0
 		
-	@; mapa 4: con secuencias verticales con cruce de diferentes numeros
+	@; mapa 4: con secuencias verticales con cruce de diferentes numeros (facilmente visibles)
 	
 		.byte 12, 12, 12, 0, 0, 0, 0, 0, 0
 		.byte 0, 0, 0, 13, 13, 13, 0, 0, 0
@@ -94,7 +94,7 @@
 		.byte 0, 16, 17, 17, 17, 0, 0, 0, 0
 		.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-	@; mapa 5: con secuencias verticales con cruce de mismos numeros
+	@; mapa 5: con secuencias verticales con cruce de mismos numeros (facilmente visibles)
 		.byte 18, 18, 18, 0, 0, 0, 0, 0, 0
 		.byte 0, 0, 0, 18, 18, 18, 0, 0, 0
 		.byte 18, 0, 0, 18, 0, 0, 0, 0, 0
@@ -183,7 +183,6 @@
 		.byte 6,18,22,5,6,2,15,15,15
 		.byte 12,5,4,3,11,5,15,15,15
 		.byte 7,7,17,19,4,6,15,15,15
-
 
 	@; etc.
 

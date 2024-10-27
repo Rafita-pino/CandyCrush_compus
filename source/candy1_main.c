@@ -440,38 +440,114 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 	}
 }
 
+void clear_line(int row) {
+    printf("\x1b[%d;0H                                ", row);
+}
 
-
-
-
+void wait_keyB() {
+	do
+	{	
+		swiWaitForVBlank();
+		scanKeys();					// esperar pulsación tecla 'B'
+	} while (!(keysHeld() & KEY_B));
+	return;
+}
 int main(void)
 {
 	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
+	char* secus[] = {				// comentarios sobre secuencias
+		"Sin secuencia",
+		"Secuencias horizontales",
+		"Secuencias verticales",
+		"Secus ver/hor sin cruce",
+		"Secus ver sin cruce",
+		"Secus ver con cruce same num",
+		"Secus blocks y huecos",
+		"Con gelatinas simples y dobles",
+		"Secuencias en los limites",
+		"Secus hor 3,4,5 elementos",
+		"Secus ver 3,4,5 elementos",
+		"Secus cruzadas hor/ver 5,6,7 elems",
+		"Sin secuencia ni comb"
+	};
+	char matrix_copia[ROWS][COLUMNS]; // Para copiar la matriz antes y despues de secuencias
 	
 	consoleDemoInit();			// inicialización de pantalla de texto
-	printf("candyNDS (prueba tarea 1C)\n");
-	printf("\x1b[38m\x1b[1;0H  nivel: %d", level);
+	printf("candyNDS (prueba tarea 1C y 1D)\n");
+	printf("\x1b[38m\x1b[1;0H  Nivel: %d", level);
+	printf("\x1b[38m\x1b[2;0H %s", secus[level]); // Muestra el tipo de secuencia
+	
 
 	do							// bucle principal de pruebas
 	{
-		//inicializa_matriz(matrix, level);
-		copia_matriz(matrix, mapas[level]);	// sustituye a inicializa_matriz()
-		escribe_matriz_testing(matrix);
-		if (hay_secuencia(matrix))	// si hay secuencias
-		{			
-		//holas
-			printf("\x1b[39m\x1b[3;0H hay secuencia: SI");
-			retardo(30);
+		inicializa_matriz(matrix, level);
+		//copia_matriz(matrix, mapas[level]);	// sustituye a inicializa_matriz()
+		escribe_matriz(matrix);
+		printf("\x1b[39m\x1b[3;0H Matriz inicializada:");
+		if(hay_secuencia(matrix))	// si no hay secuencias
+		{
+			retardo(10);
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[32mSI\x1b[39m");
+			retardo(15); 
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para verlas.");
+			wait_keyB();
+			copia_matriz(matrix_copia, matrix); // copiamos matriz antes de eliminar secuencias
 			elimina_secuencias(matrix, mat_mar);
-			retardo(30);
-			escribe_matriz_testing(mat_mar);
-			retardo(30);
-			escribe_matriz_testing(matrix);
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Matriz de marcas:");
+			escribe_matriz(mat_mar);
+			retardo(15);
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para eliminar secu.");
+			wait_keyB();
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Secuencias eliminadas: ");
+			escribe_matriz(matrix);
+			retardo(15);
+			// Bucle para alternar entre la matriz inicial y la actualizada
+			int mostrar_copia = 0;
+			bool sortir = false;
+			do {
+				clear_line(4);
+				printf("\x1b[39m\x1b[4;0H Pulse '\x1b[36mB\x1b[39m' para\x1b[32m alternar\x1b[39m.");
+				clear_line(3);
+				printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
+				
+				// Muestra la matriz correspondiente
+				if (mostrar_copia) {
+					escribe_matriz(matrix_copia); // Muestra la matriz antes de eliminar secuencias
+				} else {
+					escribe_matriz(matrix); // Muestra la matriz después de eliminar secuencias
+				}
+				
+				// Espera a que se pulse una tecla
+				swiWaitForVBlank();
+				scanKeys();
+				
+				if (keysDown() & KEY_B) {
+					mostrar_copia = !mostrar_copia; // Alterna entre la copia y la matriz actual
+					
+				}
+				if (keysDown() & KEY_A) {	
+					clear_line(3);
+					clear_line(4);
+					sortir = true;
+				}
+			} while (!sortir); // Salir si se pulsa 'A'
 		}
 		else
-			printf("\x1b[39m\x1b[3;0H hay secuencia: NO");
-		retardo(3);
-		printf("\x1b[39m\x1b[3;19H (pulse A/B)");
+		{
+			retardo(10);
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[31mNO\x1b[39m");
+			retardo(15);
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
+		}
+		
+		// PASAR AL SIGUIENTE NIVEL
 		do
 		{	swiWaitForVBlank();
 			scanKeys();					// esperar pulsación tecla 'A' o 'B'
@@ -481,9 +557,10 @@ int main(void)
 		if (keysHeld() & KEY_A)			// si pulsa 'A',
 		{								// pasa a siguiente nivel
 			level = (level + 1) % MAXLEVEL;
-			printf("\x1b[38m\x1b[1;8H %d", level);
+			printf("\x1b[39m\x1b[1;8H \x1b[32m%d\x1b[39m", level);
+			clear_line(2);
+			printf("\x1b[38m\x1b[2;0H %s", secus[level]);
 		}
 	} while (1);
 	return(0);
 }
-
