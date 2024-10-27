@@ -14,7 +14,7 @@
 @;						(MAXLEVEL está definida en 'include/candy1_incl.h')
 @;	cada límite debe ser un número entre 3 y 99.
 		.global max_mov
-	max_mov:	.byte 20, 27, 31, 45, 52, 32, 21, 90, 50 
+	max_mov:	.byte 100, 20, 27, 31, 45, 52, 32, 21, 90, 50, 20 
 
 
 @; objetivo de puntos para cada nivel;
@@ -24,7 +24,7 @@
 @;	incrementando a medida que se rompan elementos.
 		.align 1
 		.global pun_obj
-	pun_obj:	.hword -1000, -830, -500, 0, -240, -500, -200, -900, 0
+	pun_obj:	.hword 0, -1000, -830, -500, 0, -240, -500, -200, -900, 0, 0
 
 
 
@@ -38,8 +38,18 @@
 @;		16+:	gelatina doble (a sumarle código de elemento)
 		.global mapas
 	mapas:
-
-	@; mapa 0: todo aleatorio
+	@; mapa 0: probar recomb x2
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		.byte 8,16,8,16,8,16,8,16,8
+		
+	@; mapa 1: todo aleatorio
 		.byte 0,0,0,0,0,0,0,0,0
 		.byte 0,0,0,0,0,0,0,0,0
 		.byte 0,0,0,0,0,0,0,0,0
@@ -50,27 +60,18 @@
 		.byte 0,0,0,0,0,0,0,0,0
 		.byte 0,0,0,0,0,0,0,0,0
 
-	@; mapa 1: paredes horizontales y verticales
-		.byte 0,0,0,0,0,0,0,0,0
-		.byte 0,0,0,0,0,0,0,0,0
-		.byte 0,7,7,7,7,7,0,0,0
-		.byte 0,7,0,0,0,0,0,0,0
-		.byte 0,7,0,0,0,7,7,7,7
-		.byte 0,7,0,0,0,0,0,0,7
-		.byte 0,0,0,0,0,0,0,0,7
-		.byte 0,0,7,7,7,7,0,0,7
-		.byte 0,0,0,0,0,0,0,0,7
+	@; mapa 2: probar recomb
+		.byte 15,15,15,15,15,15,15,15,15
+		.byte 15,15,15,15,15,15,15,15,15
+		.byte 15,15,15,15,15,15,15,15,15
+		.byte 15,15,15,15,15,15,15,15,15
+		.byte 15,15,15,15,15,15,15,15,15
+		.byte 15,15,15,15,15,15,15,15,15
+		.byte 15,15,15,15,15,15,15,15,15
+		.byte 8,9,15,15,15,15,15,15,15
+		.byte 20,22,15,15,15,15,15,15,15
 
-	@; mapa 2: huecos y bloques sólidos
-		.byte 15,15,7,15,0,0,0,0,0
-		.byte 0,15,15,7,15,0,0,0,15
-		.byte 0,0,0,0,0,15,0,0,15
-		.byte 0,0,0,0,0,0,7,7,7
-		.byte 0,0,0,0,0,0,0,15,15
-		.byte 15,0,15,15,0,0,0,0,15
-		.byte 0,0,15,0,0,0,0,0,0
-		.byte 0,0,0,0,0,15,0,0,0
-		.byte 0,0,0,0,0,0,0,0,15
+
 	
 	@; mapa 3: gelatinas simples
 		.byte 0,0,0,8,8,8,0,0,15
@@ -138,6 +139,27 @@
 		.byte 12,5,4,3,11,5,15,15,15
 		.byte 7,7,17,19,4,6,15,15,15
 
+	@; mapa 9 anterior1: paredes horizontales y verticales
+		.byte 0,0,0,0,0,0,0,0,0
+		.byte 0,0,0,0,0,0,0,0,0
+		.byte 0,7,7,7,7,7,0,0,0
+		.byte 0,7,0,0,0,0,0,0,0
+		.byte 0,7,0,0,0,7,7,7,7
+		.byte 0,7,0,0,0,0,0,0,7
+		.byte 0,0,0,0,0,0,0,0,7
+		.byte 0,0,7,7,7,7,0,0,7
+		.byte 0,0,0,0,0,0,0,0,7
+	@; mapa 10 anterior1: paredes horizontales y verticales
+		.byte 0,1,2,3,4,5,9,7,8
+		.byte 9,10,11,12,13,14,15,16,17
+		.byte 18,19,20,21,22,0,1,2,3
+		.byte 4,5,6,7,8,9,10,11,12
+		.byte 13,12,13,14,15,16,17,18,19
+		.byte 20,21,22,0,1,2,3,4,5
+		.byte 6,7,8,9,10,11,12,13,14
+		.byte 15,16,17,18,19,20,21,22,0
+		.byte 1,2,3,4,5,6,7,8,9
+		
 
 	@; etc.
 

@@ -12,7 +12,7 @@
 #define COLUMNS	9
 #define DFIL	(24-ROWS*2)				// desplazamiento vertical de filas
 
-#define MAXLEVEL	9					// nivel máximo (niveles 0..MAXLEVEL-1)
+#define MAXLEVEL	10					// nivel máximo (niveles 0..MAXLEVEL-1)
 
 #define PUNT_SEC3	30					// puntos secuencia de 3 elementos
 #define PUNT_SEC4	60					// puntos secuencia de 4 elementos
@@ -20,6 +20,7 @@
 #define PUNT_COM5	150					// puntos combinación de 5 elementos
 #define PUNT_COM6	200					// puntos combinación de 6 elementos
 #define PUNT_COM7	300					// puntos combinación de 7 elementos
+
 
 
 	// candy1_conf.s //
