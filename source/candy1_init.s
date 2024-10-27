@@ -222,7 +222,7 @@ recombina_elementos:
 				.L_Random:
 					mov r0, #COLUMNS*ROWS
 					bl mod_random				@; numero aleatorio de la matriz
-<<<<<<< HEAD
+
 					add r9, #1					@; incrementamos el contador de iteraciones maximas
 					mov r10, r0
 					ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
@@ -243,40 +243,21 @@ recombina_elementos:
 					cmp r0, #3					@; si r0>=3 tenemos secuencia
 					bge .L_Random				@; repetimos proceso para evitar secuencias
 					
-=======
-					mov r10, r0
-					ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
-					
-					add r9, #1					@; incrementamos el contador de iteraciones maximas
-					cmp r9, #2048				@; MAX_ITERACIONES 
-					bhs .L_FiRecomb2			@; volvemos a empezar porque nos hemos quedado en bucle infinito
-					cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
-					beq .L_Random				@; si esta usado repetimos proceso de random
-					
-					strb r5, [r8, r6]			@; cargamos valor (r5) en mat_recomb2
-					mov r0, r8					@; direccion base de la matriz
-					mov r11, r5					@; guardamos en r11 (mat_recomb2)
-					mov r5, r3					@; guardamos el valor de r3 en r5 (mat_joc)
-					mov r3, #2					@; direccion 2 para cuenta_repeticiones
-					bl cuenta_repeticiones		
-					cmp r0, #3					@; si r0>=3 tenemos secuencia
-					bge .L_Random				@; repetimos proceso para evitar secuencias
->>>>>>> prog2
+
 					mov r0, r8					@; direccion base de la matriz
 					mov r3, #3					@; direccion 3 para cuenta_repeticiones
 					bl cuenta_repeticiones		
 					cmp r0, #3					@; si r0>=3 tenemos secuencia
 					bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
-<<<<<<< HEAD
+
 					
 				ldrb r5, [r8, r6]			@; volvemos a coger los valores de la matriz de juego y de mat_recomb2 porque no se donde algun registro se modifica
 											@; y produce errores 											
 				ldrb r3, [r4, r6]
 			
-=======
+
 				
-				mov r3, r5					@; duplicamos valor de mat_joc
->>>>>>> prog2
+
 				mov r3, r3, lsr#3			
 				and r3, #0x03				@; nos quedan los bits (4..3)
 				cmp r3, #0x01				@; comparamos con gelatina simple (01)
@@ -286,7 +267,7 @@ recombina_elementos:
 				b .SubstituirRecomb1
 				
 				.CopiaGelatina8:
-<<<<<<< HEAD
+
 					add r5, #8			@; añadimos codigo de gelatina de mat_joc a mat_recomb2
 					strb r5, [r8, r6]		@; subimos a mat_recomb2 el codigo final
 					b .SubstituirRecomb1
@@ -296,17 +277,7 @@ recombina_elementos:
 				.SubstituirRecomb1:			@; sino tenemos gelatina, el codigo ya esta copiado y substituimos en recomb1
 					mov r5, #0					@; preparamos el 0 para sustituir en mat_recomb1
 					strb r5, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
-=======
-					add r11, #8			@; añadimos codigo de gelatina de mat_joc
-					strb r11, [r8, r6]		@; subimos a mat_recomb2 el codigo final
-					b .SubstituirRecomb1
-				.CopiaGelatina16:
-					add r11, #16			@; añadimos codigo de gelatina de mat_joc
-					strb r11, [r8, r6]		@; subimos a mat_recomb2 el codigo final	
-				.SubstituirRecomb1:			@; sino tenemos gelatina, el codigo ya esta copiado y substituimos en recomb1
-					mov r3, #0					@; preparamos el 0 para sustituir en mat_recomb1
-					strb r3, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
->>>>>>> prog2
+
 					
 
 		.L_FiRecomb2:
@@ -347,10 +318,6 @@ recombina_elementos:
 @;:::RUTINAS DE SOPORTE:::
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> prog2
 @; mod_random(n): rutina para obtener un número aleatorio entre 0 y n-1,
 @;	utilizando la rutina random()
 @;	Restricciones:

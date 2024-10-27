@@ -558,7 +558,6 @@ void alternar_matrices(char matrix[][COLUMNS], char matrix_copia[][COLUMNS], cha
 	} while (1);
 }
 
-<<<<<<< HEAD
 
 
 /* cuenta_solidos(*mat): calcula cuantos solidos quedan en la matriz de
@@ -708,76 +707,3 @@ int main(void)
 	retardo (30);
 	return(0);
 }
-
-
-
-
-=======
-int main(void)
-{
-	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
-	
-	char matrix_copia[ROWS][COLUMNS]; // Para copiar la matriz antes y despues de secuencias
-	
-	consoleDemoInit();			// inicialización de pantalla de texto
-	printf("candyNDS (prueba tarea 1C y 1D)\n");
-	mostrar_nivel(level);	
-
-	do							// bucle principal de pruebas
-	{
-		inicializa_matriz(matrix, level);
-		escribe_matriz(matrix);
-		printf("\x1b[39m\x1b[3;0H Matriz inicializada");
-		if(hay_secuencia(matrix))	// si hay secuencias
-		{
-			copia_matriz(matrix_copia, matrix); // copiamos matriz antes de eliminar secuencias
-			
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[32mSI\x1b[39m");
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para verlas.");
-			
-			wait_keyB(); // Esperar a pulsar B
-			
-			elimina_secuencias(matrix, mat_mar);  // Eliminar Secuencias
-			clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Matriz de marcas:");
-			escribe_matriz(mat_mar);				// Mostar matriz marcas
-			
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para eliminar secu.");
-			
-			wait_keyB(); // Esperar a pulsar B
-			
-			clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Secuencias eliminadas: ");
-			escribe_matriz(matrix);			// Mostrar la matriz con secuencias eliminadas
-			retardo(15);
-			
-			alternar_matrices(matrix, matrix_copia, mat_mar); // Para poder ver las diferencias
-															// antes y despues de eliminar secuencia
-		}
-		else // si no hay secuencia
-		{
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[31mNO\x1b[39m");
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
-		}
-		
-		// PASAR AL SIGUIENTE NIVEL
-		do
-		{	swiWaitForVBlank();
-			scanKeys();					// esperar pulsación tecla 'A' o 'B'
-		} while (!(keysHeld() & (KEY_A | KEY_B)));
-		printf("\x1b[3;0H                               ");
-		retardo(3);
-		if (keysHeld() & KEY_A)			// si pulsa 'A',
-		{								// pasa a siguiente nivel
-			level = (level + 1) % MAXLEVEL;
-			mostrar_nivel(level); // mostrar nivel
-		}
-	} while (1);
-	return(0);
-}
->>>>>>> prog2
