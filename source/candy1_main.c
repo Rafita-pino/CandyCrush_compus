@@ -226,7 +226,8 @@ void actualiza_contadores(unsigned char lev, short p, unsigned char m,
 void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
 							short *p, unsigned char *m, unsigned char *g)
 {
-	inicializa_matriz(mat, lev);
+	//inicializa_matriz(mat, lev);
+	copia_matriz(mat, mapas[lev]);
 	escribe_matriz(mat);
 	*p = pun_obj[lev];
 	*m = max_mov[lev];
@@ -478,7 +479,86 @@ int cuenta(char mat[][COLUMNS], int mode)
 	return(count);
 }
 
+// JUEGO DE PRUEBAS 
 
+const char* secus[] = {				// info sobre secuencias
+	"Sin secuencia",
+	"Secuencias horizontales",
+	"Secuencias verticales",
+	"Secus ver/hor sin cruce",
+	"Secus ver sin cruce",
+	"Secus ver con cruce same num",
+	"Secus blocks y huecos",
+	"Con gelatinas simples y dobles",
+	"Secuencias en los limites",
+	"Secus hor 3,4,5 elementos",
+	"Secus ver 3,4,5 elementos",
+	"Secus cruzadas hor/ver 5,6,7 elems",
+	"Sin secuencia ni comb"
+};
+
+
+// Borra una linea
+void clear_line(int row) {
+    printf("\x1b[%d;0H                                ", row);
+}
+
+// Espera que se pulse B
+void wait_keyB() {
+	do
+	{	
+		swiWaitForVBlank();
+		scanKeys();					// esperar pulsación tecla 'B'
+	} while (!(keysHeld() & KEY_B));
+	return;
+}
+
+// Printea el nivel y su informacion
+void mostrar_nivel(unsigned char level) {
+    clear_line(1);
+    printf("\x1b[38m\x1b[1;0H Nivel: \x1b[39m%d", level);
+    clear_line(2);
+    printf("\x1b[38m\x1b[2;0H %s", secus[level]);
+}
+
+// Bucle para alternar entre la matriz inicial y la actualizada
+void alternar_matrices(char matrix[][COLUMNS], char matrix_copia[][COLUMNS], char mat_mar[][COLUMNS]) {
+	int mostrar_matriz = 0;
+	do {
+		clear_line(4);
+		printf("\x1b[39m\x1b[4;0H Pulse '\x1b[36mB\x1b[39m' para\x1b[32m alternar\x1b[39m.");
+		clear_line(3);
+		printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
+		
+        // Muestra la matriz correspondiente
+        switch (mostrar_matriz) {
+            case 0:
+                escribe_matriz(matrix_copia); // Muestra la matriz inicial
+                break;
+            case 1:
+                escribe_matriz(matrix); // Muestra la matriz después de eliminar secuencias
+                break;
+			case 2:
+                escribe_matriz(mat_mar); // Muestra la matriz de marcas
+                break;
+        }
+		
+		// Espera a que se pulse una tecla
+		swiWaitForVBlank();
+		scanKeys();
+		
+		if (keysDown() & KEY_B) {
+			mostrar_matriz = (mostrar_matriz + 1) % 3; // Alterna entre las tres matrices
+		}
+		if (keysDown() & KEY_A) {	
+			clear_line(3);
+			clear_line(4);
+			return;
+		}
+	} while (1);
+}
+
+<<<<<<< HEAD
 
 
 /* cuenta_solidos(*mat): calcula cuantos solidos quedan en la matriz de
@@ -632,3 +712,72 @@ int main(void)
 
 
 
+=======
+int main(void)
+{
+	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
+	
+	char matrix_copia[ROWS][COLUMNS]; // Para copiar la matriz antes y despues de secuencias
+	
+	consoleDemoInit();			// inicialización de pantalla de texto
+	printf("candyNDS (prueba tarea 1C y 1D)\n");
+	mostrar_nivel(level);	
+
+	do							// bucle principal de pruebas
+	{
+		inicializa_matriz(matrix, level);
+		escribe_matriz(matrix);
+		printf("\x1b[39m\x1b[3;0H Matriz inicializada");
+		if(hay_secuencia(matrix))	// si hay secuencias
+		{
+			copia_matriz(matrix_copia, matrix); // copiamos matriz antes de eliminar secuencias
+			
+			retardo(15); clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[32mSI\x1b[39m");
+			retardo(15); clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para verlas.");
+			
+			wait_keyB(); // Esperar a pulsar B
+			
+			elimina_secuencias(matrix, mat_mar);  // Eliminar Secuencias
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Matriz de marcas:");
+			escribe_matriz(mat_mar);				// Mostar matriz marcas
+			
+			retardo(15); clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para eliminar secu.");
+			
+			wait_keyB(); // Esperar a pulsar B
+			
+			clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Secuencias eliminadas: ");
+			escribe_matriz(matrix);			// Mostrar la matriz con secuencias eliminadas
+			retardo(15);
+			
+			alternar_matrices(matrix, matrix_copia, mat_mar); // Para poder ver las diferencias
+															// antes y despues de eliminar secuencia
+		}
+		else // si no hay secuencia
+		{
+			retardo(15); clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[31mNO\x1b[39m");
+			retardo(15); clear_line(3);
+			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
+		}
+		
+		// PASAR AL SIGUIENTE NIVEL
+		do
+		{	swiWaitForVBlank();
+			scanKeys();					// esperar pulsación tecla 'A' o 'B'
+		} while (!(keysHeld() & (KEY_A | KEY_B)));
+		printf("\x1b[3;0H                               ");
+		retardo(3);
+		if (keysHeld() & KEY_A)			// si pulsa 'A',
+		{								// pasa a siguiente nivel
+			level = (level + 1) % MAXLEVEL;
+			mostrar_nivel(level); // mostrar nivel
+		}
+	} while (1);
+	return(0);
+}
+>>>>>>> prog2
