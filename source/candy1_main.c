@@ -6,10 +6,10 @@
 	(2º curso de Grado de Ingeniería Informática - ETSE - URV)
 	
 	Analista-programador: santiago.romani@urv.cat
-	Programador 1: rafael.pinor@estudiants.urv.cat
-	Programador 2: yyy.yyy@estudiants.urv.cat
-	Programador 3: zzz.zzz@estudiants.urv.cat
-	Programador 4: uuu.uuu@estudiants.urv.cat
+	Programador 1: rafa.pino@estudiants.urv.cat
+	Programador 2: oupman.miralles@estudiants.urv.cat
+	Programador 3: arnau.faura@estudiants.urv.cat
+	Programador 4: gerard.ros@estudiants.urv.cat
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
@@ -57,9 +57,6 @@
 						// definiciones para la gestión de sugerencias
 #define T_INACT		192		// tiempo de inactividad del usuario (3 seg. aprox.)
 #define T_MOSUG		64		// tiempo entre mostrar sugerencias (1 seg. aprox.)
-
-#define MAX_REPES	500
-
 
 
 /* variables globales */
@@ -226,8 +223,7 @@ void actualiza_contadores(unsigned char lev, short p, unsigned char m,
 void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
 							short *p, unsigned char *m, unsigned char *g)
 {
-	//inicializa_matriz(mat, lev);
-	copia_matriz(mat, mapas[lev]);
+	inicializa_matriz(mat, lev);
 	escribe_matriz(mat);
 	*p = pun_obj[lev];
 	*m = max_mov[lev];
@@ -445,265 +441,79 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 
 
 
-/* cuenta(*mat): calcula dependiendo del modo que se le pase el numero de elementos
-	mode:
-		1--> solidos
-		2--> huecos
-		3--> calcula la suma de los basicos.
-*/
-int cuenta(char mat[][COLUMNS], int mode)
-{
-	int i, j, count = 0;
-
-	for (i = 0; i < ROWS; i++)			// para todas las filas
-	{
-		for (j = 0; j < COLUMNS; j++)	// para todas las columnas
-		{	
-			if (mode == 1 && mat[i][j] == 7)	count++;	// contamos solidos
-			if (mode == 2 && mat[i][j] == 15)	count++;	// contamos huecos
-			if (mode == 3) {
-				if (mat[i][j] != 15) {  // Exceptuando los huecos
-					if (mat[i][j] >= 1 && mat[i][j] <= 6) {
-						count += mat[i][j];  // Contamos basics
-					} else if (mat[i][j] >= 9 && mat[i][j] <= 14) {
-						count += (mat[i][j] - 8);  // Resta 8 y suma al count
-					} else if (mat[i][j] >= 17 && mat[i][j] <= 22) {
-						count += (mat[i][j] - 16);  // Resta 16 y suma al count
-					}
-				}
-			}
-
-		}
-		
-	}
-	return(count);
-}
-
-// JUEGO DE PRUEBAS 
-
-const char* secus[] = {				// info sobre secuencias
-	"Sin secuencia",
-	"Secuencias horizontales",
-	"Secuencias verticales",
-	"Secus ver/hor sin cruce",
-	"Secus ver sin cruce",
-	"Secus ver con cruce same num",
-	"Secus blocks y huecos",
-	"Con gelatinas simples y dobles",
-	"Secuencias en los limites",
-	"Secus hor 3,4,5 elementos",
-	"Secus ver 3,4,5 elementos",
-	"Secus cruzadas hor/ver 5,6,7 elems",
-	"Sin secuencia ni comb"
-};
 
 
-// Borra una linea
-void clear_line(int row) {
-    printf("\x1b[%d;0H                                ", row);
-}
-
-// Espera que se pulse B
-void wait_keyB() {
-	do
-	{	
-		swiWaitForVBlank();
-		scanKeys();					// esperar pulsación tecla 'B'
-	} while (!(keysHeld() & KEY_B));
-	return;
-}
-
-// Printea el nivel y su informacion
-void mostrar_nivel(unsigned char level) {
-    clear_line(1);
-    printf("\x1b[38m\x1b[1;0H Nivel: \x1b[39m%d", level);
-    clear_line(2);
-    printf("\x1b[38m\x1b[2;0H %s", secus[level]);
-}
-
-// Bucle para alternar entre la matriz inicial y la actualizada
-void alternar_matrices(char matrix[][COLUMNS], char matrix_copia[][COLUMNS], char mat_mar[][COLUMNS]) {
-	int mostrar_matriz = 0;
-	do {
-		clear_line(4);
-		printf("\x1b[39m\x1b[4;0H Pulse '\x1b[36mB\x1b[39m' para\x1b[32m alternar\x1b[39m.");
-		clear_line(3);
-		printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
-		
-        // Muestra la matriz correspondiente
-        switch (mostrar_matriz) {
-            case 0:
-                escribe_matriz(matrix_copia); // Muestra la matriz inicial
-                break;
-            case 1:
-                escribe_matriz(matrix); // Muestra la matriz después de eliminar secuencias
-                break;
-			case 2:
-                escribe_matriz(mat_mar); // Muestra la matriz de marcas
-                break;
-        }
-		
-		// Espera a que se pulse una tecla
-		swiWaitForVBlank();
-		scanKeys();
-		
-		if (keysDown() & KEY_B) {
-			mostrar_matriz = (mostrar_matriz + 1) % 3; // Alterna entre las tres matrices
-		}
-		if (keysDown() & KEY_A) {	
-			clear_line(3);
-			clear_line(4);
-			return;
-		}
-	} while (1);
-}
-
-
-
-/* cuenta_solidos(*mat): calcula cuantos solidos quedan en la matriz de
-	juego. */
-int cuenta_solidos(char mat[][COLUMNS])
-{
-	return(cuenta(mat, 1));
-}
-
-/* cuenta_huecos(*mat): calcula cuantos huecos quedan en la matriz de
-	juego. */
-int cuenta_huecos(char mat[][COLUMNS])
-{
-	return(cuenta(mat, 2));
-}
-
-/* cuenta_basics(*mat): calcula la suma de los elementos basicos incluyendo 
-	los que se encuentran dentro de gelatinas (sin contar el valor de gelatina) */
-int cuenta_basics(char mat[][COLUMNS])
-{
-	return(cuenta(mat, 3));
-}
-
-
-
-
-
-
-/* -------------------------------------------------------------------- */
-/* candy1_main.c : función principal main() para test de tarea 1A y 1B  */
-/*				(requiere tener implementada la tarea 1E)			    */
-/* -------------------------------------------------------------------- */
+/* Programa principal: control general del juego */
 int main(void)
 {
 	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
-	int gel_ant= 0;
-	int gel_post= 0;		//elementos matriz anterior y posterior al recomb
-	int huecos_ant= 0;
-	int huecos_post= 0;
-	int basics_ant= 0;
-	int basics_post= 0;
-	int solidos_ant= 0;
-	int solidos_post= 0;
-	int i;	
+	short points = 0;				// contador de puntos
+	unsigned char moves = 0;		// número de movimientos restantes
+	unsigned char gelees = 0;		// número de gelatinas restantes
 	
-	char matrix_copia[ROWS][COLUMNS];		// matriz global de juego
-	int fallos = 0;
-	seed32 = time(NULL);		// fija semilla de numeros aleatorios
-	consoleDemoInit();			// inicializacion de pantalla de texto
-	
-	printf("\x1b[39m\x1b[0;0H candyNDS (prueba tarea 1A Y 1B)\n");
-	retardo(10);
+	unsigned char state = E_INIT;	// estado actual del programa
+	unsigned short lapse = 0;		// contador VBLs inactividad del usuario
+	unsigned char ret;				// código de retorno de funciones auxiliares
 
-	inicializa_matriz(matrix, level);
-	escribe_matriz_testing(matrix);
-	
-	do							// bucle principal de pruebas
+	seed32 = time(NULL);			// fija semilla inicial números aleatorios
+	consoleDemoInit();				// inicializa pantalla de texto
+	printf("candyNDS (version 1: texto)\n");
+	printf("\x1b[38m\x1b[1;0H  nivel:");
+	printf("\x1b[39m\x1b[2;0H puntos:");
+	printf("\x1b[38m\x1b[1;15H movimientos:");
+	printf("\x1b[37m\x1b[2;15H   gelatinas:");
+
+	do								// bucle principal del juego
 	{
-		printf("\x1b[39m\x1b[0;0H                                ");
-		printf("\x1b[39m\x1b[0;0H lvl: %d", level);
-		retardo(3);
-		
-			printf("\x1b[38m\x1b[2;0H pulse A (lvl+1)|B (test recomb)");
-			if(fallos == 0) printf("\x1b[32m\x1b[1;0H Llevas %d fallos", fallos);
-			if(fallos != 0) printf("\x1b[31m\x1b[1;0H Llevas %d fallos", fallos);
-			do
-			{	swiWaitForVBlank();
-				scanKeys();					// esperar pulsación tecla 'A' o 'B'
-			} while (!(keysHeld() & (KEY_A | KEY_B)));
-			
-			while (keysHeld() & KEY_B){
-
-				
-				copia_matriz(matrix_copia, matrix); //copiamos matriz antes del recomb para poder mostrarla despues
-				gel_ant = cuenta_gelatinas(matrix); // calculamos elementos de mat antes del recomb
-				huecos_ant = cuenta_huecos(matrix);
-				basics_ant = cuenta_basics(matrix);
-				solidos_ant = cuenta_solidos(matrix);
-				
-				recombina_elementos(matrix); // recombinamos
-				gel_post = cuenta_gelatinas(matrix); // calculamos elementos de mat despues del recomb
-				huecos_post = cuenta_huecos(matrix);
-				basics_post = cuenta_basics(matrix);
-				solidos_post = cuenta_solidos(matrix);
-				
-				escribe_matriz_testing(matrix);
-				
-				fallos = fallos +abs(gel_post-gel_ant)+abs(huecos_post-huecos_ant)+abs(basics_post-basics_ant)+abs(solidos_post-solidos_ant) ;
-				if(fallos == 0) printf("\x1b[32m\x1b[1;0H Llevas %d fallos", fallos);
-				if(fallos != 0) printf("\x1b[31m\x1b[1;0H Llevas %d fallos", fallos);
-				retardo (5);
-				do {
-					printf("\x1b[38m\x1b[7;18H Gel_ant: %d", gel_ant);
-					printf("\x1b[38m\x1b[8;18H Gel_post: %d",gel_post);
-					
-					printf("\x1b[38m\x1b[9;18H Huec_ant: %d", huecos_ant);
-					printf("\x1b[38m\x1b[10;18H Huec_post: %d",huecos_post);
-					
-					printf("\x1b[38m\x1b[11;18H Bas_ant: %d", basics_ant);
-					printf("\x1b[38m\x1b[12;18H Bas_post: %d",basics_post);
-					
-					printf("\x1b[38m\x1b[13;18H Sol_ant: %d", solidos_ant);
-					printf("\x1b[38m\x1b[14;18H Sol_post: %d",solidos_post);
-					
-					printf("\x1b[39m\x1b[3;0H < matriz anterior | > matriz \n recombinada | A nivel+1 |\n B repetir");
-					
-					do
-					{	swiWaitForVBlank();
-						scanKeys();					// esperar pulsación tecla
-					} while (!(keysHeld() & (KEY_LEFT | KEY_RIGHT | KEY_A | KEY_B)));
-					
-					if(keysHeld() & KEY_LEFT){
-						escribe_matriz_testing(matrix_copia);
-					}else if(keysHeld() & KEY_RIGHT){
-						escribe_matriz_testing(matrix);
-					}
-					
-				} while (!(keysHeld() & (KEY_A | KEY_B)));
-				printf("\x1b[38m\x1b[2;0H                                                                 ");
-				printf("\x1b[39m\x1b[3;0H                                                                 ");
-				printf("\x1b[39m\x1b[4;0H                                                                 ");
-				gel_ant= 0; gel_post= 0; gel_ant = 0; huecos_ant = 0; basics_ant = 0; solidos_ant = 0; gel_post = 0; huecos_post = 0; basics_post = 0; solidos_post = 0;
-				for (i=7; i<16;i++){
-					printf("\x1b[38m\x1b[%d;18H                                      ", i); //ponemos en blanco posiciones de la 7 a la 15
-				}
-			}
-			
-			retardo(3);
-			if (keysHeld() & KEY_A){					// pasa a siguiente nivel
-				if (level <= MAXLEVEL){
-					level = (level + 1);
-					inicializa_matriz(matrix, level);
-					escribe_matriz_testing(matrix);
-				}
-			}
-			
-	} while (level<=MAXLEVEL);
+		swiWaitForVBlank();
+		scanKeys();
+		switch (state)
+		{
+			case E_INIT:		//////	ESTADO DE INICIALIZACIÓN	//////
+						inicializa_nivel(matrix, level, &points, &moves, &gelees);
+						lapse = 0;
+						if (hay_secuencia(matrix))	state = E_BREAK;
+						else if (!hay_combinacion(matrix))	state = E_CHECK;
+						else	state = E_PLAY;
+						break;
+			case E_PLAY:		//////	ESTADO DE INTERACCIÓN CON USUARIO //////
+						if (keysHeld() & KEY_TOUCH)		// detecta pulsación en pantalla
+						{
+							lapse = 0;				// reinicia tiempo de inactividad
+							if (procesa_pulsacion(matrix, points, &moves, gelees))
+								state = E_BREAK;	// si hay secuencia, pasa a romperla
+						}
+						else
+						{	lapse++;				// cuenta tiempo (VBLs) de inactividad
+							if (lapse >= T_INACT)	// a partir de cierto tiempo de inactividad,
+								procesa_sugerencia(matrix, lapse);
+						}
+#ifdef TRUCOS
+						testing(&state, matrix, level, &points, &moves, &gelees);
+#endif
+						break;
+			case E_BREAK:		//////	ESTADO DE ROMPER SECUENCIAS	//////
+						procesa_rotura(matrix, level, &points, moves, &gelees);
+						lapse = 0;
+						state = E_FALL;
+						break;
+			case E_FALL:		//////	ESTADO DE CAÍDA DE ELEMENTOS	//////
+						ret = procesa_caida(matrix, points, moves, gelees);
+											// cuando ya no haya más bajadas,
+						if (ret == PC_ENDNOSQ)	state = E_CHECK;		// comprueba situación del juego
+						else if (ret == PC_ENDSEQ)	state = E_BREAK;	// o rompe secuencia (si la hay)
+						// si ha habido algún movimiento de caída, sigue en estado E_FALL
+						break;
+			case E_CHECK:		//////	ESTADO DE VERIFICACIÓN	//////
+						ret = comprueba_jugada(matrix, &level, points, moves, gelees);
+						if (ret == CJ_LEVEL)	state = E_INIT;			// nuevo nivel o reiniciar nivel
+						else if ((ret == CJ_CONT) || (ret == CJ_RCOMB))	// si no ha pasado nada especial o ha habido recombinación con posible secuencia,
+							state = E_PLAY;		//  sigue jugando
+						// si ha habido recombinación sin nueva combinación, sigue en estado E_CHECK
+						break;
+		}
+	} while (1);				// bucle infinito
 	
-	for (i=0; i<32;i++){
-		printf("\x1b[38m\x1b[%d;0H                                                           ", i);
-	}
-	retardo(3);
-	printf("\x1b[32m\x1b[10;0H********************************");
-	if(fallos == 0) printf("\x1b[32m\x1b[11;0H Felicidades, has acabado el \njuego de pruebas con %d fallos !!!!!", fallos);
-	if(fallos != 0) printf("\x1b[31m\x1b[11;0H Oh no! Se han encontrado %d \nfallos en el codigo, toca revisarlo!", fallos);
-	printf("\x1b[32m\x1b[14;0H********************************");
-	retardo (30);
-	return(0);
+	return(0);					// nunca retornará del main
 }
+

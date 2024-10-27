@@ -1,8 +1,8 @@
 ﻿@;=                                                               		=
 @;=== candy1_secu.s: rutinas para detectar y elimnar secuencias 	  ===
 @;=                                                             	  	=
-@;=== Programador tarea 1C: xxx.xxx@estudiants.urv.cat				  ===
-@;=== Programador tarea 1D: yyy.yyy@estudiants.urv.cat				  ===
+@;=== Programador tarea 1C: oupman.miralles@estudiants.urv.cat				  ===
+@;=== Programador tarea 1D: oupman.miralles@estudiants.urv.cat				  ===
 @;=                                                           		   	=
 
 

@@ -272,7 +272,6 @@ sugiere_combinacion:
 					bge .Lif_ultima_fila
 				.Lendif_ultima_columna2:
 				
-
 				@; Comprovem si la casella posterior horitzontal és igual
 				.Lif_posterior_horitzontal_igual:
 					add r6, #1				@; Incrementem per a accedir a la casella posterior
@@ -324,28 +323,23 @@ sugiere_combinacion:
 				
 				@; Tornem a l'estat inicial si no és vàlid
 				.Ldesfer_intercanvi_horitzontal:
-
 					add r6, #1
 					strb r9, [r4, r6]
 					sub r6, #1
 					strb r8, [r4, r6]
-
 				.Lenddesfer_intercanvi_horitzontal:
 				
 				@; Comprovem si som a l'última fil
 				.Lif_ultima_fila:
 					sub r7, r11, #1	@; r7 = filas--
-
 					cmp r1, r7
 					bge .Lindex
 				.Lendif_ultima_fila:
 				
-
 				@; Comprovem si les caselles verticals són iguals
 				.Lif_posterior_vertical_igual2:
 					add r6, r12			@; r6 = desplaçament + columnes
 					ldrb r9, [r4, r6]	@; r9 = casella posterior vertical
-
 					sub r6, r12
 					cmp r8, r9
 					beq .Lindex
@@ -353,7 +347,6 @@ sugiere_combinacion:
 				
 				.Lposterior_vertical_valida:
 					and r3, r9, #0x07
-
 					cmp r3, #0x07		@; si r9 es un bloc solid o un forat no es valid
 					beq .Lindex
 					cmp r3, #0x00		@; si r9 es un bloc solid o un forat no es valid
@@ -394,7 +387,6 @@ sugiere_combinacion:
 				@; Tornem a l'estat original
 				.Ldesfer_intercanvi_vertical:
 					add r6, r12			@; r6 = desplaçament + columnes
-
 					strb r9, [r4, r6]
 					sub r6, r12
 					strb r8, [r4, r6]
@@ -421,18 +413,15 @@ sugiere_combinacion:
 					mov r4, r10
 					
 					@; Desfer intercanvi
-
 					add r6, #1
 					strb r9, [r4, r6]
 					sub r6, #1
 					strb r8, [r4, r6]
-
 					b .Lendwhile2
 				.Lendgenerar_sugerencia_horitzontal:
 				
 				.Lindex:
 					mul r7, r11, r12	@; r7 = files * columnas
-
 					sub r7, #1
 					cmp r6, r7
 					bge .Lreiniciar
@@ -442,7 +431,6 @@ sugiere_combinacion:
 					
 					sub r7, r12, #1		@; r7 = columnas - 1
 					cmp r2, r7
-
 					ble .Lwhile2
 					
 					mov r2, #0
@@ -459,12 +447,11 @@ sugiere_combinacion:
 						mov r2, #0		@; columna = 0
 						mov r6, #0		@; desplaçament = 0
 						b .Lwhile2
-
 					.Lendreiniciar:
 				.Lendindex:
 				
 				.Lendwhile2:
-
+			
 			mov r1, r0 					@; r1 = direcció vector
 			mov r0, r4 					@; r0 = direcció matriu
 		
@@ -507,6 +494,7 @@ genera_posiciones:
 			beq .Lcpi3
 			
 			b .Lfin			@; Si no coincideix amb cap, finalitza la rutina
+
 		.Lcpi0:
 			add r2, #1		@; Incrementa la columna 
 			strb r2, [r0]	@; Guarda la columna en vect_pos[]
@@ -526,6 +514,7 @@ genera_posiciones:
 			add r0, #1
 			
 			b .Lcori
+
 		
 		.Lcpi2:
 			add r1, #1
@@ -536,6 +525,7 @@ genera_posiciones:
 			add r0, #1
 			
 			b .Lcori
+
 		.Lcpi3:
 			sub r1, #1
 			strb r2, [r0]
@@ -570,7 +560,9 @@ genera_posiciones:
 			strb r2, [r0]                    @; Guarda la columna incrementada en vect_pos[]
 			add r0, #1                       @; Incrementa l'índex del vector
 			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+		
 			b .Lfin
+
 		.Lcori1:
 			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
 			add r0, #1                       @; Incrementa l'índex del vector
@@ -581,6 +573,7 @@ genera_posiciones:
 			add r0, #1                       @; Incrementa l'índex del vector
 			add r1, #1                       @; Incrementa la fila de nou
 			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+	
 			b .Lfin
 			
 		.Lcori2:
@@ -593,7 +586,9 @@ genera_posiciones:
 			add r0, #1                       @; Incrementa l'índex del vector
 			add r1, #1                       @; Incrementa la fila de nou
 			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+		
 			b .Lfin
+
 		.Lcori3:
 			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
 			add r0, #1                       @; Incrementa l'índex del vector
@@ -604,6 +599,7 @@ genera_posiciones:
 			add r0, #1                       @; Incrementa l'índex del vector
 			sub r1, #1                      @; Disminueix la fila de nou
 			strb r1, [r0]                    @; Guarda la fila disminuïda en vect_pos[]
+
 			b .Lfin
 		
 		.Lcori4:
@@ -629,7 +625,10 @@ genera_posiciones:
 			add r1, #2                       @; Incrementa la fila dues vegades
 			add r0, #1                       @; Incrementa l'índex del vector
 			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+
 		.Lfin:
+
+
 			pop {r0-r4,pc}
 
 

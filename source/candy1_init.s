@@ -120,7 +120,7 @@ inicializa_matriz:
 @;			invocará la rutina hay_combinacion() (ver fichero 'candy1_comb.s')
 @;		* se puede asumir que siempre existirá una recombinación sin secuencias
 @;			y con posibles combinaciones
-Par�metros:
+@; Parámetros:
 @;		R0 = direcci�n base de la matriz de juego
 @;	Regitros:
 @;		R1 = indice de fila
@@ -316,7 +316,6 @@ recombina_elementos:
 
 
 @;:::RUTINAS DE SOPORTE:::
-
 
 @; mod_random(n): rutina para obtener un número aleatorio entre 0 y n-1,
 @;	utilizando la rutina random()
