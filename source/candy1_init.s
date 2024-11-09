@@ -120,7 +120,7 @@ inicializa_matriz:
 @;			invocará la rutina hay_combinacion() (ver fichero 'candy1_comb.s')
 @;		* se puede asumir que siempre existirá una recombinación sin secuencias
 @;			y con posibles combinaciones
-Par�metros:
+@; Parámetros:
 @;		R0 = direcci�n base de la matriz de juego
 @;	Regitros:
 @;		R1 = indice de fila
@@ -222,6 +222,7 @@ recombina_elementos:
 				.L_Random:
 					mov r0, #COLUMNS*ROWS
 					bl mod_random				@; numero aleatorio de la matriz
+
 					add r9, #1					@; incrementamos el contador de iteraciones maximas
 					mov r10, r0
 					ldrb r5, [r7, r10]			@; r5 = valor de mat_recomb1 de la casilla aleatoria
@@ -242,16 +243,21 @@ recombina_elementos:
 					cmp r0, #3					@; si r0>=3 tenemos secuencia
 					bge .L_Random				@; repetimos proceso para evitar secuencias
 					
+
 					mov r0, r8					@; direccion base de la matriz
 					mov r3, #3					@; direccion 3 para cuenta_repeticiones
 					bl cuenta_repeticiones		
 					cmp r0, #3					@; si r0>=3 tenemos secuencia
 					bge .L_Random				@; si r0, repetimos proceso para evitar secuencias
+
 					
 				ldrb r5, [r8, r6]			@; volvemos a coger los valores de la matriz de juego y de mat_recomb2 porque no se donde algun registro se modifica
 											@; y produce errores 											
 				ldrb r3, [r4, r6]
 			
+
+				
+
 				mov r3, r3, lsr#3			
 				and r3, #0x03				@; nos quedan los bits (4..3)
 				cmp r3, #0x01				@; comparamos con gelatina simple (01)
@@ -261,6 +267,7 @@ recombina_elementos:
 				b .SubstituirRecomb1
 				
 				.CopiaGelatina8:
+
 					add r5, #8			@; añadimos codigo de gelatina de mat_joc a mat_recomb2
 					strb r5, [r8, r6]		@; subimos a mat_recomb2 el codigo final
 					b .SubstituirRecomb1
@@ -270,6 +277,7 @@ recombina_elementos:
 				.SubstituirRecomb1:			@; sino tenemos gelatina, el codigo ya esta copiado y substituimos en recomb1
 					mov r5, #0					@; preparamos el 0 para sustituir en mat_recomb1
 					strb r5, [r7, r10]			@; si no hay secuencia sustituimos el valor de mat_recomb1 por 0 (ya utilizado)
+
 					
 
 		.L_FiRecomb2:
@@ -308,7 +316,6 @@ recombina_elementos:
 
 
 @;:::RUTINAS DE SOPORTE:::
-
 
 @; mod_random(n): rutina para obtener un número aleatorio entre 0 y n-1,
 @;	utilizando la rutina random()
