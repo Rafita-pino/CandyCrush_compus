@@ -1,6 +1,6 @@
 ﻿/*------------------------------------------------------------------------------
 
-	$ candy1_main.c $
+	$ candy2_main.c $
 
 	Programa principal para la práctica de Computadores: candy-crash para NDS
 	(2º curso de Grado de Ingeniería Informática - ETSE - URV)
@@ -15,7 +15,7 @@
 #include <nds.h>
 #include <stdio.h>
 #include <time.h>
-#include "candy1_incl.h"
+#include "candy2_incl.h"
 
 
 /* ATENCIÓN: cuando el programa se considere terminado, hay que comentar la
@@ -216,6 +216,29 @@ void actualiza_contadores(unsigned char lev, short p, unsigned char m,
 
 
 
+/* inicializa_interrupciones(): configura las direcciones de las RSI y los bits
+	de habilitación (enable) del controlador de interrupciones para que se
+	puedan generar las interrupciones requeridas.*/ 
+void inicializa_interrupciones()
+{
+	irqSet(IRQ_VBLANK, rsi_vblank);
+	TIMER0_CR = 0x00;  		// inicialmente los timers no generan interrupciones
+	irqSet(IRQ_TIMER0, rsi_timer0);		// cargar direcciones de las RSI
+	irqEnable(IRQ_TIMER0);				// habilitar la IRQ correspondiente
+	TIMER1_CR = 0x00;
+	irqSet(IRQ_TIMER1, rsi_timer1);
+	irqEnable(IRQ_TIMER1);
+	TIMER2_CR = 0x00;
+	irqSet(IRQ_TIMER2, rsi_timer2);
+	irqEnable(IRQ_TIMER2);
+	TIMER3_CR = 0x00;
+	irqSet(IRQ_TIMER3, rsi_timer3);
+	irqEnable(IRQ_TIMER3);
+}
+
+
+
+
 /* inicializa_nivel(mat,lev,*p,*m,*g): inicializa un nivel de juego a partir
 	del parámetro lev (level), modificando la matriz y la información de juego
 	(puntos, movimientos, gelatinas) que se pasan por referencia.
@@ -223,8 +246,10 @@ void actualiza_contadores(unsigned char lev, short p, unsigned char m,
 void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
 							short *p, unsigned char *m, unsigned char *g)
 {
-	//inicializa_matriz(mat, lev);
-	copia_matriz(mat, mapas[lev]);
+	inicializa_matriz(mat, lev);
+	genera_sprites(mat);
+	genera_mapa1(mat);
+	genera_mapa2(mat);
 	escribe_matriz(mat);
 	*p = pun_obj[lev];
 	*m = max_mov[lev];
@@ -263,9 +288,8 @@ unsigned char procesa_pulsacion(char mat[][COLUMNS],
 			guarda_backup(mat, p, *m, g);
 #endif
 		}
-		else						
-		{				// si no se genera secuencia,
-			retardo(3);			// deshace el cambio
+		else			// si no se genera secuencia,		
+		{				// deshace el cambio
 			intercambia_posiciones(mat, mX, mY, dX, dY);
 			escribe_matriz(mat);
 		}
@@ -338,14 +362,15 @@ void procesa_rotura(char mat[][COLUMNS], unsigned char lev,
 		PC_ENDNOSQ (1):	no ha habido caída y no se han formado nuevas secuencias
 		PC_ENDSEQ  (2):	no ha habido caída y se han formado nuevas secuencias
 */
-unsigned char procesa_caida(char mat[][COLUMNS],
+unsigned char procesa_caida(unsigned char f_init, char mat[][COLUMNS],
 								short p, unsigned char m, unsigned char g)
 {
 	unsigned char result = PC_FALLING;
 
-	retardo(3);			// tiempo para ver la bajada
 	if (baja_elementos(mat))
 	{
+		activa_timer0(f_init);		// activar timer de movimientos
+		while (timer0_on) swiWaitForVBlank();	// espera final
 		escribe_matriz(mat);
 #ifdef TRUCOS			
 		guarda_backup(mat, p, m, g);
@@ -402,6 +427,8 @@ unsigned char comprueba_jugada(char mat[][COLUMNS], unsigned char *lev,
 		else					// si no hay combinaciones
 		{
 			recombina_elementos(mat);
+			activa_timer0(1);		// activar timer de movimientos
+			while (timer0_on) swiWaitForVBlank();	// espera final
 			escribe_matriz(mat);
 			if (!hay_combinacion(mat))  result = CJ_RNOCMB;
 			else						result = CJ_RCOMB;
@@ -412,7 +439,6 @@ unsigned char comprueba_jugada(char mat[][COLUMNS], unsigned char *lev,
 	}
 	return(result);
 }
-
 
 
 
@@ -434,7 +460,6 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 	{							// activa mostrar elementos sugeridos
 		oculta_elementos(mat, pos_sug);
 		escribe_matriz(mat);
-		retardo(3);
 		muestra_elementos(mat, pos_sug);
 		escribe_matriz(mat);
 	}
@@ -442,150 +467,97 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 
 
 
+/* procesa_botonY(): comprueba la pulsación del botón 'Y' y activa o desactiva
+	el desplazamiento del fondo gráfico. */
+void procesa_botonY()
+{
 
-// JUEGO DE PRUEBAS 
+	/* código extra para que funcionen las tareas 2H */
 
-const char* secus[] = {				// info sobre secuencias
-	"Sin secuencia",
-	"Secuencias horizontales",
-	"Secuencias verticales",
-	"Secus ver/hor sin cruce",
-	"Secus ver sin cruce",
-	"Secus ver con cruce same num",
-	"Secus blocks y huecos",
-	"Con gelatinas simples y dobles",
-	"Secuencias en los limites",
-	"Secus hor 3,4,5 elementos",
-	"Secus ver 3,4,5 elementos",
-	"Secus cruzadas hor/ver 5,6,7 elems",
-	"Sin secuencia ni comb"
-};
-
-
-// Borra una linea
-void clear_line(int row) {
-    printf("\x1b[%d;0H                                ", row);
 }
 
-// Espera que se pulse B
-void wait_keyB() {
-	do
-	{	
-		swiWaitForVBlank();
-		scanKeys();					// esperar pulsación tecla 'B'
-	} while (!(keysHeld() & KEY_B));
-	return;
-}
 
-// Printea el nivel y su informacion
-void mostrar_nivel(unsigned char level) {
-    clear_line(1);
-    printf("\x1b[38m\x1b[1;0H Nivel: \x1b[39m%d", level);
-    clear_line(2);
-    printf("\x1b[38m\x1b[2;0H %s", secus[level]);
-}
 
-// Bucle para alternar entre la matriz inicial y la actualizada
-void alternar_matrices(char matrix[][COLUMNS], char matrix_copia[][COLUMNS], char mat_mar[][COLUMNS]) {
-	int mostrar_matriz = 0;
-	do {
-		clear_line(4);
-		printf("\x1b[39m\x1b[4;0H Pulse '\x1b[36mB\x1b[39m' para\x1b[32m alternar\x1b[39m.");
-		clear_line(3);
-		printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
-		
-        // Muestra la matriz correspondiente
-        switch (mostrar_matriz) {
-            case 0:
-                escribe_matriz(matrix_copia); // Muestra la matriz inicial
-                break;
-            case 1:
-                escribe_matriz(matrix); // Muestra la matriz después de eliminar secuencias
-                break;
-			case 2:
-                escribe_matriz(mat_mar); // Muestra la matriz de marcas
-                break;
-        }
-		
-		// Espera a que se pulse una tecla
-		swiWaitForVBlank();
-		scanKeys();
-		
-		if (keysDown() & KEY_B) {
-			mostrar_matriz = (mostrar_matriz + 1) % 3; // Alterna entre las tres matrices
-		}
-		if (keysDown() & KEY_A) {	
-			clear_line(3);
-			clear_line(4);
-			return;
-		}
-	} while (1);
-}
 
+/* Programa principal: control general del juego */
 int main(void)
 {
 	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
+	short points = 0;				// contador de puntos
+	unsigned char moves = 0;		// número de movimientos restantes
+	unsigned char gelees = 0;		// número de gelatinas restantes
 	
-	char matrix_copia[ROWS][COLUMNS]; // Para copiar la matriz antes y despues de secuencias
-	
-	consoleDemoInit();			// inicialización de pantalla de texto
-	printf("candyNDS (prueba tarea 1C y 1D)\n");
-	mostrar_nivel(level);	
+	unsigned char state = E_INIT;	// estado actual del programa
+	unsigned short lapse = 0;		// contador VBLs inactividad del usuario
+	unsigned char ret;				// código de retorno de funciones auxiliares
+	unsigned char fall_init = 1;	// código de inicio de caída
 
-	do							// bucle principal de pruebas
+	seed32 = time(NULL);			// fija semilla inicial números aleatorios
+	init_grafA();
+	inicializa_interrupciones();
+
+	consoleDemoInit();				// inicializa pantalla de texto
+	printf("candyNDS (version 2: graficos)\n");
+	printf("\x1b[38m\x1b[1;0H  nivel:");
+	printf("\x1b[39m\x1b[2;0H puntos:");
+	printf("\x1b[38m\x1b[1;15H movimientos:");
+	printf("\x1b[37m\x1b[2;15H   gelatinas:");
+	printf("\x1b[38m\x1b[3;0H despl.fondo (tecla Y): no");
+
+	do								// bucle principal del juego
 	{
-		inicializa_matriz(matrix, level);
-		escribe_matriz(matrix);
-		printf("\x1b[39m\x1b[3;0H Matriz inicializada");
-		if(hay_secuencia(matrix))	// si hay secuencias
+		swiWaitForVBlank();
+		scanKeys();
+		switch (state)
 		{
-			copia_matriz(matrix_copia, matrix); // copiamos matriz antes de eliminar secuencias
-			
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[32mSI\x1b[39m");
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para verlas.");
-			
-			wait_keyB(); // Esperar a pulsar B
-			
-			elimina_secuencias(matrix, mat_mar);  // Eliminar Secuencias
-			clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Matriz de marcas:");
-			escribe_matriz(mat_mar);				// Mostar matriz marcas
-			
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mB\x1b[39m' para eliminar secu.");
-			
-			wait_keyB(); // Esperar a pulsar B
-			
-			clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Secuencias eliminadas: ");
-			escribe_matriz(matrix);			// Mostrar la matriz con secuencias eliminadas
-			retardo(15);
-			
-			alternar_matrices(matrix, matrix_copia, mat_mar); // Para poder ver las diferencias
-															// antes y despues de eliminar secuencia
-		}
-		else // si no hay secuencia
-		{
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Hay secuencia: \x1b[31mNO\x1b[39m");
-			retardo(15); clear_line(3);
-			printf("\x1b[39m\x1b[3;0H Pulse '\x1b[36mA\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
+			case E_INIT:		//////	ESTADO DE INICIALIZACIÓN	//////
+						inicializa_nivel(matrix, level, &points, &moves, &gelees);
+						lapse = 0;
+						if (hay_secuencia(matrix))	state = E_BREAK;
+						else if (!hay_combinacion(matrix))	state = E_CHECK;
+						else	state = E_PLAY;
+						break;
+			case E_PLAY:		//////	ESTADO DE INTERACCIÓN CON USUARIO //////
+						if (keysHeld() & KEY_TOUCH)		// detecta pulsación en pantalla
+						{
+							lapse = 0;				// reinicia tiempo de inactividad
+							if (procesa_pulsacion(matrix, points, &moves, gelees))
+								state = E_BREAK;	// si hay secuencia, pasa a romperla
+						}
+						else
+						{	lapse++;				// cuenta tiempo (VBLs) de inactividad
+							if (lapse >= T_INACT)	// a partir de cierto tiempo de inactividad,
+								procesa_sugerencia(matrix, lapse);
+						}
+#ifdef TRUCOS
+						testing(&state, matrix, level, &points, &moves, &gelees);
+#endif
+						procesa_botonY();
+						break;
+			case E_BREAK:		//////	ESTADO DE ROMPER SECUENCIAS	//////
+						procesa_rotura(matrix, level, &points, moves, &gelees);
+						fall_init = 1;
+						lapse = 0;
+						state = E_FALL;
+						break;
+			case E_FALL:		//////	ESTADO DE CAÍDA DE ELEMENTOS	//////
+						ret = procesa_caida(fall_init, matrix, points, moves, gelees);
+											// cuando ya no haya más bajadas,
+						if (ret == PC_ENDNOSQ)	state = E_CHECK;		// comprueba situación del juego
+						else if (ret == PC_ENDSEQ)	state = E_BREAK;	// o rompe secuencia (si la hay)
+						else		// si ha habido algún movimiento de caída, sigue en estado E_FALL,
+							fall_init = 0;		// pero desactiva inicio caída para permitir la caída con aceleración
+						break;
+			case E_CHECK:		//////	ESTADO DE VERIFICACIÓN	//////
+						ret = comprueba_jugada(matrix, &level, points, moves, gelees);
+						if (ret == CJ_LEVEL)	state = E_INIT;			// nuevo nivel o reiniciar nivel
+						else if ((ret == CJ_CONT) || (ret == CJ_RCOMB))	// si no ha pasado nada especial o ha habido recombinación con posible secuencia,
+							state = E_PLAY;		//  sigue jugando
+						// si ha habido recombinación sin nueva combinación, sigue en estado E_CHECK
+						break;
 		}
 		
-		// PASAR AL SIGUIENTE NIVEL
-		do
-		{	swiWaitForVBlank();
-			scanKeys();					// esperar pulsación tecla 'A' o 'B'
-		} while (!(keysHeld() & (KEY_A | KEY_B)));
-		printf("\x1b[3;0H                               ");
-		retardo(3);
-		if (keysHeld() & KEY_A)			// si pulsa 'A',
-		{								// pasa a siguiente nivel
-			level = (level + 1) % MAXLEVEL;
-			mostrar_nivel(level); // mostrar nivel
-		}
-	} while (1);
-	return(0);
+	} while (1);				// bucle infinito
+	
+	return(0);					// nunca retornará del main
 }

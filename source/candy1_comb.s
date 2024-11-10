@@ -71,7 +71,7 @@ hay_combinacion:
 			
 			.Lif_igual_posterior_horitzontal:
 				add r3, #1 			@; r3++
-				ldrb r10, [r4, r3] 	@; r10 = casella posterior horizontal
+				ldrb r10, [r4, r3] 	@; r10 = casella posterior horitzontal
 				sub r3, #1			@; r3--
 				cmp r7, r10			@; si casella actual i post. horitzontal són iguals comprovem si estem a la ult. fila
 				beq .Lif_es_ultima_fila
@@ -234,104 +234,112 @@ hay_combinacion:
 sugiere_combinacion:
 		push {r2-r12, lr}
 		
-			mov r4, r0	@; r4 = direcció base de la matriu
-			mov r5, r1	@; r5 = auxiliar que guarda r1
-			mov r6, #0	@; r6 = index de desplaçament
+			mov r4, r0		@; r4 = direcció base de la matriu
+			mov r5, r1		@; r5 = auxiliar que guarda r1
+			mov r6, #0		@; r6 = index de desplaçament
 			mov r11, #ROWS
 			mov r12, #COLUMNS
 			
+			@;generem fila i columna aleatoria
 			.Lindex_aleatori:
 				mov r0, r11
-				bl mod_random
-				mov r1, r0	@; r1 = fila aleatoria
-				
+				bl mod_random	@;generar fila aleatoria
+				mov r1, r0		@; r1 = fila aleatoria
+					
 				mov r0, r12
-				bl mod_random
-				mov r2, r0 @; r2 = columna aleatoria
+				bl mod_random	@;generar columna aleatoria
+				mov r2, r0		@; r2 = columna aleatoria
 				
 				mul r7, r1, r12	@; r7 = index fila * columnes
-				add r6, r7, r2	@; r6 = r7 + index columna
-				
+				add r6, r7, r2	@; r6 = r7 + index columna	
 			.Lendindex_aleatori:
 			
 			.Lwhile2:
-			
+				@;COmprovem la casella actual
 				.Lif_actual_valida:
-					ldrb r8, [r4, r6]	@; r8 = casella actual
-					and r3, r8, #0x07
-					cmp r3, #0x07
+					ldrb r8, [r4, r6]	@; r8 = valor de la casella actual
+					and r3, r8, #0x07	
+					cmp r3, #0x07		@; si r8 es un bloc solid o un forat no es valid
 					beq .Lindex
-					cmp r3, #0x00
+					cmp r3, #0x00		@; si r8 es un bloc buit no es valid
 					beq .Lindex
 				.Lendif_actual_valida:
 				
+				@;Comprovem si som a l'última columna
 				.Lif_ultima_columna2:
 					sub r7, r12, #1
 					cmp r2, r7
 					bge .Lif_ultima_fila
 				.Lendif_ultima_columna2:
 				
-				.Lif_posterior_horizontal_igual:
-					add r6, #1
-					ldrb r9, [r4, r6]	@; r9 = casilla posterior horizontal
-					sub r6, #1
+				@; Comprovem si la casella posterior horitzontal és igual
+				.Lif_posterior_horitzontal_igual:
+					add r6, #1				@; Incrementem per a accedir a la casella posterior
+					ldrb r9, [r4, r6]		@; r9 = casilla posterior horitzontal
+					sub r6, #1				@; Tornem al desplaçament original
 					cmp r8, r9
-					beq .Lif_ultima_fila
-				.Lendif_posterior_horizontal_igual:
+					beq .Lif_ultima_fila	@; Si són iguals, sortim
+				.Lendif_posterior_horitzontal_igual:
 				
+				@; Comprovem si la casella posterior horitzontal és vàlida
 				.Lif_posterior_horitzontal_valida2:
 					and r3, r9, #0x07
-					cmp r3, #0x07
+					cmp r3, #0x07		@; si r9 es un bloc solid o un forat no es valid
 					beq .Lif_ultima_fila
-					cmp r3, #0x00
+					cmp r3, #0x00		@; si r8 es un bloc buit no es valid
 					beq .Lif_ultima_fila
 				.Lendif_posterior_horitzontal_valida2:
 				
-				.Lintercanvi_horizontal:
+				@; Intercanviem les caselles horitzontals
+				.Lintercanvi_horitzontal:
 					add r6, #1
-					strb r8, [r4, r6]
+					strb r8, [r4, r6]	@; Guardem el valor original de la casella
 					sub r6, #1
-					strb r9, [r4, r6]
-				.Lendintecanvi_horizontal:
+					strb r9, [r4, r6]	@; Guardem el valor intercanviat
+				.Lendintercanvi_horitzontal:
 				
-				.Lcomprovar_horizontal:
-					@; Primera casilla
+				 @; Comprovem si la combinació resultant és vàlida horitzontalment
+				.Lcomprovar_horitzontal:
+					@; Primera casella
 					bl detecta_orientacion
-					mov r3, r0	@; r3 = c.ori
-					mov r10, r4	@; r10 = auxiliar que guarda r4
-					mov r4, #0	@; r4 = c.p.i
+					mov r3, r0		@; r3 = c.ori
+					mov r10, r4		@; r10 = auxiliar que guarda r4
+					mov r4, #0		@; r4 = cpi
 					cmp r3, #6
-					bne .Lsugerencia_horizontal
-					mov r4, r10	@; r4 vuelve a su valor
+					bne .Lsugerencia_horitzontal
+					mov r4, r10		@; r4 torna al seu valor
 					
-					@; Segunda casilla
-					add r2, #1	@; índice columna++
+					@; Seguona casella
+					add r2, #1		@; index columna++
 					bl detecta_orientacion
-					mov r3, r0	@; r3 = c.ori
-					mov r10, r4	@; r10 = auxiliar que guarda r4
-					mov r4, #1	@; r4 = c.p.i
+					mov r3, r0		@; r3 = c.ori
+					mov r10, r4		@; r10 = auxiliar que guarda r4
+					mov r4, #1		@; r4 = cpi
 					cmp r3, #6
-					bne .Lsugerencia_horizontal
-					mov r4, r10	@; r4 vuelve a su valor
-					sub r2, #1	@; índice columna--
-				.Lendcomprovar_horizontal:
+					bne .Lsugerencia_horitzontal
+					mov r4, r10		@; r4 torna al seu valor
+					sub r2, #1		@; index columna--
+				.Lendcomprovar_horitzontal:
 				
-				.Ldesfer_intercanvi_horizontal:
+				@; Tornem a l'estat inicial si no és vàlid
+				.Ldesfer_intercanvi_horitzontal:
 					add r6, #1
 					strb r9, [r4, r6]
 					sub r6, #1
 					strb r8, [r4, r6]
-				.Lenddesfer_intercanvi_horizontal:
+				.Lenddesfer_intercanvi_horitzontal:
 				
+				@; Comprovem si som a l'última fil
 				.Lif_ultima_fila:
-					sub r7, r11, #1	@; r7 = filas - 1
+					sub r7, r11, #1	@; r7 = filas--
 					cmp r1, r7
 					bge .Lindex
 				.Lendif_ultima_fila:
 				
+				@; Comprovem si les caselles verticals són iguals
 				.Lif_posterior_vertical_igual2:
-					add r6, r12		@; r6 = desplazamiento + columnas
-					ldrb r9, [r4, r6]	@; r9 = casilla posterior vertical
+					add r6, r12			@; r6 = desplaçament + columnes
+					ldrb r9, [r4, r6]	@; r9 = casella posterior vertical
 					sub r6, r12
 					cmp r8, r9
 					beq .Lindex
@@ -339,43 +347,46 @@ sugiere_combinacion:
 				
 				.Lposterior_vertical_valida:
 					and r3, r9, #0x07
-					cmp r3, #0x07
+					cmp r3, #0x07		@; si r9 es un bloc solid o un forat no es valid
 					beq .Lindex
-					cmp r3, #0x00
+					cmp r3, #0x00		@; si r9 es un bloc solid o un forat no es valid
 					beq .Lindex
 				.Lendposterior_vertical_valida:
 				
-				.Lintercambio_verticalSC:
-					add r6, r12	@; r6 = desplazamiento + columnas
+				@; Intercanvi vertical
+				.Lintercanvi_verticalSC:
+					add r6, r12			@; r6 = desplaçament + columnes
 					strb r8, [r4, r6]
 					sub r6, r12
 					strb r9, [r4, r6]
-				.Lendintercambio_verticalSC:
+				.Lendintercanvi_verticalSC:
 				
+				@; Comprovem combinació vertical
 				.Lcomprovar_vertical:
-					@; Primera casilla
+					@; Primera casella
 					bl detecta_orientacion
-					mov r3, r0	@; r3 = c.ori
-					mov r10, r4	@; r10 = auxiliar que guarda r4
-					mov r4, #2	@; r4 = c.p.i
+					mov r3, r0		@; r3 = c.ori
+					mov r10, r4		@; r10 = auxiliar que guarda r4
+					mov r4, #2		@; r4 = c.p.i
 					cmp r3, #6
 					bne .Lsugerencia_vertical
-					mov r4, r10	@; r4 vuelve a su valor
+					mov r4, r10		@; r4 torna al seu valor
 					
-					@; Segunda casilla
-					add r1, #1	@; índice fila++
+					@; Segona casella
+					add r1, #1		@; index fila++
 					bl detecta_orientacion
-					mov r3, r0	@; r3 = c.ori
-					mov r10, r4	@; r10 = auxiliar que guarda r4
-					mov r4, #3	@; r4 = c.p.i
+					mov r3, r0		@; r3 = c.ori
+					mov r10, r4		@; r10 = auxiliar que guarda r4
+					mov r4, #3		@; r4 = c.p.i
 					cmp r3, #6
 					bne .Lsugerencia_vertical
-					mov r4, r10	@; r4 vuelve a su valor
-					sub r1, #1	@; índice fila--
+					mov r4, r10		@; r4 torna al seu valor
+					sub r1, #1		@; index fila--
 				.Lendcomprovar_vertical:
 				
+				@; Tornem a l'estat original
 				.Ldesfer_intercanvi_vertical:
-					add r6, r12	@; r6 = desplazamiento + columnas
+					add r6, r12			@; r6 = desplaçament + columnes
 					strb r9, [r4, r6]
 					sub r6, r12
 					strb r8, [r4, r6]
@@ -384,34 +395,33 @@ sugiere_combinacion:
 				b .Lindex
 				
 				.Lsugerencia_vertical:
-					mov r0, r5	@; r0 = direccion vector
-					bl genera_posiciones
+					mov r0, r5				@; r0 = direccio vector
+					bl genera_posiciones	@; Generem la posició suggerida
 					mov r4, r10
 					
-					@; Deshacer intercambio
-					add r6, r12	@; r6 = desplazamiento + columnas
+					@; Desfem l'intercanvi
+					add r6, r12				@; r6 = desplaçament + columnes
 					strb r9, [r4, r6]
 					sub r6, r12
 					strb r8, [r4, r6]
-					b .Lendwhile
+					b .Lendwhile2
 				.Lendsugerencia_vertical:
 				
-				.Lsugerencia_horizontal:
-					mov r0, r5	@; r0 = direccion vector
+				.Lsugerencia_horitzontal:
+					mov r0, r5			@; r0 = direccio vector
 					bl genera_posiciones
 					mov r4, r10
 					
-					
-					@; Deshacer intercambio
+					@; Desfer intercanvi
 					add r6, #1
 					strb r9, [r4, r6]
 					sub r6, #1
 					strb r8, [r4, r6]
-					b .Lendwhile
-				.Lendgenerar_sugerencia_horizontal:
+					b .Lendwhile2
+				.Lendgenerar_sugerencia_horitzontal:
 				
 				.Lindex:
-					mul r7, r11, r12	@; r7 = filas * columnas
+					mul r7, r11, r12	@; r7 = files * columnas
 					sub r7, #1
 					cmp r6, r7
 					bge .Lreiniciar
@@ -421,29 +431,29 @@ sugiere_combinacion:
 					
 					sub r7, r12, #1		@; r7 = columnas - 1
 					cmp r2, r7
-					ble .Lwhile
+					ble .Lwhile2
 					
 					mov r2, #0
 					
-					sub r7, r11, #1		@; r7 = filas - 1
+					sub r7, r11, #1		@; r7 = files - 1
 					cmp r1, r7
 					bge .Lreiniciar
 					
-					add r1, #1	@; índice fila++
-					b .Lwhile
+					add r1, #1			@; index fila++
+					b .Lwhile2
 					
 					.Lreiniciar:
-						mov r1, #0	@; fila = 0
-						mov r2, #0	@; columna = 0
-						mov r6, #0	@; desplazamiento = 0
-						b .Lwhile
+						mov r1, #0		@; fila = 0
+						mov r2, #0		@; columna = 0
+						mov r6, #0		@; desplaçament = 0
+						b .Lwhile2
 					.Lendreiniciar:
 				.Lendindex:
 				
 				.Lendwhile2:
 			
-			mov r1, r0 @; r1 = dirección vector
-			mov r0, r4 @; r0 = dirección matriz
+			mov r1, r0 					@; r1 = direcció vector
+			mov r0, r4 					@; r0 = direcció matriu
 		
 		pop {r2-r12, pc}
 
@@ -466,118 +476,160 @@ sugiere_combinacion:
 @;		R2 = columna inicial c
 @;		R3 = código de orientación ori:
 @;				inicio de secuencia: 0 -> Este, 1 -> Sur, 2 -> Oeste, 3 -> Norte
-@;				en medio de secuencia: 4 -> horizontal, 5 -> vertical
+@;				en medio de secuencia: 4 -> horitzontal, 5 -> vertical
 @;		R4 = código de posición inicial cpi:
 @;				0 -> izquierda, 1 -> derecha, 2 -> arriba, 3 -> abajo
 @;	Resultado:
 @;		vector de posiciones (x1,y1,x2,y2,x3,y3), devuelto por referencia
 genera_posiciones:
-		push {r1-r5, lr}
-		
-		.Lprimer_punt:
-			cmp r4, #0
-			beq .Lcpi_0
-			cmp r4, #1
-			beq .Lcpi_1
-			cmp r4, #2
-			beq .Lcpi_2
-			cmp r4, #3
-			beq .Lcpi_3
+		push {r0-r4,lr}
+				
+			cmp r4, #0		@; Compara cpi amb 0 (esquerra)
+			beq .Lcpi0		
+			cmp r4, #1		@; Compara cpi amb 1 (dreta)
+			beq .Lcpi1		
+			cmp r4, #2		@; Compara cpi amb 2 (amunt)
+			beq .Lcpi2
+			cmp r4, #3		@; Compara cpi amb 3 (avall)
+			beq .Lcpi3
 			
-			.Lcpi_0:
-				add r5, r2, #1		@; p.i a la derecha
-				strb r5, [r0, #0]	@; r5 = x1
-				strb r1, [r0, #1]	@; r1 = y1
-				b .Lendprimer_punt
-			.Lendcpi_0:
-			.Lcpi_1:
-				sub r5, r2, #1		@; p.i a la izquierda
-				strb r5, [r0, #0]	@; r5 = x1
-				strb r1, [r0, #1]	@; r1 = y1
-				b .Lendprimer_punt
-			.Lendcpi_1:
-			.Lcpi_2:
-				add r5, r1, #1		@; p.i hacia abajo
-				strb r5, [r0, #1]	@; r5 = y1
-				strb r2, [r0, #0]	@; r2 = x1
-				b .Lendprimer_punt
-			.Lendcpi_2:
-			.Lcpi_3:
-				sub r5, r1, #1		@; p.i hacia arriba
-				strb r5, [r0, #1]	@; r5 = y1
-				strb r2, [r0, #0]	@; r2 = x1
-			.Lendcpi_3:
-		.Lendprimer_punt:
-		
-		.Laltres_punts:
-			cmp r3, #0
-			beq .Lcori_0
-			cmp r3, #1
-			beq .Lcori_1
-			cmp r3, #2
-			beq .Lcori_2
-			cmp r3, #3
-			beq .Lcori_3
-			cmp r3, #4
-			beq .Lcori_4
-			cmp r3, #5
-			beq .Lcori_5
+			b .Lfin			@; Si no coincideix amb cap, finalitza la rutina
+
+		.Lcpi0:
+			add r2, #1		@; Incrementa la columna 
+			strb r2, [r0]	@; Guarda la columna en vect_pos[]
+			sub r2, #1		@; Restaura el valor original de la columna
+			add r0, #1		@; Incrementa l'índex del vector
+			strb r1, [r0]	@; Guarda la fila en vect_pos[]
+			add r0, #1		@; Incrementa l'índex del vector
 			
-			.Lcori_0:
-				add r5, r2, #1	@; p.i al este (1)
-				strb r5, [r0, #2]	@; r5 = x2
-				strb r1, [r0, #3]	@; r1 = y2
-				add r5, #1	@; p.i al este (2)
-				strb r5, [r0, #4]	@; r5 = x2
-				strb r1, [r0, #5]	@; r1 = y2
-				b .Lendaltres_punts
-			.Lendcori_0:
-			.Lcori_1:
-				add r5, r1, #1	@; p.i al sur (1)
-				strb r5, [r0, #3]	@; r5 = y2
-				strb r2, [r0, #2]	@; r2 = x2
-				add r5, #1	@; p.i al sur (2)
-				strb r5, [r0, #5]	@; r5 = y3
-				strb r2, [r0, #4]	@; r2 = x3
-				b .Lendaltres_punts
-			.Lendcori_1:
-			.Lcori_2:
-				sub r5, r2, #1	@; p.i al oeste (1)
-				strb r5, [r0, #2]	@; r5 = x2
-				strb r1, [r0, #3]	@; r1 = y2
-				sub r5, #1	@; p.i al oeste (2)
-				strb r5, [r0, #4]	@; r5 = x2
-				strb r1, [r0, #5]	@; r1 = y2
-				b .Lendaltres_punts
-			.Lendcori_2:
-			.Lcori_3:
-				sub r5, r1, #1	@; p.i al norte (1)
-				strb r5, [r0, #3]	@; r5 = y2
-				strb r2, [r0, #2]	@; r2 = x2
-				sub r5, #1	@; p.i al norte (2)
-				strb r5, [r0, #5]	@; r5 = y3
-				strb r2, [r0, #4]	@; r2 = x3
-				b .Lendaltres_punts
-			.Lendcori_3:
-			.Lcori_4:
-				sub r5, r2, #1	@; p.i al oeste (1)
-				strb r5, [r0, #2]	@; r5 = x2
-				strb r1, [r0, #3]	@; r1 = y2
-				add r5, #2	@; p.i al este (1)
-				strb r5, [r0, #4]	@; r5 = x3
-				strb r1, [r0, #5]	@; r1 = y3 
-				b .Lendaltres_punts
-			.Lendcori_4:
-			.Lcori_5:
-				sub r5, r1, #1	@; p.i al sur (1)
-				strb r5, [r0, #3]	@; r5 = y2
-				strb r2, [r0, #2]	@; r1 = x2
-				add r5, #2	@; p.i al norte (1)
-				strb r5, [r0, #5]	@; r5 = y3
-				strb r2, [r0, #4]	@; r1 = x3
-			.Lendcori_5:
-		.Lendaltres_punts:
-	pop {r1-r5, pc}
+			b .Lcori		@; Salta per seleccionar orientació
+
+		.Lcpi1:
+			sub r2, #1		@; Decrementa la columna 
+			strb r2, [r0]
+			add r2, #1
+			add r0, #1
+			strb r1, [r0]
+			add r0, #1
+			
+			b .Lcori
+
+		
+		.Lcpi2:
+			add r1, #1
+			strb r2, [r0]
+			add r0, #1
+			strb r1, [r0]
+			sub r1, #1
+			add r0, #1
+			
+			b .Lcori
+
+		.Lcpi3:
+			sub r1, #1
+			strb r2, [r0]
+			add r0, #1
+			strb r1, [r0]
+			add r1, #1
+			add r0, #1
+			
+		.Lcori:
+			cmp r3, #0		@; Compara ori amb 0 (Est)
+			beq .Lcori0
+			cmp r3, #1		@; Compara ori amb 1 (Sud)
+			beq .Lcori1
+			cmp r3, #2		@; Compara ori amb 2 (Oest)
+			beq .Lcori2
+			cmp r3, #3		@; Compara ori amb 3 (Nord)
+			beq .Lcori3
+			cmp r3, #4		@; Compara ori amb 4 (horitzontal)
+			beq .Lcori4
+			cmp r3, #5		@; Compara ori amb 5 (vertical)
+			beq .Lcori5
+			
+			b .Lfin
+			
+		.Lcori0:
+			add r2, #1                       @; Incrementa la columna (c + 1)
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+			add r2, #1                       @; Incrementa la columna de nou
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+		
+			b .Lfin
+
+		.Lcori1:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila (f + 1)
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila de nou
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+	
+			b .Lfin
+			
+		.Lcori2:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila (f + 1)
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			add r1, #1                       @; Incrementa la fila de nou
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+		
+			b .Lfin
+
+		.Lcori3:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			sub r1, #1                      @; Disminueix la fila (f - 1)
+			strb r1, [r0]                    @; Guarda la fila disminuïda en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			sub r1, #1                      @; Disminueix la fila de nou
+			strb r1, [r0]                    @; Guarda la fila disminuïda en vect_pos[]
+
+			b .Lfin
+		
+		.Lcori4:
+			sub r2, #1                      @; Disminueix la columna (c - 1)
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+			add r2, #2                       @; Incrementa la columna dues vegades
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna incrementada en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila en vect_pos[]
+			
+			b .Lfin
+			
+		.Lcori5:
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			sub r1, #1                      @; Disminueix la fila (f - 1)
+			strb r1, [r0]                    @; Guarda la fila disminuïda en vect_pos[]
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r2, [r0]                    @; Guarda la columna en vect_pos[]
+			add r1, #2                       @; Incrementa la fila dues vegades
+			add r0, #1                       @; Incrementa l'índex del vector
+			strb r1, [r0]                    @; Guarda la fila incrementada en vect_pos[]
+
+		.Lfin:
+
+
+			pop {r0-r4,pc}
 
 
 
@@ -600,7 +652,7 @@ genera_posiciones:
 @;	Resultado:
 @;		R0 = código de orientación;
 @;				inicio de secuencia: 0 -> Este, 1 -> Sur, 2 -> Oeste, 3 -> Norte
-@;				en medio de secuencia: 4 -> horizontal, 5 -> vertical
+@;				en medio de secuencia: 4 -> horitzontal, 5 -> vertical
 @;				sin secuencia: 6 
 detecta_orientacion:
 		push {r3, r5, lr}
@@ -626,7 +678,7 @@ detecta_orientacion:
 		beq .Ldetori_cont		@;no hay continuación de secuencia
 		tst r3, #1
 		bne .Ldetori_vert
-		mov r3, #4				@;detección secuencia horizontal
+		mov r3, #4				@;detección secuencia horitzontal
 		b .Ldetori_fin
 	.Ldetori_vert:
 		mov r3, #5				@;detección secuencia vertical
