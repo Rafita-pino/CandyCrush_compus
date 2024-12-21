@@ -133,16 +133,14 @@ void init_grafA()
 
 	
 // Tarea 2Da:
-	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
-	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
-	decompress(FondoBitmap, bgGetGfxPtr(bg3A), LZ77Vram);				
-	ajusta_imagen3(3);
-	
 	// inicializar el fondo 3 con prioridad 3
 	bg3A = bgInit(3, BgType_Bmp16, BgSize_B16_512x256, 8, 0); // Inicializa fondo 3
 	bgSetPriority(bg3A, 3);	
 
-
+	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
+	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
+	decompress(FondoBitmap, bgGetGfxPtr(bg3A), LZ77Vram);				
+	ajusta_imagen3(3);
 
 	lcdMainOnBottom();
 

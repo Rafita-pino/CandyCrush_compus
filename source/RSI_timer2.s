@@ -14,7 +14,7 @@
 		.global timer2_on
 	timer2_on:	.byte	0 			@;1 -> timer2 en marcha, 0 -> apagado
 		.align 1
-	divFreq2: .hword	?			@;divisor de frecuencia para timer 2
+	divFreq2: .hword	0			@;divisor de frecuencia para timer 2
 
 
 

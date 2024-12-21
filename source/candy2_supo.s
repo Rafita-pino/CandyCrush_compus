@@ -102,24 +102,24 @@ crea_elemento:
 		mov r5, r1, lsl #5
 		strh r5, [r4, #ELE_PY]		@;vect_elem[i].py = fil*MTHEIGHT;
 		
-	@;		SPR_crearSprite(i, 0, 2, 'indice metabaldosa');
+	@;		SPR_crea_Sprite(i, 0, 2, 'indice metabaldosa');
 		sub r1, r3, #1
 		mov r2, #MTOTAL
 		mul r3, r1, r2				@;indice metabaldosa = (tipo-1)*MTOTAL
 		mov r1, #0
 		mov r2, #2
-		bl SPR_crearSprite
-	@;		SPR_moverSprite(i, vect_elem[i].px, vect_elem[i].py);
+		bl SPR_crea_sprite
+	@;		SPR_ueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
 		ldsh r5, [r4, #ELE_PX]
 		mov r1, r5
 		ldsh r5, [r4, #ELE_PY]
 		mov r2, r5
-		bl SPR_moverSprite
-	@;		SPR_fijarPrioridad(i, 1);
+		bl SPR_mueve_sprite
+	@;		SPR_fija_Prioridad(i, 1);
 		mov r1, #1
-		bl SPR_fijarPrioridad
-	@;		SPR_mostrarSprite(i);
-		bl SPR_mostrarSprite
+		bl SPR_fija_prioridad
+	@;		SPR_muestra_Sprite(i);
+		bl SPR_muestra_sprite
 	@;	}
 	.Lce_fin:
 		pop {r1-r5, pc}
