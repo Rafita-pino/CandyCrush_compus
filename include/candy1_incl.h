@@ -8,8 +8,8 @@
 
 // Rango de los números de filas y de columnas:
 // mínimo: 3, máximo: 11
-#define ROWS	9						// dimensiones de la matriz de juego
-#define COLUMNS	9
+#define ROWS	6						// dimensiones de la matriz de juego
+#define COLUMNS	8
 #define DFIL	(24-ROWS*2)				// desplazamiento vertical de filas
 
 #define MAXLEVEL	9					// nivel máximo (niveles 0..MAXLEVEL-1)
@@ -20,6 +20,7 @@
 #define PUNT_COM5	150					// puntos combinación de 5 elementos
 #define PUNT_COM6	200					// puntos combinación de 6 elementos
 #define PUNT_COM7	300					// puntos combinación de 7 elementos
+
 
 
 	// candy1_conf.s //
