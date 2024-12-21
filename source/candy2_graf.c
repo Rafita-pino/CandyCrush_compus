@@ -8,7 +8,7 @@
 	Programador tarea 2A: xxx.xxx@estudiants.urv.cat
 	Programador tarea 2B: yyy.yyy@estudiants.urv.cat
 	Programador tarea 2C: zzz.zzz@estudiants.urv.cat
-	Programador tarea 2D: uuu.uuu@estudiants.urv.cat
+	Programador tarea 2D: gerard.ros@estudiants.urv.cat
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
@@ -73,8 +73,11 @@ void genera_mapa1(char mat[][COLUMNS])
 	del primer píxel de la pantalla. */
 void ajusta_imagen3(unsigned char ibg)
 {
-
-
+	bgSetCenter(ibg, 256, 128);
+	int angle = degreesToAngle(-90); // hacia la derecha -> grados negativos
+	bgSetRotate(ibg, angle);
+	bgSetScroll(ibg, 140, 0);
+	bgUpdate();
 }
 
 
@@ -98,6 +101,8 @@ void init_grafA()
 
 // Tarea 2Da:
 	// reservar bancos A y B para fondo 3, a partir de 0x06020000
+	vramSetBankA(VRAM_A_MAIN_BG_0x06020000);
+	vramSetBankB(VRAM_B_MAIN_BG_0x06040000);
 
 
 
@@ -130,8 +135,12 @@ void init_grafA()
 // Tarea 2Da:
 	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
 	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
-
+	decompress(FondoBitmap, bgGetGfxPtr(bg3A), LZ77Vram);				
+	ajusta_imagen3(3);
+	
 	// inicializar el fondo 3 con prioridad 3
+	bg3A = bgInit(3, BgType_Bmp16, BgSize_B16_512x256, 8, 0); // Inicializa fondo 3
+	bgSetPriority(bg3A, 3);	
 
 
 
