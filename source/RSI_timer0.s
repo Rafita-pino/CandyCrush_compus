@@ -3,7 +3,7 @@
 @;=                                                           	    	=
 @;=== Programador tarea 2E: xxx.xxx@estudiants.urv.cat				  ===
 @;=== Programador tarea 2G: yyy.yyy@estudiants.urv.cat				  ===
-@;=== Programador tarea 2H: zzz.zzz@estudiants.urv.cat				  ===
+@;=== Programador tarea 2H: gerard.ros@estudiants.urv.cat				  ===
 @;=                                                       	        	=
 
 .include "candy2_incl.i"
@@ -46,7 +46,22 @@ rsi_vblank:
 		
 		
 @;Tarea 2Ha
+		ldr r1, =update_bg3
+		ldrh r2, [r1]		@; r2 = update_bg3
 		
+		cmp r2, #0			@; si la variable update_bg3 está desactivada, 
+		beq .L_finalHa		@; ignorar todos los pasos siguientes
+		
+		ldr r3, =offsetBG3X
+		ldrh r4, [r3]			@; r4 = offsetBG3X
+		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
+		ldr r3, =0x04000038		@; 0x04000038 -> REG_BG3X
+		strh r4, [r3]
+		
+		mov r5, #0
+		strh r5, [r1]			@; update_bg3 = 0
+		
+		.L_finalHa:
 		
 		pop {pc}
 
