@@ -16,7 +16,6 @@
 #include "Graphics_data.h"
 #include "Sprites_sopo.h"
 
-
 /* variables globales */
 unsigned char n_sprites = 0;		// número total de sprites creados
 elemento vect_elem[ROWS*COLUMNS];	// vector de elementos
@@ -60,8 +59,30 @@ void genera_mapa2(char mat[][COLUMNS])
 	gelatinas, elegir una metabaldosa aleatoria de la animación).*/
 void genera_mapa1(char mat[][COLUMNS])
 {
-
-
+	int row, col; // row = index fila; col = index columna
+	for (row = 0; row < ROWS; row++){
+		for (col = 0; col < COLUMNS; col++){
+			if ((mat[row][col] == 15) || (mat[row][col] < 7)){ // si no és bloc sòlid (7) o gelatina (> 7) 
+				fija_metabaldosa((u16 *) 0x06000000, row, col, 19);	//baldosa transparent
+			}
+			else if (mat[row][col] == 7){	//si és bloc sòlid
+				fija_metabaldosa((u16 *) 0x06000000, row, col, 16);	//baldosa barrotes
+			}
+			else if ((mat[row][col] > 7 && mat[row][col] < 15) || ( //si son gelatines d'algun tipus
+							mat[row][col] > 15 && mat[row][col] < 23)){
+				int random = mod_random(8); 
+				
+				if (mat[row][col] > 15 && mat[row][col] < 23)	//si es gelatina doble
+					random += 8; 	//ajustar rang baldosa gelatina doble
+				
+				fija_metabaldosa((u16 *)0x06000000, row, col, random);
+				mat_gel[row][col].ii = mod_random(10); // index animació aleatori
+                mat_gel[row][col].im = random; // guardo index metabaldosa
+			}else {
+				mat_gel[row][col].ii = -1; //casella sense gelatina
+			}
+		}
+	}
 }
 
 

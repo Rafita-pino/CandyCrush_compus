@@ -17,7 +17,7 @@
 		.align 1
 		.global offsetBG3X
 	offsetBG3X: .hword	0			@;desplazamiento vertical fondo 3
-	divFreq3: .hword	?			@;divisor de frecuencia para timer 3
+	@;divFreq3: .hword	?			@;divisor de frecuencia para timer 3
 	
 
 
