@@ -7,7 +7,7 @@
 	Analista-programador: santiago.romani@urv.cat
 	Programador tarea 2A: xxx.xxx@estudiants.urv.cat
 	Programador tarea 2B: yyy.yyy@estudiants.urv.cat
-	Programador tarea 2C: zzz.zzz@estudiants.urv.cat
+	Programador tarea 2C: arnau.faura@estudiants.urv.cat
 	Programador tarea 2D: uuu.uuu@estudiants.urv.cat
 
 ------------------------------------------------------------------------------*/
@@ -95,6 +95,7 @@ void init_grafA()
 
 // Tareas 2Ba y 2Ca:
 	// reservar banco E para fondos 1 y 2, a partir de 0x06000000
+	vramSetBankE(VRAM_E_MAIN_BG);	//0x06000000 és la base
 
 // Tarea 2Da:
 	// reservar bancos A y B para fondo 3, a partir de 0x06020000
@@ -106,25 +107,25 @@ void init_grafA()
 	// cargar las baldosas de la variable SpritesTiles[] a partir de la
 	// dirección virtual de memoria gráfica para sprites, y cargar los colores
 	// de paleta asociados contenidos en la variable SpritesPal[]
-
-
-
+	
+	
+// Tarea 2Ca:
+	//inicializar el fondo 1 con prioridad 0
+	bg1A = bgInit(1, BgType_Text8bpp, BgSize_T_256x256, 0, 1); 			
+	bgSetPriority(bg1A, 0);
 // Tareas 2Ba y 2Ca:
 	// descomprimir (y cargar) las baldosas de la variable BaldosasTiles[] a
 	// partir de la dirección virtual correspondiente al primer bloque de
 	// memoria gráfica (+16 Kbytes), cargar los colores de paleta asociados
 	// contenidos en la variable BaldosasPal[]
-
-
+	decompress(BaldosasTiles, bgGetGfxPtr(bg1A), LZ77Vram); // descomprimeix i carrega baldosas a bg1A
+															// cargar baldosas en bg2A
+	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal)); // carregar paleta a BG_PALETTE
 	
-// Tarea 2Ca:
-	//inicializar el fondo 1 con prioridad 0
-
-
 
 // Tarea 2Ba:
 	// inicializar el fondo 2 con prioridad 2
-
+	
 
 	
 // Tarea 2Da:
