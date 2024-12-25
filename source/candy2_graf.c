@@ -47,21 +47,24 @@ unsigned char crea_elemento_provisional(unsigned char tipo, unsigned char fil, u
 	por parámetro (independientemente de los códigos de gelatinas).*/
 void genera_sprites(char mat[][COLUMNS])
 {
-	unsigned char i;
+	unsigned char i, c, f;
 	SPR_oculta_sprites(128); 					//ocultar todos los 128 sprites 
 	for(i=0; i<ROWS*COLUMNS; i++){				//recorremos ROWS*COLUMNS
 		vect_elem[i].ii=-1;						//ponemos -1 para desactivar elemento del vector
 	}
 	char el;
-	for(unsigned char f=0; f<ROWS; f++){
-		for(unsigned char c=0; c<COLUMNS; c++){
+	for(f=0; f<ROWS; f++){
+		for(c=0; c<COLUMNS; c++){
 			el=mat[f][c];
 			if (el==15 || el==7 || (el>0 && el<=6)){ 					//si es bloque solido (7), hueco (15) o elemento normal (1-6) creamos directo pq ya tenemos tipo
-				crea_elemento_provisional(el,f,c,1);
+				crea_elemento(el,f,c,1);
 				n_sprites++;
 			}else{
-				if(el>7 && el<=14) crea_elemento_provisional(el-8,f,c,1); 			//si es gelatina simple -8
-				else if(el>15 && el<=22) crea_elemento_provisional(el-16,f,c,1); 	//si es gelatina doble -16
+				if(el>7 && el<=14) 
+					crea_elemento(el-8,f,c,1); 				//si es gelatina simple -8
+				else if(el>15 && el<=22) 
+					crea_elemento(el-16,f,c,1); 			//si es gelatina doble -16
+					
 				n_sprites++;
 			}
 		}
