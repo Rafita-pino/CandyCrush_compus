@@ -127,10 +127,67 @@ desactiva_timer0:
 @;  el efecto de aceleración (con un límite).
 	.global rsi_timer0
 rsi_timer0:
-		push {lr}
+		push {r0-r6, lr}
+		ldr r5, =vect_elem			@; r5 = dir. vector
+		ldr r3, =n_sprites
+		ldr r6, [r3]				@; r6 = numero de sprites a recorrer
+		mov r0, #0 					@; r0 = i
 		
 		
-		pop {pc}
+		.L_vect:
+			ldrsh r4, [r5, #ELE_II]	
+			cmp r4, #0				@; si vect_elem.ii == -1 || 0 salto
+			ble .Next_elem
+			
+			sub  r4, #1
+			strh r4, [r5, #ELE_II]	@; vect_elem[i].ii -=1
+			
+			ldrsh r4, [r5, #ELE_VX]	
+			cmp r4, #0				@; si velocidadX = 0, saltamos al vertical (Y)
+			beq .Mov_vertical
+			ldrsh r6, [r5, #ELE_PX]
+			add r6, r4				@; sumamos el movimiento en x a la posicion en x
+			strh r6, [r5, #ELE_PX]
+			
+			.Mov_vertical:
+			ldrsh r4, [r5, #ELE_VY]
+			cmp r4, #0				@; si velocidadY = 0; acabamos movimientos
+			beq .Fi_mov
+			ldrsh r6, [r5, #ELE_PY]
+			add r4, r6				@; sino, sumamos posicion y velocidad en Y
+			strh r4, [r5, #ELE_PY]	
+			
+			.Fi_mov:
+			ldrh r1, [r5, #ELE_PX]	@; cargamos los valores para SPR_mueve_sprite
+			ldrh r2, [r5, #ELE_PY]
+									@; en r0 ya tenemos el indice del elemento (i)
+			bl SPR_mueve_sprite		@; movemos el sprite
+			
+			ldr r1, =update_spr
+			mov r2, #1
+			strh r2, [r1]			@; update_spr actiu
+			
+			ldr r1, =divF0
+			ldrsh r2, [r1]
+			ldr r3, =-1636			@; 523.656 * 0,1/32 = 1636; on 0,1 es el tiempo mas bajo de desplazamiento que aceptaremos, ponemos  -1663 por seguridad
+
+			cmp r2, r3				
+			addlt r2, #30			@; si añadimos 30 al divisor de frequencia, tardara 136 repeticiones en llegar al limite (suficiente)
+			
+			.Next_elem:
+			add r0, #1				@; i++
+			mov r1, #ELE_TAM
+			mla r5, r0, r1, r5		@; incrementamos la direccion del elem_vect para pasar al siguiente elemento
+			cmp r0, r3
+			bls .L_vect
+		
+		ldr r1, =update_spr
+		ldrh r2, [r1]
+		cmp r2, #0
+		ble desactiva_timer0
+			
+
+		pop {r0-r6, pc}
 
 
 
