@@ -21,7 +21,7 @@ unsigned char n_sprites = 0;		// número total de sprites creados
 elemento vect_elem[ROWS*COLUMNS];	// vector de elementos
 gelatina mat_gel[ROWS][COLUMNS];	// matriz de gelatinas
 
-
+int mod_random(int rang);			//solució implicit declaration
 
 // TAREA 2Ab
 /* genera_sprites(): inicializar los sprites con prioridad 1, creando la
