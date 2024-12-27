@@ -16,7 +16,11 @@
 		.global timer0_on
 	timer0_on:	.byte	0 			@;1 -> timer0 en marcha, 0 -> apagado
 			.align 1
-	@;divFreq0: .hword	?			@;divisor de frecuencia inicial para timer 0
+	divFreq0: .hword	-5727		@; divisor de frecuencia inicial para timer 0
+									@; divFreq = -(33.513.982/64)/(1/(0,35/32)) = -(33.513.982/64)*(0,35/32)
+									@; cogemos 32 porque se indica que las interrupciones se hacen en 32 subpartes, 
+									@; por lo tanto queremos la 32parte del tiempo.
+									@; y cogemos 64 porque es el que mas se acerca a la frecuencia de entrada.
 
 
 @;-- .bss. variables (globales) no inicializadas ---
@@ -37,10 +41,20 @@
 @;Tarea 2H: actualiza el desplazamiento del fondo 3
 	.global rsi_vblank
 rsi_vblank:
-		push {lr}
+		push {r0-r3,lr}
 		
 @;Tareas 2Ea
+		ldr r2, =update_spr			
+		ldrh r3, [r2]				
 		
+		cmp r3, #1						@;si update_spr!=1 --> salta la actualizacion
+		bne .L_endEa
+			ldr r0, =0x7000000			@; cargamos direccion OAM (Sprites_sopos.s)
+			mov r1, #128				@; limite de sprites para la funcion
+			bl SPR_actualiza_sprites	
+			mov r0, #0					
+			strh r0, [r2]				@; finalizamos actualizacion; update_spr=0
+		.L_endEa:
 		
 @;Tarea 2Ga
 		
@@ -48,7 +62,7 @@ rsi_vblank:
 @;Tarea 2Ha
 		
 		
-		pop {pc}
+		pop {r0-r3,pc}
 
 
 
