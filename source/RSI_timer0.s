@@ -1,9 +1,9 @@
 ﻿@;=                                                          	     	=
 @;=== RSI_timer0.s: rutinas para mover los elementos (sprites)		  ===
 @;=                                                           	    	=
-@;=== Programador tarea 2E: xxx.xxx@estudiants.urv.cat				  ===
-@;=== Programador tarea 2G: yyy.yyy@estudiants.urv.cat				  ===
-@;=== Programador tarea 2H: zzz.zzz@estudiants.urv.cat				  ===
+@;=== Programador tarea 2E: rafael.pinor@estudiants.urv.cat				  ===
+@;=== Programador tarea 2G: arnau.faura@estudiants.urv.cat				  ===
+@;=== Programador tarea 2H: gerard.ros@estudiants.urv.cat				  ===
 @;=                                                       	        	=
 
 .include "candy2_incl.i"
@@ -16,7 +16,7 @@
 		.global timer0_on
 	timer0_on:	.byte	0 			@;1 -> timer0 en marcha, 0 -> apagado
 			.align 1
-	@;divFreq0: .hword	-1			@;divisor de frecuencia inicial para timer 0
+	@;divFreq0: .hword	?			@;divisor de frecuencia inicial para timer 0
 
 
 @;-- .bss. variables (globales) no inicializadas ---
@@ -43,10 +43,64 @@ rsi_vblank:
 		
 		
 @;Tarea 2Ga
+	ldr r0, =update_gel		@;r0 = @update_gel (declarada RSI_timer2.s com a byte)
+	ldrb r1, [r0] 			@;r1 = valor update_gel
+	cmp r1, #0				@;update_gel desactivat?
+	beq .L_ignore			@;sí, no actualitzar gelatines
+	
+	ldr r3, =mat_gel		@;r3 = @mat_gel
+	mov r1, #0				@;r1 = index files
+	.L_row_loop:
+	mov r2, #0				@;r2 = index columnes
+	.L_col_loop:
+	ldsb r4, [r3, #GEL_II]	@;r4 = mat_gel[r1][r2].ii
+	cmp r4, #0	
+	bgt .L_end				@;si > 0, seguent posició
+	tst r4, #0x80			@;comparació bit mes alt (Ca2)
+	bne .L_end				@; si no es 0 (es negatiu), seguent posició
+	
+	@;si valor valid, fijar_metabaldosa
+	ldr r0, =0x06000000		@;r0 = (u16) map_base 	
+	ldr r3, [r3, #GEL_IM]	@; r3 = mat_gel[r1][r2].im
+	bl fija_metabaldosa	@;r0;r1;r2;r3 com parametres
+	
+	ldr r3, =mat_gel		@;r3 = @mat_gel de nou
+	mov r5, #10				
+	strb r5, [r4]			@;reiniciar camp mat_gel[r1][r2].ii = 10
+	
+	@; ACTUALITZACIÓ BUCLE
+	.L_end:	
+	add r2, #1				@;index col += 1
+	add r3, #GEL_TAM		@;desplaçament seg. gelatina mapa
+	cmp r2, #COLUMNS
+	blo .L_col_loop			@;si index col < MAX_COLS, continuar
+	add r1, #1				@;sino index fila += 1 (next fila)
+	cmp r1, #ROWS
+	blo .L_row_loop			@;si index files < MAX_ROWS, continuar
+	
+	mov r1, #0
+	ldr r0, =update_gel
+	strb r1, [r0]				@;sino, desactivar update_gel
+	.L_ignore:
 		
-		
+	
 @;Tarea 2Ha
+		ldr r1, =update_bg3
+		ldrh r2, [r1]		@; r2 = update_bg3
 		
+		cmp r2, #0			@; si la variable update_bg3 estÃ¡ desactivada, 
+		beq .L_finalHa		@; ignorar todos los pasos siguientes
+		
+		ldr r3, =offsetBG3X
+		ldrh r4, [r3]			@; r4 = offsetBG3X
+		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
+		ldr r3, =0x04000038		@; 0x04000038 -> REG_BG3X
+		strh r4, [r3]
+		
+		mov r5, #0
+		strh r5, [r1]			@; update_bg3 = 0
+		
+		.L_finalHa:	
 		
 		pop {pc}
 
