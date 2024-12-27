@@ -2,7 +2,7 @@
 @;=== RSI_timer0.s: rutinas para mover los elementos (sprites)		  ===
 @;=                                                           	    	=
 @;=== Programador tarea 2E: xxx.xxx@estudiants.urv.cat				  ===
-@;=== Programador tarea 2G: yyy.yyy@estudiants.urv.cat				  ===
+@;=== Programador tarea 2G: rafael.pinor@estudiants.urv.cat				  ===
 @;=== Programador tarea 2H: zzz.zzz@estudiants.urv.cat				  ===
 @;=                                                       	        	=
 
@@ -17,7 +17,7 @@
 	timer0_on:	.byte	0 			@;1 -> timer0 en marcha, 0 -> apagado
 			.align 1
 	divFreq0: .hword	-5727		@; divisor de frecuencia inicial para timer 0
-									@; divFreq = -(33.513.982/64)/(1/(0,35/32)) = -(33.513.982/64)*(0,35/32)
+									@; divFreq = -(33.513.982/64)/(1/(0,35/32)) = -(33.513.982/64)*(0,35/32) = -5727
 									@; cogemos 32 porque se indica que las interrupciones se hacen en 32 subpartes, 
 									@; por lo tanto queremos la 32parte del tiempo.
 									@; y cogemos 64 porque es el que mas se acerca a la frecuencia de entrada.
@@ -48,13 +48,13 @@ rsi_vblank:
 		ldrh r3, [r2]				
 		
 		cmp r3, #1						@;si update_spr!=1 --> salta la actualizacion
-		bne .L_endEa
+		bne .I_notOne
 			ldr r0, =0x7000000			@; cargamos direccion OAM (Sprites_sopos.s)
 			mov r1, #128				@; limite de sprites para la funcion
 			bl SPR_actualiza_sprites	
 			mov r0, #0					
 			strh r0, [r2]				@; finalizamos actualizacion; update_spr=0
-		.L_endEa:
+		.I_notOne:
 		
 @;Tarea 2Ga
 		
@@ -74,20 +74,45 @@ rsi_vblank:
 @;		R0 = init; si 1, restablecer divisor de frecuencia original divFreq0
 	.global activa_timer0
 activa_timer0:
-		push {lr}
-		
-		
-		pop {pc}
+		push {r1-r3, lr}
+			cmp r0, #0					@; si init != 0; se copia
+			beq .I_NoCopia
+				ldr r1, =divFreq0		@; divFreq0 original
+				ldrsh r2, [r1]			@; ldrSh --> S para guardar el simbolo
+				ldr r1, =divF0			@; divFreq0 act
+				strh r2, [r1]			
+				
+			.I_NoCopia:
+			ldr r1, =timer0_on			
+			mov r3, #1					@; timer0 en marcha
+			strh r3, [r1]			
+			
+			ldr r1, =0x04000100			@; TIMER0_DATA (direccion de memoria de teoria)
+			strh r2, [r1]				@; TIMER0_DATA = divFreq0
+				
+			add r1, #0x02				@; TIMER0_CR:
+			mov r2, #0b01000011			@; 		Prescaler selection 	(1..0)	-->	01	(F/64)
+										@; 		Count-up Timing 		(2) 	--> 0 	(timer0 no se puede enlazar)
+										@; 		Timer IRQ Enable 		(6)		--> 1 	(activado)
+										@; 		Timer Start/Stop		(7)		--> 1 	(activado)
+			strh r2, [r1]				
+			
+		pop {r1-r3, pc}
 
 
 @;TAREA 2Ec;
 @;desactiva_timer0(); rutina para desactivar el timer 0.
 	.global desactiva_timer0
 desactiva_timer0:
-		push {lr}
+		push {r1-r2, lr}
+		ldr r1, =0x04000102			@; TIMER0_CR
+		mov r2, #0b01000010					
+		strh r2, [r1]				@; Desactivamos el timer
 		
-		
-		pop {pc}
+		ldr r1, =timer0_on
+		mov r2, #0
+		strh r2, [r1]				@; Desactivamos variable global timer0_on
+		pop {r1-r2, pc}
 
 
 
