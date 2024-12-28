@@ -3,6 +3,7 @@
 @;=                                                           	    	=
 @;=== Programador tarea 1A: rafael.pinor@estudiants.urv.cat			  ===
 @;=== Programador tarea 1B: rafael.pinor@estudiants.urv.cat			  ===
+@;=== Programador tarea 2IA: rafael.pinor@estudiants.urv.cat		  ===
 @;=                                                       	        	=
 
 
