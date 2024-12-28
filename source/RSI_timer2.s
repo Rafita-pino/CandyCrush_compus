@@ -1,11 +1,12 @@
 ﻿@;=                                                          	     	=
 @;=== RSI_timer2.s: rutinas para animar las gelatinas (metabaldosas)  ===
 @;=                                                           	    	=
-@;=== Programador tarea 2G: xxx.xxx@estudiants.urv.cat				  ===
+@;=== Programador tarea 2G: arnau.faura@estudiants.urv.cat				  ===
 @;=                                                       	        	=
 
 .include "candy2_incl.i"
-
+#define TIMER2_DATA  0x04000108    @;dir. reg. datos timer 2
+@;dir. reg. control timer 2 = 0x0400010A
 
 @;-- .data. variables (globales) inicializadas ---
 .data
@@ -14,7 +15,9 @@
 		.global timer2_on
 	timer2_on:	.byte	0 			@;1 -> timer2 en marcha, 0 -> apagado
 		.align 1
-	@;divFreq2: .hword	?			@;divisor de frecuencia para timer 2
+	divFreq2: .hword	-5237		@;divisor de frecuencia para timer 2
+									@;F.salida = 10cambios x seg * 10 int por cambio (.im) = 100
+									@;Divisor = -523655,97 (F. ent / 64) / 100Hz = -5236,55 -> -5237 
 
 
 
@@ -26,12 +29,24 @@
 
 @;TAREA 2Gb;
 @;activa_timer2(); rutina para activar el timer 2.
+@;con el valor de divFreq2
 	.global activa_timer2
 activa_timer2:
-		push {lr}
+		push {r0-r2, lr}
 		
-		
-		pop {pc}
+	ldr r0, =timer2_on
+	mov r1, #1
+	strb r1, [r0]				@;guardar 1 en timer2_on (activar)
+	
+	ldr r0, =TIMER2_DATA
+	ldr r1, =divFreq2
+	ldrh r2, [r1]				@;r2 = (valor) divFreq2
+	orr r2, #0x00C10000        	@;configurar bits superiores:
+                                @; 0xC0 (IRQ enable y prescaler F/64)
+                                @; 0x01 (activar timer)
+	str r2, [r0]				@;escribir 32 bits en TIMER2_DATA (control incluido)
+	
+		pop {r0-r2, pc}
 
 
 @;TAREA 2Gc;

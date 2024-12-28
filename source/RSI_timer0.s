@@ -37,14 +37,14 @@
 @;Tarea 2H: actualiza el desplazamiento del fondo 3
 	.global rsi_vblank
 rsi_vblank:
-		push {lr}
+		push {r0-r5, lr}
 		
 @;Tareas 2Ea
 		
 		
 @;Tarea 2Ga
-	ldr r0, =update_gel		@;r0 = @update_gel (declarada RSI_timer2.s com a byte)
-	ldrb r1, [r0] 			@;r1 = valor update_gel
+	ldr r6, =update_gel		@;r0 = @update_gel (declarada RSI_timer2.s com a byte)
+	ldrb r1, [r6] 			@;r1 = valor update_gel
 	cmp r1, #0				@;update_gel desactivat?
 	beq .L_ignore			@;sí, no actualitzar gelatines
 	
@@ -79,30 +79,11 @@ rsi_vblank:
 	blo .L_row_loop			@;si index files < MAX_ROWS, continuar
 	
 	mov r1, #0
-	ldr r0, =update_gel
-	strb r1, [r0]				@;sino, desactivar update_gel
-	.L_ignore:
+	strb r1, [r6]				@;sino, desactivar update_gel
+	.L_ignore:					@;acabar actualitzat gelatines
 		
-	
 @;Tarea 2Ha
-		ldr r1, =update_bg3
-		ldrh r2, [r1]		@; r2 = update_bg3
-		
-		cmp r2, #0			@; si la variable update_bg3 estÃ¡ desactivada, 
-		beq .L_finalHa		@; ignorar todos los pasos siguientes
-		
-		ldr r3, =offsetBG3X
-		ldrh r4, [r3]			@; r4 = offsetBG3X
-		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
-		ldr r3, =0x04000038		@; 0x04000038 -> REG_BG3X
-		strh r4, [r3]
-		
-		mov r5, #0
-		strh r5, [r1]			@; update_bg3 = 0
-		
-		.L_finalHa:	
-		
-		pop {pc}
+		pop {r0-r5, pc}
 
 
 
