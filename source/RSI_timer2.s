@@ -42,8 +42,8 @@ activa_timer2:
 	ldr r1, =divFreq2
 	ldrh r2, [r1]				@;r2 = (valor) divFreq2
 	orr r2, #0x00C10000        	@;configurar bits superiores:
-                                @; 0xC0 (IRQ enable y prescaler F/64)
-                                @; 0x01 (activar timer)
+                                @; 0xC (IRQ enable y prescaler F/64)
+                                @; 0x1 (activar timer)
 	str r2, [r0]				@;escribir 32 bits en TIMER2_DATA (control incluido)
 	
 		pop {r0-r2, pc}
@@ -53,10 +53,19 @@ activa_timer2:
 @;desactiva_timer2(); rutina para desactivar el timer 2.
 	.global desactiva_timer2
 desactiva_timer2:
-		push {lr}
+		push {r0-r2, lr}
 		
-		
-		pop {pc}
+	ldr r0, =timer2_on
+	ldr r1, =TIMER2_DATA
+	mov r2, #0
+	strb r2, [r0]				@;desactivar timer2_on (posar valor a 0)
+	
+	ldr r2, [r1]				@;r2 = valor TIMER2_DATA
+	
+	bic r2, #0x00800000			@;TIMER2_CR (bit 7 = stop/start), a 0 
+	str r2, [r1]
+	
+		pop {r0-r2, pc}
 
 
 
@@ -70,7 +79,36 @@ desactiva_timer2:
 	.global rsi_timer2
 rsi_timer2:
 		push {lr}
-		
+	
+	ldr r0, =mat_gel
+	mov r1, #0				@;r1 = index bucle
+	
+	.L_loop:
+	ldsb r2, [r0, #GEL_II]	@;r2 = valor mat_gel[][].ii
+	cmp r2, #0
+	beq .L_update_gel		@;si mat_gel[][].ii == 0, actualitzar .im (baldosa)
+	tst r2, #0x80			
+	beq .L_next				@;si, mat_gel[][].ii < 0 (negatiu), saltar element
+	b .L_end   				@;sino, (mat)_gel[][].ii == [0..10], decrementar index
+	
+	.L_update_gel:
+	ldrb r2, [r0, #GEL_IM]	@;r2 = valor mat_gel[][].im
+	add r2, #1				@;actualitzar .im (baldosa)
+	cmp r2, #16				
+	beq .L_reset_double		@;si .im == 16 (màxim index per gel. dobles), resetear
+	cmp r2, #8
+	beq .L_reset_simple		@;sino, si .im == 8 (màxim index per gel. simple), resetar
+	
+	strb r2, [r2, #GEL_IM]	@;sino, valor correcte i actualitzar mat_gel[][].im
+	b .L_end
+	
+	.L_reset_double:
+	.L_reset_simple:
+	
+	.L_next:
+	
+	.L_end:
+	
 		
 		pop {pc}
 
