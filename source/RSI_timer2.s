@@ -78,7 +78,7 @@ desactiva_timer2:
 @;	la visualización de dicha metabaldosa.
 	.global rsi_timer2
 rsi_timer2:
-		push {lr}
+		push {r0-r6, lr}
 	
 	ldr r0, =mat_gel
 	mov r1, #0				@;r1 = index bucle
@@ -86,12 +86,12 @@ rsi_timer2:
 	.L_loop:
 	ldsb r2, [r0, #GEL_II]	@;r2 = valor mat_gel[][].ii
 	cmp r2, #0
-	beq .L_update_gel		@;si mat_gel[][].ii == 0, actualitzar .im (baldosa)
-	tst r2, #0x80			
-	beq .L_next				@;si, mat_gel[][].ii < 0 (negatiu), saltar element
+	beq .L_check_gel		@;si mat_gel[][].ii == 0, actualitzar .im (baldosa)
+	tst r2, #0x80			@;comprovació nombre negatiu
+	beq .L_update_ii		@;si mat_gel[][].ii == 0, actualitzem .ii
 	b .L_end   				@;sino, (mat)_gel[][].ii == [0..10], decrementar index
 	
-	.L_update_gel:
+	.L_check_gel:
 	ldrb r2, [r0, #GEL_IM]	@;r2 = valor mat_gel[][].im
 	add r2, #1				@;actualitzar .im (baldosa)
 	cmp r2, #16				
@@ -99,18 +99,38 @@ rsi_timer2:
 	cmp r2, #8
 	beq .L_reset_simple		@;sino, si .im == 8 (màxim index per gel. simple), resetar
 	
-	strb r2, [r2, #GEL_IM]	@;sino, valor correcte i actualitzar mat_gel[][].im
+	strb r2, [r0, #GEL_IM]	@;sino, valor correcte i actualitzar mat_gel[][].im
 	b .L_end
 	
-	.L_reset_double:
 	.L_reset_simple:
+	mov r2, #0
+	strb r2, [r0, #GEL_IM]
+	b .L_update_gel
 	
-	.L_next:
+	.L_reset_double:
+	mov r2, #8
+	strb r2, [r0, #GEL_IM]
+	
+	.L_update_gel:
+	ldr r3, =update_gel
+	mov r2, #1
+	strb r2, [r3]
+	
+	.L_update_ii:
+	sub r2, #1
+	strb r2, [r0, #GEL_II]	@;no es fa "signed" per si .ii == 0 no canviar-ho
+	@;b .L_end
 	
 	.L_end:
-	
-		
-		pop {pc}
+	add r1, #1
+	add r0, #GEL_TAM		@;seguent gelatina
+	mov r5, #ROWS
+	mov r6, #COLUMNS
+	mul r4, r5, r6			@; ROWS * COLUMNS (últim index matriu)
+	cmp r1, r4
+	ble .L_loop				@;final matriu?
+							@;si, acabar
+		pop {r0-r6, pc}
 
 
 
