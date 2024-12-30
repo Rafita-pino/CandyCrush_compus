@@ -16,7 +16,7 @@
 		.global timer0_on
 	timer0_on:	.byte	0 			@;1 -> timer0 en marcha, 0 -> apagado
 			.align 1
-	divFreq0: .hword	?			@;divisor de frecuencia inicial para timer 0
+	@;divFreq0: .hword	?			@;divisor de frecuencia inicial para timer 0
 
 
 @;-- .bss. variables (globales) no inicializadas ---
