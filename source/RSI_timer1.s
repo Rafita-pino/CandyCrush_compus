@@ -13,7 +13,9 @@
 	timer1_on:	.byte	0 			@;1 -> timer1 en marcha, 0 -> apagado
 		.align 1
 	divFreq1: .hword	-5727,5			@;divisor de frecuencia para timer 1
-	@; 32 tics en 0.35s --> -(33513982/64)x(0.35/32)= -5727.48716 --> -5727.5
+	@; Div_Frec = -(Frec_Entrada/ Frec_Salida)
+	@; 32 tics en 0.35s --> -(33513982/64)/(32/0.35)= -5727.48716 --> -5727.5
+
 
 
 @;-- .bss. variables (globales) no inicializadas ---
