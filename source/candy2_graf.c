@@ -45,19 +45,19 @@ void genera_sprites(char mat[][COLUMNS])
 	sin elementos, excluyendo solo los huecos.*/
 void genera_mapa2(char mat[][COLUMNS])
 {
-	for (int i = 0; i < ROWS; i++){
+	for (unsigned char i = 0; i < ROWS; i++){
 	
-		for (int j = 0; j < COLUMNS; j++){
+		for (unsigned char j = 0; j < COLUMNS; j++){
 		
 			if (mat[i][j] == 15){
-				fija_metabaldosa((u16 *) 0x06000800, i, j, 19); //Metabaldosa transaparente si hay hueco
+				fija_metabaldosa((u16 *) 0x060000800, i, j, 19); //Metabaldosa transaparente si hay hueco
 				
 			} else {
 				if ((i+j) % 2 == 0){ 
-					fija_metabaldosa((u16 *) 0x06000800, i, j, 17); //Blau cel si casella parella
+					fija_metabaldosa((u16 *) 0x060000800, i, j, 17); //Blau cel si casella parella
 					
 				} else {
-					fija_metabaldosa((u16 *) 0x06000800, i, j, 18); //Blau fort si casella cenar
+					fija_metabaldosa((u16 *) 0x060000800, i, j, 18); //Blau fort si casella cenar
 				}
 			}
 		}
