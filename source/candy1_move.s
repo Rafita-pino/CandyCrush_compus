@@ -232,6 +232,7 @@ baja_verticales:
 		mov r3, r1						@;r3 = columna destí
 		bl activa_elemento				@;activar animació element
 		pop {r0-r3, pc}
+		@;Tasca 2IC - FASE 2 
 		mov r11, #1						@;Moviment++
 		
 		b .Lnext						@;Next position
@@ -257,6 +258,7 @@ baja_verticales:
 		mov r3, r1						@;r3 = columna destí (mateixa col.)
 		bl activa_elemento
 		pop {r0-r3, pc}
+		@;Tasca 2IC - FASE 2 
 		mov r11, #1						@;moviment++
 		
 	.Lnext:								@;Següent casella
@@ -349,19 +351,47 @@ baja_laterales:
 	.Lright:
 		sub r7, #COLUMNS				
 		add r7, #1						@;Posició adalt dreta actual
-		b .Lbaixar_elem
-		
-	.Lleft:
-		sub r7, #COLUMNS				
-		sub r7, #1						@;Posició adalt esq. actual
-	
-	.Lbaixar_elem:
 		ldrb r8, [r7]
 		and r9, r8, #7
 		add r9, r6						@;Afegir gelatina a casella a baixar
 		and r8, #24						@;r8 = gelatina adalt dreta
 		strb r9, [r3]					@;Guardar valor baixat amb gelatina corresponent
 		strb r8, [r7]					@;Deixar nomès gelatina a la pos. baixada
+		
+		@;Tasca 2Id - FASE 2 
+		push {r0-r3, lr}
+		mov r0, r2						@;r0 = fila inicial
+		mov r1, r1						@;r1 = columna inicial
+		add r2, #1						@;r2 = fila destí (below)
+		add r3, r1, #1					@;r3 = columna destí (right displacement)
+		bl activa_elemento
+		pop {r0-r3, pc}
+		@;Tasca 2Id - FASE 2 
+		
+		mov r11, #1						@;moviments++
+		b .Lsaltar						@;Següent element
+		@;b .Lbaixar_elem
+		
+	.Lleft:
+		sub r7, #COLUMNS				
+		sub r7, #1						@;Posició adalt esq. actual
+		ldrb r8, [r7]
+		and r9, r8, #7
+		add r9, r6						@;Afegir gelatina a casella a baixar
+		and r8, #24						@;r8 = gelatina adalt dreta
+		strb r9, [r3]					@;Guardar valor baixat amb gelatina corresponent
+		strb r8, [r7]					@;Deixar nomès gelatina a la pos. baixada
+		
+		@;Tasca 2Id - FASE 2 
+		push {r0-r3, lr}
+		mov r0, r2						@;r0 = fila inicial
+		mov r1, r1						@;r1 = columna inicial
+		add r2, #1						@;r2 = fila destí (below)
+		sub r3, r1, #1					@;r3 = columna destí (left displacement)
+		bl activa_elemento
+		pop {r0-r3, pc}
+		@;Tasca 2Id - FASE 2 
+		
 		mov r11, #1						@;moviments++
 		b .Lsaltar						@;Següent element
 		
