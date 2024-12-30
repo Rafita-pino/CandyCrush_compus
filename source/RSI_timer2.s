@@ -78,7 +78,7 @@ desactiva_timer2:
 @;	la visualización de dicha metabaldosa.
 	.global rsi_timer2
 rsi_timer2:
-		push {r0-r6, lr}
+		push {r0-r3, lr}
 	
 	ldr r0, =mat_gel
 	mov r1, #0				@;r1 = index bucle
@@ -87,50 +87,45 @@ rsi_timer2:
 	ldsb r2, [r0, #GEL_II]	@;r2 = valor mat_gel[][].ii
 	cmp r2, #0
 	beq .L_check_gel		@;si mat_gel[][].ii == 0, actualitzar .im (baldosa)
-	tst r2, #0x80			@;comprovació nombre negatiu
-	beq .L_update_ii		@;si mat_gel[][].ii == 0, actualitzem .ii
-	b .L_end   				@;sino, (mat)_gel[][].ii == [0..10], decrementar index
+	tst r2, #0x80			@;comprovació nombre negatiu (-1)
+	bne .L_end				@;si mat_gel[][].ii == -1, saltar posició
+	sub r2, #1				
+	strb r2, [r0, #GEL_II]	@;sino, si ii > 0, decrementar-la
+	b .L_end   				@;següent element
 	
 	.L_check_gel:
 	ldrb r2, [r0, #GEL_IM]	@;r2 = valor mat_gel[][].im
 	add r2, #1				@;actualitzar .im (baldosa)
 	cmp r2, #16				
-	beq .L_reset_double		@;si .im == 16 (màxim index per gel. dobles), resetear
+	beq .L_reset_double		@;si .im == 16 (màxim index per gel. dobles), resetear a 8
 	cmp r2, #8
-	beq .L_reset_simple		@;sino, si .im == 8 (màxim index per gel. simple), resetar
+	beq .L_reset_simple		@;sino, si .im == 8 (màxim index per gel. simple), resetar a 0
 	
 	strb r2, [r0, #GEL_IM]	@;sino, valor correcte i actualitzar mat_gel[][].im
-	b .L_end
+	b .L_update_gel
 	
 	.L_reset_simple:
 	mov r2, #0
-	strb r2, [r0, #GEL_IM]
+	strb r2, [r0, #GEL_IM]	@;canvi de 8 -> 0 (restart)
 	b .L_update_gel
 	
 	.L_reset_double:
 	mov r2, #8
-	strb r2, [r0, #GEL_IM]
+	strb r2, [r0, #GEL_IM]	@;canbi de 16 -> 8
 	
 	.L_update_gel:
 	ldr r3, =update_gel
 	mov r2, #1
-	strb r2, [r3]
-	
-	.L_update_ii:
-	sub r2, #1
-	strb r2, [r0, #GEL_II]	@;no es fa "signed" per si .ii == 0 no canviar-ho
-	@;b .L_end
+	strb r2, [r3]			@;activar update_gel, =1 
 	
 	.L_end:
-	add r1, #1
+	add r1, #1				@;index bucle += 1
 	add r0, #GEL_TAM		@;seguent gelatina
-	mov r5, #ROWS
-	mov r6, #COLUMNS
-	mul r4, r5, r6			@; ROWS * COLUMNS (últim index matriu)
-	cmp r1, r4
-	ble .L_loop				@;final matriu?
+	ldr r3, =ROWS*COLUMNS	@;r3 = ROWS * COLUMNS (últim index matriu)			
+	cmp r1, r3
+	blt .L_loop				@;final matriu? **ble**
 							@;si, acabar
-		pop {r0-r6, pc}
+		pop {r0-r3, pc}
 
 
 
