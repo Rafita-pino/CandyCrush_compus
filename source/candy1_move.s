@@ -224,16 +224,15 @@ baja_verticales:
 		strb r9, [r3]					@;Guarda el. baixat.
 		strb r8, [r7]					@;Deixar nomès gelatina al d'adalt.
 		
-		mov r11, #1						@;Moviment++
-		
 		@;Tasca 2IC - FASE 2 
-		push{r0-r3}
+		push {r0-r3, lr}
 		mov r0, r10						@;r0 = fila actual
 		mov r1, r1						@;r1 = columna actual
-		mov r2, r10		@;!!	MIRAR AIXÒ			@;r2 = fila destí
+		add r2, r10, #1						@;r2 = fila destí
 		mov r3, r1						@;r3 = columna destí
 		bl activa_elemento				@;activar animació element
-		pop{r0-r3}
+		pop {r0-r3, pc}
+		mov r11, #1						@;Moviment++
 		
 		b .Lnext						@;Next position
 		
@@ -243,10 +242,9 @@ baja_verticales:
 		add r0, #1						@;Correcció (+1) xq. no torni 0 
 		add r0, r5						@;Afegir gelatina al nou valor
 		strb r0, [r3]					@;Act. memòria amb nou el.
-		mov r11, #1						@;moviment++
 		
 		@;Tasca 2IC - FASE 2
-		push{r0-r3}
+		push {r0-r3, lr}
 		mov r0, r5						@;r0 = tipus element a baixar
 		mov r2, r1						@;r2 = columna nou element
 		mov r1, #-1						@;r1 = fila nou element (-1)
@@ -254,10 +252,12 @@ baja_verticales:
 		bl crea_elemento				@;crear element a la pos. indicada
 		
 		mov r0, #-1						@;r1 = fila nou element (-1)
-		mov r3, r2						@;r3 = columna destí 					
+		mov r1, r2						@;r1 = columna inicial
 		mov r2, #0						@;r2 = fila destí (0)
+		mov r3, r1						@;r3 = columna destí (mateixa col.)
 		bl activa_elemento
-		pop{r0-r3}
+		pop {r0-r3, pc}
+		mov r11, #1						@;moviment++
 		
 	.Lnext:								@;Següent casella
 		sub r1, #1						@;Columnes(contador)--
