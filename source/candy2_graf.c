@@ -59,24 +59,28 @@ void genera_mapa2(char mat[][COLUMNS])
 	gelatinas, elegir una metabaldosa aleatoria de la animación).*/
 void genera_mapa1(char mat[][COLUMNS])
 {
-	int row, col; // row = index fila; col = index columna
+	unsigned char row, col; // row = index fila; col = index columna
+	unsigned char imeta;
 	for (row = 0; row < ROWS; row++){
 		for (col = 0; col < COLUMNS; col++){
 			if ((mat[row][col] == 15) || (mat[row][col] < 7)){ // si no és bloc sòlid (7) o gelatina (> 7) 
-				fija_metabaldosa((u16 *) 0x06000000, row, col, 19);	//baldosa transparent
+				imeta = (unsigned char) 19;
+				fija_metabaldosa((u16 *) 0x06000000, row, col, imeta);	//baldosa transparent
 			}
 			else if (mat[row][col] == 7){	//si és bloc sòlid
-				fija_metabaldosa((u16 *) 0x06000000, row, col, 16);	//baldosa barrotes
+				imeta = (unsigned char) 16;
+				fija_metabaldosa((u16 *) 0x06000000, row, col, imeta);	//baldosa barrotes
 			}
 			else if ((mat[row][col] > 7 && mat[row][col] < 15) || ( //si son gelatines d'algun tipus
 							mat[row][col] > 15 && mat[row][col] < 23)){
-				int random = mod_random(8); 
+				unsigned char random = (unsigned char) mod_random(8); 
 				
 				if (mat[row][col] > 15 && mat[row][col] < 23)	//si es gelatina doble
 					random += 8; 	//ajustar rang baldosa gelatina doble
 				
-				fija_metabaldosa((u16 *)0x06000000, row, col, random);
-				mat_gel[row][col].ii = mod_random(10); // index animació aleatori
+				char field = (char) mod_random(10);;
+				fija_metabaldosa((u16 *) 0x06000000, row, col, random);
+				mat_gel[row][col].ii = field; // index animació aleatori
                 mat_gel[row][col].im = random; // guardo index metabaldosa
 			}else {
 				mat_gel[row][col].ii = -1; //casella sense gelatina
@@ -129,6 +133,10 @@ void init_grafA()
 	// dirección virtual de memoria gráfica para sprites, y cargar los colores
 	// de paleta asociados contenidos en la variable SpritesPal[]
 	
+// Tarea 2Ba:
+	// inicializar el fondo 2 con prioridad 2
+	bg2A = bgInit(2, BgType_Text8bpp, BgSize_T_256x256, 1, 1);
+	bgSetPriority(bg2A, 2);
 	
 // Tarea 2Ca:
 	//inicializar el fondo 1 con prioridad 0
@@ -140,13 +148,11 @@ void init_grafA()
 	// memoria gráfica (+16 Kbytes), cargar los colores de paleta asociados
 	// contenidos en la variable BaldosasPal[]
 	decompress(BaldosasTiles, bgGetGfxPtr(bg1A), LZ77Vram); // descomprimeix i carrega baldosas a bg1A
-															// cargar baldosas en bg2A
+	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);	// cargar baldosas en bg2A
 	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal)); // carregar paleta a BG_PALETTE
 	
 
-// Tarea 2Ba:
-	// inicializar el fondo 2 con prioridad 2
-	
+
 
 	
 // Tarea 2Da:
