@@ -471,9 +471,15 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 	el desplazamiento del fondo gráfico. */
 void procesa_botonY()
 {
-
-	/* código extra para que funcionen las tareas 2H */
-
+	if (keysHeld() & KEY_Y){	// activar o desactivar desplazam.
+		if (timer3_on) desactiva_timer3();	// imagen del fondo 3
+		else activa_timer3();
+		printf("\x1b[38m\x1b[3;24H%s",(timer3_on ? "si" : "no"));
+		while (keysHeld() & KEY_Y){		// esperar liberacion tecla Y
+			swiWaitForVBlank();	
+			scanKeys();		
+		}
+	}
 }
 
 

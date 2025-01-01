@@ -16,7 +16,7 @@
 		.global timer0_on
 	timer0_on:	.byte	0 			@;1 -> timer0 en marcha, 0 -> apagado
 			.align 1
-	divFreq0: .hword	0			@;divisor de frecuencia inicial para timer 0
+	divFreq0: .hword	-5727			@;divisor de frecuencia inicial para timer 0
 
 
 @;-- .bss. variables (globales) no inicializadas ---
@@ -37,7 +37,7 @@
 @;Tarea 2H: actualiza el desplazamiento del fondo 3
 	.global rsi_vblank
 rsi_vblank:
-		push {lr}
+		push {r0-r5, lr}
 		
 @;Tareas 2Ea
 		
@@ -47,23 +47,22 @@ rsi_vblank:
 		
 @;Tarea 2Ha
 		ldr r1, =update_bg3
-		ldrh r2, [r1]		@; r2 = update_bg3
+		ldrb r2, [r1]		@; r2 = update_bg3
 		
 		cmp r2, #0			@; si la variable update_bg3 está desactivada, 
 		beq .L_finalHa		@; ignorar todos los pasos siguientes
 		
 		ldr r3, =offsetBG3X
 		ldrh r4, [r3]			@; r4 = offsetBG3X
-		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
 		ldr r3, =0x04000038		@; 0x04000038 -> REG_BG3X
+		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
 		strh r4, [r3]
 		
-		mov r5, #0
-		strh r5, [r1]			@; update_bg3 = 0
+		mov r5, #1
+		strb r5, [r1]			@; update_bg3 = 0
 		
 		.L_finalHa:
-		
-		pop {pc}
+		pop {r0-r5, pc}
 
 
 

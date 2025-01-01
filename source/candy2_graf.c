@@ -73,10 +73,10 @@ void genera_mapa1(char mat[][COLUMNS])
 	del primer píxel de la pantalla. */
 void ajusta_imagen3(unsigned char ibg)
 {
-	bgSetCenter(ibg, 256, 128);
+	bgSetCenter(ibg, 255, 128);
 	int angle = degreesToAngle(-90); // hacia la derecha -> grados negativos
 	bgSetRotate(ibg, angle);
-	bgSetScroll(ibg, 140, 0);
+	bgSetScroll(ibg, 128, 0);
 	bgUpdate();
 }
 
@@ -140,7 +140,7 @@ void init_grafA()
 	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
 	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
 	decompress(FondoBitmap, bgGetGfxPtr(bg3A), LZ77Vram);				
-	ajusta_imagen3(3);
+	ajusta_imagen3(bg3A);
 
 	lcdMainOnBottom();
 
