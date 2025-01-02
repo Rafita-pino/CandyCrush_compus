@@ -6,7 +6,7 @@
 	(2º curso de Grado de Ingeniería Informática - ETSE - URV)
 	
 	Analista-programador: santiago.romani@urv.cat
-	
+
 	Programador 1: rafael.pinor@estudiants.urv.cat
 	Programador 2: oupman.miralles@estudiants.urv.cat
 	Programador 3: arnau.faura@estudiants.urv.cat

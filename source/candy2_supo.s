@@ -304,7 +304,8 @@ fija_metabaldosa:
 	@;			*(base_fila + col*MTCOLS + dc) = i_baldosa;
 					add r7, r2, r9			@; R7 = col*MTCOLS + dc
 					add r7, r8, r7, lsl #1	@; R7 = base_fila + (col*MTCOLS + dc)*2 bytes
-					strb r3, [r7]			@; Guardem en R3 (i_baldosa)
+					strh r3, [r7]			@; Guardem en R3 (i_baldosa)
+
 	@;			i_baldosa++;
 					add r3, #1
 					add r9, #1				@; dc++
@@ -317,7 +318,7 @@ fija_metabaldosa:
 	@;	}
 		
 		pop {r1-r9, pc}
-		
+
 @;elimina_gelatina(u16 * mapaddr, unsigned char fil, unsigned char col);
 @;	elimina una gelatina del tablero de juego, a partir de la dirección base
 @;	del mapa de baldosas que contiene las gelatinas y de las coordenadas
@@ -352,7 +353,7 @@ elimina_gelatina:
 	.Leligel_else:
 	@;		mat_gel[fil,col].ii = -1	// desactiva gelatina
 		mov r5, #-1
-		strb r5, [r4, #GEL_II]
+		strh r5, [r4, #GEL_II]
 	@;		imeta = 19;					// índice metabaldosa transparente
 		mov r3, #19
 	@;	}
