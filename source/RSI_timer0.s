@@ -61,7 +61,7 @@ rsi_vblank:
 	
 	@;si valor valid, fijar_metabaldosa
 	ldr r0, =0x06000000		@;r0 = (u16) map_base 	
-	ldr r3, [r3, #GEL_IM]	@;r3 = mat_gel[r1][r2].im
+	ldrb r3, [r3, #GEL_IM]	@;r3 = mat_gel[r1][r2].im
 	bl fija_metabaldosa		@;r0;r1;r2;r3 com parametres
 	
 	ldr r3, =mat_gel		@;r3 = @mat_gel de nou

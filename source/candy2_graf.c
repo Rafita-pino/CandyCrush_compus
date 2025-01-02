@@ -66,10 +66,12 @@ void genera_mapa1(char mat[][COLUMNS])
 			if ((mat[row][col] == 15) || (mat[row][col] < 7)){ // si no és bloc sòlid (7) o gelatina (> 7) 
 				imeta = (unsigned char) 19;
 				fija_metabaldosa((u16 *) 0x06000000, row, col, imeta);	//baldosa transparent
+				mat_gel[row][col].ii = -1; //casella sense gelatina
 			}
 			else if (mat[row][col] == 7){	//si és bloc sòlid
 				imeta = (unsigned char) 16;
 				fija_metabaldosa((u16 *) 0x06000000, row, col, imeta);	//baldosa barrotes
+				mat_gel[row][col].ii = -1; //casella sense gelatina
 			}
 			else if ((mat[row][col] > 7 && mat[row][col] < 15) || ( //si son gelatines d'algun tipus
 							mat[row][col] > 15 && mat[row][col] < 23)){
@@ -78,7 +80,7 @@ void genera_mapa1(char mat[][COLUMNS])
 				if (mat[row][col] > 15 && mat[row][col] < 23)	//si es gelatina doble
 					random += 8; 	//ajustar rang baldosa gelatina doble
 				
-				char field = (char) mod_random(10);;
+				char field = (char) (mod_random(10) + 1);	//rang entre 1-10
 				fija_metabaldosa((u16 *) 0x06000000, row, col, random);
 				mat_gel[row][col].ii = field; // index animació aleatori
                 mat_gel[row][col].im = random; // guardo index metabaldosa
@@ -128,6 +130,7 @@ void init_grafA()
 
 
 
+
 // Tarea 2Aa:
 	// cargar las baldosas de la variable SpritesTiles[] a partir de la
 	// dirección virtual de memoria gráfica para sprites, y cargar los colores
@@ -149,18 +152,16 @@ void init_grafA()
 	// contenidos en la variable BaldosasPal[]
 	decompress(BaldosasTiles, bgGetGfxPtr(bg1A), LZ77Vram); // descomprimeix i carrega baldosas a bg1A
 	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);	// cargar baldosas en bg2A
-	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal)); // carregar paleta a BG_PALETTE
-	
-
+	dmaCopy(BaldosasPal, BG_PALETTE, BaldosasPalLen); // carregar paleta a BG_PALETTE
 
 
 	
 // Tarea 2Da:
 	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
 	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
-
+	
 	// inicializar el fondo 3 con prioridad 3
-
+	
 
 
 	lcdMainOnBottom();

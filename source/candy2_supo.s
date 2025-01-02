@@ -323,7 +323,7 @@ elimina_gelatina:
 	.Leligel_else:
 	@;		mat_gel[fil,col].ii = -1	// desactiva gelatina
 		mov r5, #-1
-		strb r5, [r4, #GEL_II]
+		strh r5, [r4, #GEL_II]
 	@;		imeta = 19;					// índice metabaldosa transparente
 		mov r3, #19
 	@;	}
