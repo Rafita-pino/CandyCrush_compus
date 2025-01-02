@@ -74,10 +74,10 @@ busca_elemento:
 @;		R0 :	índice del elemento encontrado, o ROWS*COLUMNS 
 	.global crea_elemento
 crea_elemento:
-		push {r1-r5,lr}
-		
+		push {r1-r6,lr}
+		mov r6, r3 					@;R6 = prioridad
 		mov r3, r0					@;R3 = tipo de elemento
-	@;	int i = 0;
+	@;	unsigned char i = 0;
 		mov r0, #0					@;R0 es índice de elementos (i)
 		
 	@;	while ((vect_elem[i].ii != -1) && (i < ROWS*COLUMNS))
@@ -109,20 +109,20 @@ crea_elemento:
 		mov r1, #0
 		mov r2, #2
 		bl SPR_crea_sprite
-	@;		SPR_ueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
+	@;		SPR_mueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
 		ldsh r5, [r4, #ELE_PX]
 		mov r1, r5
 		ldsh r5, [r4, #ELE_PY]
 		mov r2, r5
 		bl SPR_mueve_sprite
-	@;		SPR_fija_Prioridad(i, 1);
-		mov r1, #1
+	@;		SPR_fija_Prioridad(i, prio);
+		mov r1, r6
 		bl SPR_fija_prioridad
 	@;		SPR_muestra_Sprite(i);
 		bl SPR_muestra_sprite
 	@;	}
 	.Lce_fin:
-		pop {r1-r5, pc}
+		pop {r1-r6, pc}
 
 
 
@@ -181,7 +181,7 @@ activa_elemento:
 		push {r1-r7,lr}
 		
 		mov r5, r0						@;R5 guarda valor de fila del elemento
-	@;	int i = busca_elemento(fil, col);
+	@;	unsigned char i = busca_elemento(fil, col);
 		bl busca_elemento
 		
 	@;	if (i < ROWS*COLUMNS)			// si lo ha encontrado
