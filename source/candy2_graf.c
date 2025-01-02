@@ -5,11 +5,11 @@
 	Funciones de inicialización de gráficos (ver 'candy2_main.c')
 
 	Analista-programador: santiago.romani@urv.cat
+	
 	Programador tarea 2A: rafael.pinor@estudiants.urv.cat
 	Programador tarea 2B: oupman.miralles@estudiants.urv.cat
 	Programador tarea 2C: arnau.faura@estudiants.urv.cat
 	Programador tarea 2D: gerard.ros@estudiants.urv.cat
-
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 #include "candy2_incl.h"
@@ -81,8 +81,23 @@ void genera_sprites(char mat[][COLUMNS])
 	sin elementos, excluyendo solo los huecos.*/
 void genera_mapa2(char mat[][COLUMNS])
 {
-
-
+	for (unsigned char i = 0; i < ROWS; i++){
+	
+		for (unsigned char j = 0; j < COLUMNS; j++){
+		
+			if (mat[i][j] == 15){
+				fija_metabaldosa((u16 *) 0x060000800, i, j, 19); //Metabaldosa transaparente si hay hueco
+				
+			} else {
+				if ((i+j) % 2 == 0){ 
+					fija_metabaldosa((u16 *) 0x060000800, i, j, 17); //Blau cel si casella parella
+					
+				} else {
+					fija_metabaldosa((u16 *) 0x060000800, i, j, 18); //Blau fort si casella cenar
+				}
+			}
+		}
+	}
 }
 
 
@@ -122,7 +137,8 @@ void ajusta_imagen3(unsigned char ibg)
 				generando el fondo 3 y fijando la transparencia entre fondos.*/
 void init_grafA()
 {
-	int bg1A, bg2A, bg3A;
+	int bg1A, bg2A;
+	//int bg3A;
 
 	videoSetMode(MODE_3_2D | DISPLAY_SPR_1D_LAYOUT | DISPLAY_SPR_ACTIVE);
 	
@@ -131,7 +147,7 @@ void init_grafA()
 	vramSetBankF(VRAM_F_MAIN_SPRITE_0x06400000); //reservamos banco f des de 0x06400000
 // Tareas 2Ba y 2Ca:
 	// reservar banco E para fondos 1 y 2, a partir de 0x06000000
-
+	vramSetBankE(VRAM_E_MAIN_BG);
 // Tarea 2Da:
 	// reservar bancos A y B para fondo 3, a partir de 0x06020000
 
@@ -151,7 +167,9 @@ void init_grafA()
 	// partir de la dirección virtual correspondiente al primer bloque de
 	// memoria gráfica (+16 Kbytes), cargar los colores de paleta asociados
 	// contenidos en la variable BaldosasPal[]
-
+	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);		//carregar baldoses bg2A
+	decompress(BaldosasTiles, bgGetGfxPtr(bg1A), LZ77Vram);		//carregar baldoses bg1A		
+	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal));		//carregar palette
 
 	
 // Tarea 2Ca:
@@ -161,7 +179,8 @@ void init_grafA()
 
 // Tarea 2Ba:
 	// inicializar el fondo 2 con prioridad 2
-
+	bg2A = bgInit(2, BgType_Text8bpp, BgSize_T_256x256, 1, 1);
+	bgSetPriority(bg2A, 2);
 
 	
 // Tarea 2Da:

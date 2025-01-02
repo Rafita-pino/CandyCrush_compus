@@ -6,10 +6,11 @@
 	(2º curso de Grado de Ingeniería Informática - ETSE - URV)
 	
 	Analista-programador: santiago.romani@urv.cat
+	
 	Programador 1: rafael.pinor@estudiants.urv.cat
-	Programador 2: yyy.yyy@estudiants.urv.cat
-	Programador 3: zzz.zzz@estudiants.urv.cat
-	Programador 4: uuu.uuu@estudiants.urv.cat
+	Programador 2: oupman.miralles@estudiants.urv.cat
+	Programador 3: arnau.faura@estudiants.urv.cat
+	Programador 4: gerard.ros@estudiants.urv.cat
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
@@ -561,8 +562,8 @@ int main(void)
 						// si ha habido recombinación sin nueva combinación, sigue en estado E_CHECK
 						break;
 		}
+		
 	} while (1);				// bucle infinito
 	
 	return(0);					// nunca retornará del main
 }
-
