@@ -69,7 +69,7 @@ extern void genera_mapa2(char matriz[][COLUMNS]);		// 2Bb
 extern unsigned char timer0_on;
 extern void rsi_vblank();								// 2Ea,2Ga,2Ha
 extern void activa_timer0(unsigned char init);			// 2Eb
-//extern void desactiva_timer0();						// 2Ec
+extern void desactiva_timer0();						// 2Ec
 extern void rsi_timer0();								// 2Ed
 
 

@@ -2,7 +2,7 @@
 @;=== RSI_timer0.s: rutinas para mover los elementos (sprites)		  ===
 @;=                                                           	    	=
 @;=== Programador tarea 2E: xxx.xxx@estudiants.urv.cat				  ===
-@;=== Programador tarea 2G: yyy.yyy@estudiants.urv.cat				  ===
+@;=== Programador tarea 2G: rafael.pinor@estudiants.urv.cat				  ===
 @;=== Programador tarea 2H: zzz.zzz@estudiants.urv.cat				  ===
 @;=                                                       	        	=
 
@@ -16,7 +16,11 @@
 		.global timer0_on
 	timer0_on:	.byte	0 			@;1 -> timer0 en marcha, 0 -> apagado
 			.align 1
-	divFreq0: .hword	?			@;divisor de frecuencia inicial para timer 0
+	divFreq0: .hword	-5727		@; divisor de frecuencia inicial para timer 0
+									@; divFreq = -(33.513.982/64)/(1/(0,35/32)) = -(33.513.982/64)*(0,35/32) = -5727
+									@; cogemos 32 porque se indica que las interrupciones se hacen en 32 subpartes, 
+									@; por lo tanto queremos la 32parte del tiempo.
+									@; y cogemos 64 porque es el que mas se acerca a la frecuencia de entrada.
 
 
 @;-- .bss. variables (globales) no inicializadas ---
@@ -37,10 +41,20 @@
 @;Tarea 2H: actualiza el desplazamiento del fondo 3
 	.global rsi_vblank
 rsi_vblank:
-		push {lr}
+		push {r0-r3,lr}
 		
 @;Tareas 2Ea
+		ldr r2, =update_spr			
+		ldrb r3, [r2]				
 		
+		cmp r3, #1						@;si update_spr!=1 --> salta la actualizacion
+		bne .I_notOne
+			ldr r0, =0x7000000			@; cargamos direccion OAM (Sprites_sopos.s)
+			mov r1, #128				@; limite de sprites para la funcion
+			bl SPR_actualiza_sprites	
+			mov r0, #0					
+			strh r0, [r2]				@; finalizamos actualizacion; update_spr=0
+		.I_notOne:
 		
 @;Tarea 2Ga
 		
@@ -48,7 +62,7 @@ rsi_vblank:
 @;Tarea 2Ha
 		
 		
-		pop {pc}
+		pop {r0-r3,pc}
 
 
 
@@ -60,20 +74,45 @@ rsi_vblank:
 @;		R0 = init; si 1, restablecer divisor de frecuencia original divFreq0
 	.global activa_timer0
 activa_timer0:
-		push {lr}
-		
-		
-		pop {pc}
+		push {r1-r3, lr}
+			cmp r0, #0					@; si init != 0; se copia
+			beq .I_NoCopia
+				ldr r1, =divFreq0		@; divFreq0 original
+				ldrsh r2, [r1]			@; ldrSh --> S para guardar el simbolo
+				ldr r1, =divF0			@; divFreq0 act
+				strh r2, [r1]			
+				
+			.I_NoCopia:
+			ldr r1, =timer0_on			
+			mov r3, #1					@; timer0 en marcha
+			strb r3, [r1]			
+			
+			ldr r1, =0x04000100			@; TIMER0_DATA (direccion de memoria de teoria)
+			strh r2, [r1]				@; TIMER0_DATA = divFreq0
+				
+			add r1, #0x02				@; TIMER0_CR:
+			mov r2, #0b01000011			@; 		Prescaler selection 	(1..0)	-->	01	(F/64)
+										@; 		Count-up Timing 		(2) 	--> 0 	(timer0 no se puede enlazar)
+										@; 		Timer IRQ Enable 		(6)		--> 1 	(activado)
+										@; 		Timer Start/Stop		(7)		--> 1 	(activado)
+			strh r2, [r1]				
+			
+		pop {r1-r3, pc}
 
 
 @;TAREA 2Ec;
 @;desactiva_timer0(); rutina para desactivar el timer 0.
 	.global desactiva_timer0
 desactiva_timer0:
-		push {lr}
+		push {r1-r2, lr}
+		ldr r1, =0x04000102			@; TIMER0_CR
+		mov r2, #0b01000010					
+		strh r2, [r1]				@; Desactivamos el timer
 		
-		
-		pop {pc}
+		ldr r1, =timer0_on
+		mov r2, #0
+		strb r2, [r1]				@; Desactivamos variable global timer0_on
+		pop {r1-r2, pc}
 
 
 
@@ -88,10 +127,67 @@ desactiva_timer0:
 @;  el efecto de aceleración (con un límite).
 	.global rsi_timer0
 rsi_timer0:
-		push {lr}
+		push {r0-r6, lr}
+		ldr r5, =vect_elem			@; r5 = dir. vector
+		ldr r3, =n_sprites
+		ldr r6, [r3]				@; r6 = numero de sprites a recorrer
+		mov r0, #0 					@; r0 = i
 		
 		
-		pop {pc}
+		.L_vect:
+			ldrsh r4, [r5, #ELE_II]	
+			cmp r4, #0				@; si vect_elem.ii == -1 || 0 salto
+			ble .Next_elem
+			
+			sub  r4, #1
+			strh r4, [r5, #ELE_II]	@; vect_elem[i].ii -=1
+			
+			ldrsh r4, [r5, #ELE_VX]	
+			cmp r4, #0				@; si velocidadX = 0, saltamos al vertical (Y)
+			beq .Mov_vertical
+			ldrsh r6, [r5, #ELE_PX]
+			add r6, r4				@; sumamos el movimiento en x a la posicion en x
+			strh r6, [r5, #ELE_PX]
+			
+			.Mov_vertical:
+			ldrsh r4, [r5, #ELE_VY]
+			cmp r4, #0				@; si velocidadY = 0; acabamos movimientos
+			beq .Fi_mov
+			ldrsh r6, [r5, #ELE_PY]
+			add r4, r6				@; sino, sumamos posicion y velocidad en Y
+			strh r4, [r5, #ELE_PY]	
+			
+			.Fi_mov:
+			ldrh r1, [r5, #ELE_PX]	@; cargamos los valores para SPR_mueve_sprite
+			ldrh r2, [r5, #ELE_PY]
+									@; en r0 ya tenemos el indice del elemento (i)
+			bl SPR_mueve_sprite		@; movemos el sprite
+			
+			ldr r1, =update_spr
+			mov r2, #1
+			strb r2, [r1]			@; update_spr actiu
+			
+			ldr r1, =divF0
+			ldrsh r2, [r1]
+			ldr r3, =-1636			@; 523.656 * 0,1/32 = 1636; on 0,1 es el tiempo mas bajo de desplazamiento que aceptaremos, ponemos  -1663 por seguridad
+
+			cmp r2, r3				
+			addlt r2, #30			@; si añadimos 30 al divisor de frequencia, tardara 136 repeticiones en llegar al limite (suficiente)
+			
+			.Next_elem:
+			add r0, #1				@; i++
+			mov r1, #ELE_TAM
+			mla r5, r0, r1, r5		@; incrementamos la direccion del elem_vect para pasar al siguiente elemento
+			cmp r0, r3
+			bls .L_vect
+		
+		ldr r1, =update_spr
+		ldrb r2, [r1]
+		cmp r2, #0
+		ble desactiva_timer0
+			
+
+		pop {r0-r6, pc}
 
 
 

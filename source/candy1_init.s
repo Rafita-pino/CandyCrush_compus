@@ -3,6 +3,7 @@
 @;=                                                           	    	=
 @;=== Programador tarea 1A: rafael.pinor@estudiants.urv.cat			  ===
 @;=== Programador tarea 1B: rafael.pinor@estudiants.urv.cat			  ===
+@;=== Programador tarea 2IA: rafael.pinor@estudiants.urv.cat		  ===
 @;=                                                       	        	=
 
 
@@ -14,10 +15,18 @@
 @;-- .bss. variables (globales) no inicializadas ---
 .bss
 		.align 2
-@; matrices de recombinación: matrices de soporte para generar una nueva matriz
+@;	matrices de soporte para generar una nueva matriz
 @;	de juego recombinando los elementos de la matriz original.
 	mat_recomb1:	.space ROWS*COLUMNS
 	mat_recomb2:	.space ROWS*COLUMNS
+	
+	@; 2IA
+	mat_mov_s:		.space ROWS*COLUMNS*2 	@; matriz para guardar la posicion del sprite y si se ha modificado
+											@; byte1:
+											@; 7..4 fila inicial
+											@; 3..0 columna inicial
+											@; byte2:
+											@; 0 si no se ha modificado | 1 si se ha modificado
 
 
 
@@ -54,53 +63,53 @@
 @;		R8 = valor per accedir a mapa config // Bits 4..3
 	.global inicializa_matriz
 inicializa_matriz:
-	push {r0-r8, lr}		@;guardar registros utilizados
-		mov r4, r0				@; r0 = direccion base de la matriz
-		mov r3, r1				@; r3 = num mapa config				
+	push {r0-r8, lr}		
+		mov r4, r0						@; r0 = direccion base de la matriz
+		mov r3, r1						@; r3 = num mapa config				
 		ldr r5, =mapas
-		mov r8, #COLUMNS*ROWS	@; multiplicamos columnas por filas
-		mul r8, r3					@;multiplicamos el resultado anterior por el numero de mapa de configuracion
-		add r5, r8					@;accedemos al mapa
-		mov r6, #0		@; desplazamiento de posiciones
-		mov r1, #0		@; desplazamiento de filas (i)
+		mov r8, #COLUMNS*ROWS			@; multiplicamos columnas por filas
+		mul r8, r3						@;multiplicamos el resultado anterior por el numero de mapa de configuracion
+		add r5, r8						@;accedemos al mapa
+		mov r6, #0						@; desplazamiento de posiciones
+		mov r1, #0						@; desplazamiento de filas (i)
 		.L_fori:
-			mov r2, #0	@; desplazamiento de columnas (j)
+			mov r2, #0					@; desplazamiento de columnas (j)
 			.L_forj:
-				ldrb r7, [r5, r6] @; r7= valor de la casilla (R1,R2) de mapa config
+				ldrb r7, [r5, r6]		@; r7= valor de la casilla (R1,R2) de mapa config
 				mov r3, r7
-				and r3, #0x07	  @; procesamos los bits 2..0 del contenido de r3 (R1,R2)
-				tst r3, #0x07
+				and r3, #0x07			@; procesamos los bits 2..0 del contenido de r3 (R1,R2)
+				tst r3, #0x07	
 				beq .L_random
-				strb r7, [r4, r6] @; guardamos el resultado en la matriz de juego si r3=! 000
+				strb r7, [r4, r6]		@; guardamos el resultado en la matriz de juego si r3=! 000
 				b .L_fi
 				
 			.L_random:
-				mov r0, #6			  @; pasamos rango maximo
+				mov r0, #6				@; pasamos rango maximo
 				bl mod_random		 
 				tst r0, #0x00
 				addeq r0, #1			@; si es 0, sumamos 1
-				add r3, r7, r0		  @; sumamos al valor inicial el resultado y lo guardamos en r3
-				strb r3, [r4, r6]	  @; subimos a la matriz de juego el resultado para cuenta_repeticiones
+				add r3, r7, r0			@; sumamos al valor inicial el resultado y lo guardamos en r3
+				strb r3, [r4, r6]		@; subimos a la matriz de juego el resultado para cuenta_repeticiones
 				
-				mov r0, r4			   @; volvemos a poner la direccion base de la matriz de juego en r0
-				mov r3, #2			   @; direccion 2
-				bl cuenta_repeticiones @; llamamos a cuenta_repeticiones para comprovar que no tenemos secuencias
-				cmp r0, #3			   @; comparamos el resultado de cuenta_repeticiones con 3
-				bge .L_random 		   @; si >= 3, es que tenemos secuencia de >= 3
+				mov r0, r4			   	@; volvemos a poner la direccion base de la matriz de juego en r0
+				mov r3, #2			   	@; direccion 2
+				bl cuenta_repeticiones 	@; llamamos a cuenta_repeticiones para comprovar que no tenemos secuencias
+				cmp r0, #3			   	@; comparamos el resultado de cuenta_repeticiones con 3
+				bge .L_random 		   	@; si >= 3, es que tenemos secuencia de >= 3
 				
-				mov r0, r4			   @; volvemos a poner la direccion base de la matriz de juego en r0
-				mov r3, #3			   @; direccion 3 (REPETIMOS PROCESO EN DIRECCION 3)
+				mov r0, r4			  	@; volvemos a poner la direccion base de la matriz de juego en r0
+				mov r3, #3			   	@; direccion 3 (REPETIMOS PROCESO EN DIRECCION 3)
 				bl cuenta_repeticiones 
 				cmp r0, #3			   
 				bge .L_random 		   
 				
 			.L_fi:
-				add r6, #1 @; avanza desplazamiento de posiciones						   
+				add r6, #1 				@; avanza desplazamiento de posiciones						   
 				add r2, #1 
-				cmp r2, #COLUMNS @; comparamos con el numero de columnas para recorerlas todas
+				cmp r2, #COLUMNS 		@; comparamos con el numero de columnas para recorerlas todas
 				blo .L_forj
 			add r1, #1
-			cmp r1, #ROWS @;comparamos con el numero de filas para recorerlas todas
+			cmp r1, #ROWS 				@;comparamos con el numero de filas para recorerlas todas
 			blo .L_fori
 	pop {r0-r8, pc}
 
@@ -138,17 +147,18 @@ inicializa_matriz:
 	.global recombina_elementos
 recombina_elementos:
 		push {r0-r12, lr}
-		mov r4, r0					@;direccion base de la matriz
-		ldr r7, =mat_recomb1		@;cargamos mat_recomb1
-		ldr r8, =mat_recomb2		@;cargamos mat_recomb2
+		bl ini_mat_mov_s			@; inicializamos matriz en 0s 
+		mov r4, r0					@; direccion base de la matriz
+		ldr r7, =mat_recomb1		@; cargamos mat_recomb1
+		ldr r8, =mat_recomb2		@; cargamos mat_recomb2
 		@; RECORREMOS MATRIZ DE JUEGO
 	.L_IniMatJoc:
-		mov r6, #0					@;inicializamos puntero
-		mov r1, #0					@;inicializamos filas
+		mov r6, #0					@; inicializamos puntero
+		mov r1, #0					@; inicializamos filas
 		.L_FilaMatJoc:
-			mov r2, #0					@;inicializamos columnas
-			mov r3, #COLUMNS			@;guardamos max COLUMNS en r3
-			mul r12, r1, r3				@;r12 = fila * COLUMNS
+			mov r2, #0					@; inicializamos columnas
+			mov r3, #COLUMNS			@; guardamos max COLUMNS en r3
+			mul r12, r1, r3				@; r12 = fila * COLUMNS
 			.L_colMatJoc:
 				ldrb r3, [r4, r6]			@; r3 = contenido mat_joc[r1][r2]
 				cmp r3, #0					@; comparamos con vacio (0)
@@ -196,7 +206,7 @@ recombina_elementos:
 				
 			add r1, #1					@; avanza fila
 			cmp r1, #ROWS				@; miramos si estamos en final de columna
-			blo .L_FilaMatJoc		@; avanza al siguiente elemento siempre que no este al final
+			blo .L_FilaMatJoc			@; avanza al siguiente elemento siempre que no este al final
 			
 	@;UNA VEZ ACABADA LAS COPIAS, EMPEZAMOS LA RECOMBINACION :)		
 	
@@ -204,9 +214,7 @@ recombina_elementos:
 		mov r6, #0					@; inicializamos puntero
 		mov r1, #0					@; inicializamos filas
 		.L_FilaRecomb2:
-			mov r2, #0					@;inicializamos columnas
-			mov r3, #COLUMNS			@;guardamos max COLUMNS en r3
-			mul r12, r1, r3				@;r12 = fila * COLUMNS
+			mov r2, #0					@; inicializamos columnas
 			.L_ColRecomb2:
 			
 				ldrb r3, [r4, r6]			@; r3 = contenido mat_joc[r1][r2]
@@ -254,10 +262,24 @@ recombina_elementos:
 				ldrb r5, [r8, r6]			@; volvemos a coger los valores de la matriz de juego y de mat_recomb2 porque no se donde algun registro se modifica
 											@; y produce errores 											
 				ldrb r3, [r4, r6]
-			
-
 				
-
+				@; 2IA
+				push {r1-r4, r6, lr}			@; me he quedado sin registros asi que hago push pop y no pierdo valores
+												@; guardo en mat_mov_s fila, columna y si se ha modificado la posicion
+												@; r1 -> filas | r2 -> columnas | r6 -> posicion en matjoc que se modifica
+					mov r3, #2
+					mul r4, r6, r3				@; r7 posicion de mat_mov_s equivalente a matjoc
+					ldr r3, =mat_mov_s			@; cargamos mat_mov_s
+					lsl r1, r1, #4				@; fila << 4
+					orr r1, r1, r2				@; 7..4 fila | 3..0 columna
+					strb r2, [r3, r4]				
+					add r4, #1					@; avanzamos al siguiente byte
+					mov r1, #1					@; valor para determinar que se ha modificado
+					strb r1, [r3, r4]			@; guardamos en el byte2 un 1 para saber que se ha modificado
+				
+				pop {r1-r4, r6, pc}
+				@; 2IA
+				
 				mov r3, r3, lsr#3			
 				and r3, #0x03				@; nos quedan los bits (4..3)
 				cmp r3, #0x01				@; comparamos con gelatina simple (01)
@@ -302,6 +324,32 @@ recombina_elementos:
 			.L_buclecolFIN:
 				ldrb r3, [r8, r6]			@; R3 = valor casilla (r1, r2) mat_recomb2
 				strb r3, [r4, r6]			@; guardamos en la matriz de juego el valor de mat_recomb2
+				
+				@; 2IA
+				push {r0-r4, lr}
+					mov r3, r2				@; columna destino
+					mov r2, r1				@; fila destino
+					
+					ldr r0, =mat_mov_s
+					mov r1, #2
+					mul r4, r6, r1
+					add r4, #1				@; sumamos uno para pasar al byte2
+					ldrb r1, [r0, r4]		@; valor de mat_mov_s byte2
+					cmp r1, #0
+					beq .end_mov			@; si es 0 significa que no se ha modificado, por lo tanto acabamos
+					sub r4, #1				@; tenemos direccion de byte1
+					ldrb r1, [r0, r4]
+					
+					lsr r0, r1, #4			@; fila original (r0) = r1 >> 4
+					and r1, r1, #0x0F		@; columna orifinal (r1) = r1 & 0x0F
+					bl activa_elemento		@; r0 -> fila original
+											@; r1 -> columna original
+											@; r2 -> fila destino
+											@; r3 -> columna destino
+				.end_mov:
+				pop {r0-r4, pc}
+				@; 2IA
+				
 			.L_finalFIN:
 			add r6, #1					@; avanza posicion
 			add r2, #1					@; avanza columna
@@ -316,6 +364,22 @@ recombina_elementos:
 
 
 @;:::RUTINAS DE SOPORTE:::
+@; ini_mat_mov_s(): rutina para inicializar en 0s la matriz mat_mov_s (mirar definicion en definicion de matrices)
+
+ini_mat_mov_s:
+    push {r1-r3, lr}           
+    ldr r1, =mat_mov_s       
+    mov r2, #0						@; indice que recorre
+    mov r3, #ROWS*COLUMNS*2			@; tamaño matriz (limite del bucle)
+
+	.L_principal:
+		strb r2, [r1], #1			@; guardamos 0 en la posición actual y avanzamos 1
+		subs r3, r3, #1				@; restamos y actualizamos flags
+		bne .L_principal			@; si r3 > 0 seguimos
+
+    pop {r1-r3, pc}           
+
+
 
 @; mod_random(n): rutina para obtener un número aleatorio entre 0 y n-1,
 @;	utilizando la rutina random()
