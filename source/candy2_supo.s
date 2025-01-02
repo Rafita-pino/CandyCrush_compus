@@ -74,15 +74,15 @@ busca_elemento:
 @;		R0 :	índice del elemento encontrado, o ROWS*COLUMNS 
 	.global crea_elemento
 crea_elemento:
-		push {r1-r5,lr}
-		
+		push {r1-r6,lr}
+		mov r6, r3 					@;R6 = prioridad
 		mov r3, r0					@;R3 = tipo de elemento
-	@;	int i = 0;
-		mov r0, #0					@;R0 es Ã­ndice de elementos (i)
+	@;	unsigned char i = 0;
+		mov r0, #0					@;R0 es índice de elementos (i)
 		
 	@;	while ((vect_elem[i].ii != -1) && (i < ROWS*COLUMNS))
 	@;		i++;
-		ldr r4, =vect_elem			@;R4 es direcciÃ³n base del vector elementos
+		ldr r4, =vect_elem			@;R4 es dirección base del vector elementos
 	.Lce_bucle:
 		ldsh r5, [r4, #ELE_II]
 		cmp r5, #-1
@@ -109,22 +109,20 @@ crea_elemento:
 		mov r1, #0
 		mov r2, #2
 		bl SPR_crea_sprite
-	@;		SPR_ueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
+	@;		SPR_mueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
 		ldsh r5, [r4, #ELE_PX]
 		mov r1, r5
 		ldsh r5, [r4, #ELE_PY]
 		mov r2, r5
 		bl SPR_mueve_sprite
-	@;		SPR_fija_Prioridad(i, 1);
-		mov r1, #1
+	@;		SPR_fija_Prioridad(i, prio);
+		mov r1, r6
 		bl SPR_fija_prioridad
 	@;		SPR_muestra_Sprite(i);
 		bl SPR_muestra_sprite
 	@;	}
 	.Lce_fin:
-		pop {r1-r5, pc}
-
-
+		pop {r1-r6, pc}
 
 @;elimina_elemento(unsigned char fil, unsigned char col);
 @;	elimina un elemento de juego, a partir de sus coordenadas fila y columna
@@ -178,22 +176,32 @@ elimina_elemento:
 @;		R0 :	índice del elemento encontrado, o ROWS*COLUMNS
 	.global activa_elemento
 activa_elemento:
-		push {lr}
+		push {r1-r7,lr}
 		
-		
-		@; /* código extra para que funcionen las tareas 2E */
-		
-		
+		mov r5, r0						@;R5 guarda valor de fila del elemento
 	@;	unsigned char i = busca_elemento(fil, col);
+		bl busca_elemento
 		
 	@;	if (i < ROWS*COLUMNS)			// si lo ha encontrado
+		cmp r0, #ROWS*COLUMNS
+		beq .Lae_fin
 	@;	{
+		ldr r4, =vect_elem
+		mov r6, #ELE_TAM
+		mul r7, r0, r6					@;R7 = i * TAMELEM;
+		add r4, r7
 	@;		vect_elem[i].vx = c2 - col;	// fija la velocidad como la diferencia
 	@;		vect_elem[i].vy = f2 - fil;	// de posiciones a desplazarse
+		sub r3, r1
+		strh r3, [r4, #ELE_VX]
+		sub r2, r5 
+		strh r2, [r4, #ELE_VY]
 	@;		vect_elem[i].ii = 32;		// activa el movimiento (32 interrups.)
+		mov r5, #32
+		strh r5, [r4, #ELE_II]
 	@;	}
-		
-		pop {pc}
+	.Lae_fin:
+		pop {r1-r7,pc}
 
 
 
@@ -268,25 +276,56 @@ desactiva_escalado:
 @;		R3 :	índice de metabaldosa (imeta)
 	.global fija_metabaldosa
 fija_metabaldosa:
-		push {lr}
+		push {r1-r9, lr}
 		
 		
 		@; /* código extra para que funcionen las tareas 2Bb, 2Cb y 2G */
 		
 		
 	@;	i_baldosa = imeta*MTOTAL;
+			mov r4, #MTOTAL
+			mul r5, r3, r4
+			
+			mov r3, r5				@; R3 = i_baldosa
+			
+			mov r4, #MTROWS
+			mul r5, r1, r4
+			mov r1, r5				@; R1 = fil*MTROWS
+			
+			mov r5, #MTCOLS
+			mul r6, r2, r5
+			mov r2, r6				@; R2 = col*MTCOLS
+			
+			mov r6, #0				@; R6 = df
+			
 	@;	for (df = 0; df < MTROWS; df++)
+			.Lfor_df:
 	@;	{								// dir. base en mapa de fila actual
 	@;		base_fila = mapbase + (fil*MTROWS + df)*32;
+				add r7, r1, r6			@; R7 = fil*MTROWS + df
+				add r8, r0, r7, lsl #6	@; R8 = mapbase + (fil*MTROWS + df)*32;
+										@; lsl #6 (2^6 = 64) pq 32 columnas * 2 bytes
+				mov r9, #0 				@; R9 = dc
 	@;		for (dc = 0; dc < MTCOLS; dc++)
+				.Lfor_dc:
 	@;		{
 	@;			*(base_fila + col*MTCOLS + dc) = i_baldosa;
+					add r7, r2, r9			@; R7 = col*MTCOLS + dc
+					add r7, r8, r7, lsl #1	@; R7 = base_fila + (col*MTCOLS + dc)*2 bytes
+					strh r3, [r7]			@; Guardem en R3 (i_baldosa)
+
 	@;			i_baldosa++;
+					add r3, #1
+					add r9, #1				@; dc++
+					cmp r9, #MTCOLS
+					blo .Lfor_dc			@; continuar for si dc < MTCOLS
 	@;		}
+				add r6, #1				@; df++
+				cmp r6, #MTROWS
+				blo .Lfor_df
 	@;	}
 		
-		pop {pc}
-
+		pop {r1-r9, pc}
 
 @;elimina_gelatina(u16 * mapaddr, unsigned char fil, unsigned char col);
 @;	elimina una gelatina del tablero de juego, a partir de la dirección base
@@ -322,7 +361,7 @@ elimina_gelatina:
 	.Leligel_else:
 	@;		mat_gel[fil,col].ii = -1	// desactiva gelatina
 		mov r5, #-1
-		strb r5, [r4, #GEL_II]
+		strh r5, [r4, #GEL_II]
 	@;		imeta = 19;					// índice metabaldosa transparente
 		mov r3, #19
 	@;	}

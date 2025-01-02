@@ -6,10 +6,11 @@
 	(2º curso de Grado de Ingeniería Informática - ETSE - URV)
 	
 	Analista-programador: santiago.romani@urv.cat
+
 	Programador 1: rafael.pinor@estudiants.urv.cat
-	Programador 2: yyy.yyy@estudiants.urv.cat
-	Programador 3: zzz.zzz@estudiants.urv.cat
-	Programador 4: uuu.uuu@estudiants.urv.cat
+	Programador 2: oupman.miralles@estudiants.urv.cat
+	Programador 3: arnau.faura@estudiants.urv.cat
+	Programador 4: gerard.ros@estudiants.urv.cat
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
@@ -469,14 +470,15 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 
 /* procesa_botonY(): comprueba la pulsación del botón 'Y' y activa o desactiva
 	el desplazamiento del fondo gráfico. */
-void procesa_botonY(){
+void procesa_botonY()
+{
 	if (keysHeld() & KEY_Y){	// activar o desactivar desplazam.
 		if (timer3_on) desactiva_timer3();	// imagen del fondo 3
 		else activa_timer3();
 		printf("\x1b[38m\x1b[3;24H%s",(timer3_on ? "si" : "no"));
 		while (keysHeld() & KEY_Y){		// esperar liberacion tecla Y
 			swiWaitForVBlank();	
-			scanKeys();
+			scanKeys();		
 		}
 	}
 }
@@ -561,8 +563,8 @@ int main(void)
 						// si ha habido recombinación sin nueva combinación, sigue en estado E_CHECK
 						break;
 		}
+		
 	} while (1);				// bucle infinito
 	
 	return(0);					// nunca retornará del main
 }
-

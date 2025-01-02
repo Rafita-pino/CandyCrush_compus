@@ -5,6 +5,7 @@
 	Funciones de inicialización de gráficos (ver 'candy2_main.c')
 
 	Analista-programador: santiago.romani@urv.cat
+	
 	Programador tarea 2A: rafael.pinor@estudiants.urv.cat
 	Programador tarea 2B: oupman.miralles@estudiants.urv.cat
 	Programador tarea 2C: arnau.faura@estudiants.urv.cat
@@ -16,11 +17,11 @@
 #include "Graphics_data.h"
 #include "Sprites_sopo.h"
 
-
 /* variables globales */
 unsigned char n_sprites = 0;		// número total de sprites creados
 elemento vect_elem[ROWS*COLUMNS];	// vector de elementos
 gelatina mat_gel[ROWS][COLUMNS];	// matriz de gelatinas
+
 
 
 unsigned char crea_elemento_provisional(unsigned char tipo, unsigned char fil, unsigned char col,unsigned char prio){
@@ -38,6 +39,9 @@ unsigned char crea_elemento_provisional(unsigned char tipo, unsigned char fil, u
 		}
 		return i;
 }
+
+
+int mod_random(int rang);			//solució implicit declaration
 
 
 // TAREA 2Ab
@@ -81,8 +85,23 @@ void genera_sprites(char mat[][COLUMNS])
 	sin elementos, excluyendo solo los huecos.*/
 void genera_mapa2(char mat[][COLUMNS])
 {
-
-
+	for (unsigned char i = 0; i < ROWS; i++){
+	
+		for (unsigned char j = 0; j < COLUMNS; j++){
+		
+			if (mat[i][j] == 15){
+				fija_metabaldosa((u16 *) 0x060000800, i, j, 19); //Metabaldosa transaparente si hay hueco
+				
+			} else {
+				if ((i+j) % 2 == 0){ 
+					fija_metabaldosa((u16 *) 0x060000800, i, j, 17); //Blau cel si casella parella
+					
+				} else {
+					fija_metabaldosa((u16 *) 0x060000800, i, j, 18); //Blau fort si casella cenar
+				}
+			}
+		}
+	}
 }
 
 
@@ -96,8 +115,36 @@ void genera_mapa2(char mat[][COLUMNS])
 	gelatinas, elegir una metabaldosa aleatoria de la animación).*/
 void genera_mapa1(char mat[][COLUMNS])
 {
-
-
+	unsigned char row, col; // row = index fila; col = index columna
+	unsigned char imeta;
+	for (row = 0; row < ROWS; row++){
+		for (col = 0; col < COLUMNS; col++){
+			if ((mat[row][col] == 15) || (mat[row][col] < 7)){ // si no és bloc sòlid (7) o gelatina (> 7) 
+				imeta = (unsigned char) 19;
+				fija_metabaldosa((u16 *) 0x06000000, row, col, imeta);	//baldosa transparent
+				mat_gel[row][col].ii = -1; //casella sense gelatina
+			}
+			else if (mat[row][col] == 7){	//si és bloc sòlid
+				imeta = (unsigned char) 16;
+				fija_metabaldosa((u16 *) 0x06000000, row, col, imeta);	//baldosa barrotes
+				mat_gel[row][col].ii = -1; //casella sense gelatina
+			}
+			else if ((mat[row][col] > 7 && mat[row][col] < 15) || ( //si son gelatines d'algun tipus
+							mat[row][col] > 15 && mat[row][col] < 23)){
+				unsigned char random = (unsigned char) mod_random(8); 
+				
+				if (mat[row][col] > 15 && mat[row][col] < 23)	//si es gelatina doble
+					random += 8; 	//ajustar rang baldosa gelatina doble
+				
+				char field = (char) (mod_random(10) + 1);	//rang entre 1-10
+				fija_metabaldosa((u16 *) 0x06000000, row, col, random);
+				mat_gel[row][col].ii = field; // index animació aleatori
+                mat_gel[row][col].im = random; // guardo index metabaldosa
+			}else {
+				mat_gel[row][col].ii = -1; //casella sense gelatina
+			}
+		}
+	}
 }
 
 
@@ -109,8 +156,11 @@ void genera_mapa1(char mat[][COLUMNS])
 	del primer píxel de la pantalla. */
 void ajusta_imagen3(unsigned char ibg)
 {
-
-
+	bgSetCenter(ibg, 255, 128);
+	int angle = degreesToAngle(-90); // hacia la derecha -> grados negativos
+	bgSetRotate(ibg, angle);
+	bgSetScroll(ibg, 128, 0);
+	bgUpdate();
 }
 
 
@@ -122,7 +172,8 @@ void ajusta_imagen3(unsigned char ibg)
 				generando el fondo 3 y fijando la transparencia entre fondos.*/
 void init_grafA()
 {
-	int bg1A, bg2A, bg3A;
+	int bg1A, bg2A;
+	int bg3A;
 
 	videoSetMode(MODE_3_2D | DISPLAY_SPR_1D_LAYOUT | DISPLAY_SPR_ACTIVE);
 	
@@ -132,44 +183,50 @@ void init_grafA()
 // Tareas 2Ba y 2Ca:
 	// reservar banco E para fondos 1 y 2, a partir de 0x06000000
 
+	vramSetBankE(VRAM_E_MAIN_BG);	//0x06000000 és la base
+
 // Tarea 2Da:
 	// reservar bancos A y B para fondo 3, a partir de 0x06020000
-
-
-
+	vramSetBankA(VRAM_A_MAIN_BG_0x06020000);
+	vramSetBankB(VRAM_B_MAIN_BG_0x06040000);
 
 // Tarea 2Aa:
 	// cargar las baldosas de la variable SpritesTiles[] a partir de la
 	// dirección virtual de memoria gráfica para sprites, y cargar los colores
 	// de paleta asociados contenidos en la variable SpritesPal[]
+
 	dmaCopy(SpritesTiles, (unsigned int *)0x06400000, sizeof(SpritesTiles));
 	dmaCopy(SpritesPal, (void *)0x05000200, sizeof(SpritesPal));
 
+
+// Tarea 2Ba:
+	// inicializar el fondo 2 con prioridad 2
+	bg2A = bgInit(2, BgType_Text8bpp, BgSize_T_256x256, 1, 1);
+	bgSetPriority(bg2A, 2);
+	
+// Tarea 2Ca:
+	//inicializar el fondo 1 con prioridad 0
+	bg1A = bgInit(1, BgType_Text8bpp, BgSize_T_256x256, 0, 1); 			
+	bgSetPriority(bg1A, 0);
 
 // Tareas 2Ba y 2Ca:
 	// descomprimir (y cargar) las baldosas de la variable BaldosasTiles[] a
 	// partir de la dirección virtual correspondiente al primer bloque de
 	// memoria gráfica (+16 Kbytes), cargar los colores de paleta asociados
 	// contenidos en la variable BaldosasPal[]
-
-
-	
-// Tarea 2Ca:
-	//inicializar el fondo 1 con prioridad 0
-
-
-
-// Tarea 2Ba:
-	// inicializar el fondo 2 con prioridad 2
-
-
+	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);		//carregar baldoses bg2A
+	decompress(BaldosasTiles, bgGetGfxPtr(bg1A), LZ77Vram);		//carregar baldoses bg1A		
+	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal));		//carregar palette
 	
 // Tarea 2Da:
+	// inicializar el fondo 3 con prioridad 3
+	bg3A = bgInit(3, BgType_Bmp16, BgSize_B16_512x256, 8, 0); // Inicializa fondo 3
+	bgSetPriority(bg3A, 3);	
+
 	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
 	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
-
-	// inicializar el fondo 3 con prioridad 3
-
+	decompress(FondoBitmap, bgGetGfxPtr(bg3A), LZ77Vram);				
+	ajusta_imagen3(bg3A);
 
 
 	lcdMainOnBottom();
