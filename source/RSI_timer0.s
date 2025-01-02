@@ -45,7 +45,7 @@ rsi_vblank:
 		
 @;Tareas 2Ea
 		ldr r2, =update_spr			
-		ldrh r3, [r2]				
+		ldrb r3, [r2]				
 		
 		cmp r3, #1						@;si update_spr!=1 --> salta la actualizacion
 		bne .I_notOne
@@ -85,7 +85,7 @@ activa_timer0:
 			.I_NoCopia:
 			ldr r1, =timer0_on			
 			mov r3, #1					@; timer0 en marcha
-			strh r3, [r1]			
+			strb r3, [r1]			
 			
 			ldr r1, =0x04000100			@; TIMER0_DATA (direccion de memoria de teoria)
 			strh r2, [r1]				@; TIMER0_DATA = divFreq0
@@ -111,7 +111,7 @@ desactiva_timer0:
 		
 		ldr r1, =timer0_on
 		mov r2, #0
-		strh r2, [r1]				@; Desactivamos variable global timer0_on
+		strb r2, [r1]				@; Desactivamos variable global timer0_on
 		pop {r1-r2, pc}
 
 
@@ -165,7 +165,7 @@ rsi_timer0:
 			
 			ldr r1, =update_spr
 			mov r2, #1
-			strh r2, [r1]			@; update_spr actiu
+			strb r2, [r1]			@; update_spr actiu
 			
 			ldr r1, =divF0
 			ldrsh r2, [r1]
@@ -182,7 +182,7 @@ rsi_timer0:
 			bls .L_vect
 		
 		ldr r1, =update_spr
-		ldrh r2, [r1]
+		ldrb r2, [r1]
 		cmp r2, #0
 		ble desactiva_timer0
 			
