@@ -156,8 +156,11 @@ void genera_mapa1(char mat[][COLUMNS])
 	del primer píxel de la pantalla. */
 void ajusta_imagen3(unsigned char ibg)
 {
-
-
+	bgSetCenter(ibg, 255, 128);
+	int angle = degreesToAngle(-90); // hacia la derecha -> grados negativos
+	bgSetRotate(ibg, angle);
+	bgSetScroll(ibg, 128, 0);
+	bgUpdate();
 }
 
 
@@ -170,7 +173,7 @@ void ajusta_imagen3(unsigned char ibg)
 void init_grafA()
 {
 	int bg1A, bg2A;
-	//int bg3A;
+	int bg3A;
 
 	videoSetMode(MODE_3_2D | DISPLAY_SPR_1D_LAYOUT | DISPLAY_SPR_ACTIVE);
 	
@@ -184,10 +187,8 @@ void init_grafA()
 
 // Tarea 2Da:
 	// reservar bancos A y B para fondo 3, a partir de 0x06020000
-
-
-
-
+	vramSetBankA(VRAM_A_MAIN_BG_0x06020000);
+	vramSetBankB(VRAM_B_MAIN_BG_0x06040000);
 
 // Tarea 2Aa:
 	// cargar las baldosas de la variable SpritesTiles[] a partir de la
@@ -218,11 +219,14 @@ void init_grafA()
 	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal));		//carregar palette
 	
 // Tarea 2Da:
+	// inicializar el fondo 3 con prioridad 3
+	bg3A = bgInit(3, BgType_Bmp16, BgSize_B16_512x256, 8, 0); // Inicializa fondo 3
+	bgSetPriority(bg3A, 3);	
+
 	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
 	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
-	
-	// inicializar el fondo 3 con prioridad 3
-	
+	decompress(FondoBitmap, bgGetGfxPtr(bg3A), LZ77Vram);				
+	ajusta_imagen3(bg3A);
 
 
 	lcdMainOnBottom();
