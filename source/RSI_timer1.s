@@ -12,7 +12,6 @@
 		.global timer1_on
 	timer1_on:	.byte	0 			@;1 -> timer1 en marcha, 0 -> apagado
 		.align 1
-<<<<<<< HEAD
 		
 	divFreq1: .hword	-5727,5			@;divisor de frecuencia para timer 1
 	@; Div_Frec = -(Frec_Entrada/ Frec_Salida)
