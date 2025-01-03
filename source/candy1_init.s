@@ -264,7 +264,7 @@ recombina_elementos:
 				ldrb r3, [r4, r6]
 				
 				@; 2IA
-				push {r1-r4}			@; me he quedado sin registros asi que hago push pop y no pierdo valores
+				push {r1-r4}			
 												@; guardo en mat_mov_s fila, columna y si se ha modificado la posicion
 												@; r1 -> filas | r2 -> columnas | r6 -> posicion en matjoc que se modifica
 					mov r3, #2
@@ -272,7 +272,7 @@ recombina_elementos:
 					ldr r3, =mat_mov_s			@; cargamos mat_mov_s
 					lsl r1, r1, #4				@; fila << 4
 					orr r1, r1, r2				@; 7..4 fila | 3..0 columna
-					strb r2, [r3, r4]				
+					strb r1, [r3, r4]				
 					add r4, #1					@; avanzamos al siguiente byte
 					mov r1, #1					@; valor para determinar que se ha modificado
 					strb r1, [r3, r4]			@; guardamos en el byte2 un 1 para saber que se ha modificado
