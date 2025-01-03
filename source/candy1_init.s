@@ -264,7 +264,7 @@ recombina_elementos:
 				ldrb r3, [r4, r6]
 				
 				@; 2IA
-				push {r1-r4, r6, lr}			@; me he quedado sin registros asi que hago push pop y no pierdo valores
+				push {r1-r4}			@; me he quedado sin registros asi que hago push pop y no pierdo valores
 												@; guardo en mat_mov_s fila, columna y si se ha modificado la posicion
 												@; r1 -> filas | r2 -> columnas | r6 -> posicion en matjoc que se modifica
 					mov r3, #2
@@ -277,7 +277,7 @@ recombina_elementos:
 					mov r1, #1					@; valor para determinar que se ha modificado
 					strb r1, [r3, r4]			@; guardamos en el byte2 un 1 para saber que se ha modificado
 				
-				pop {r1-r4, r6, pc}
+				pop {r1-r4}
 				@; 2IA
 				
 				mov r3, r3, lsr#3			
@@ -326,7 +326,7 @@ recombina_elementos:
 				strb r3, [r4, r6]			@; guardamos en la matriz de juego el valor de mat_recomb2
 				
 				@; 2IA
-				push {r0-r4, lr}
+				push {r0-r4}
 					mov r3, r2				@; columna destino
 					mov r2, r1				@; fila destino
 					
@@ -347,7 +347,7 @@ recombina_elementos:
 											@; r2 -> fila destino
 											@; r3 -> columna destino
 				.end_mov:
-				pop {r0-r4, pc}
+				pop {r0-r4}
 				@; 2IA
 				
 			.L_finalFIN:
@@ -373,9 +373,11 @@ ini_mat_mov_s:
     mov r3, #ROWS*COLUMNS*2			@; tamaño matriz (limite del bucle)
 
 	.L_principal:
-		strb r2, [r1], #1			@; guardamos 0 en la posición actual y avanzamos 1
-		subs r3, r3, #1				@; restamos y actualizamos flags
-		bne .L_principal			@; si r3 > 0 seguimos
+		strb r2, [r1]				@; guardamos 0 en la posición actual y avanzamos 1
+		add r1, #1
+		sub r3, #1					@; restamos total
+		cmp r3, #0
+		bhi .L_principal			@; si r3 > 0 seguimos
 
     pop {r1-r3, pc}           
 
