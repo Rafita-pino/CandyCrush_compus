@@ -90,14 +90,14 @@ void genera_mapa2(char mat[][COLUMNS])
 		for (unsigned char j = 0; j < COLUMNS; j++){
 		
 			if (mat[i][j] == 15){
-				fija_metabaldosa((u16 *) 0x060000800, i, j, 19); //Metabaldosa transaparente si hay hueco
+				fija_metabaldosa((u16 *) 0x06000800, i, j, 19); //Metabaldosa transaparente si hay hueco
 				
 			} else {
 				if ((i+j) % 2 == 0){ 
-					fija_metabaldosa((u16 *) 0x060000800, i, j, 17); //Blau cel si casella parella
+					fija_metabaldosa((u16 *) 0x06000800, i, j, 17); //Blau cel si casella parella
 					
 				} else {
-					fija_metabaldosa((u16 *) 0x060000800, i, j, 18); //Blau fort si casella cenar
+					fija_metabaldosa((u16 *) 0x06000800, i, j, 18); //Blau fort si casella cenar
 				}
 			}
 		}
