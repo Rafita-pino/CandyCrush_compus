@@ -38,13 +38,6 @@
 @;		16+:	gelatina doble (a sumarle código de elemento)
 		.global mapas
 	mapas:
-		@; mapa 1: probar recomb
-		.byte 15,15,15,15,15,15,15,15
-		.byte 22,19,22,19,22,15,15,15
-		.byte 15,15,15,15,15,15,15,15
-		.byte 15,15,15,15,15,15,15,15
-		.byte 19,21,15,15,15,15,15,15
-		.byte 20,22,15,15,15,15,15,15
 	
 	
 	@; mapa prueba 1
