@@ -50,8 +50,9 @@ rsi_vblank:
 			ldr r0, =0x7000000			@; cargamos direccion OAM (Sprites_sopos.s)
 			mov r1, #128				@; limite de sprites para la funcion
 			bl SPR_actualiza_sprites	
+			ldr r2, =update_spr
 			mov r0, #0					
-			strh r0, [r2]				@; finalizamos actualizacion; update_spr=0
+			strb r0, [r2]				@; finalizamos actualizacion; update_spr=0
 		.I_notOne:
 		
 @;Tarea 2Ga
@@ -220,7 +221,7 @@ rsi_timer0:
 			
 			ldr r1, =divF0
 			ldrsh r2, [r1]
-			ldr r3, =-1636			@; 523.656 * 0,1/32 = 1636; on 0,1 es el tiempo mas bajo de desplazamiento que aceptaremos, ponemos  -1663 por seguridad
+			ldr r3, =-1663			@; 523.656 * 0,1/32 = 1636; on 0,1 es el tiempo mas bajo de desplazamiento que aceptaremos, ponemos  -1663 por seguridad
 
 			cmp r2, r3				
 			addlt r2, #30			@; si añadimos 30 al divisor de frequencia, tardara 136 repeticiones en llegar al limite (suficiente)
@@ -235,7 +236,7 @@ rsi_timer0:
 		ldr r1, =update_spr
 		ldrb r2, [r1]
 		cmp r2, #0
-		ble desactiva_timer0
+		beq desactiva_timer0
 			
 
 		pop {r0-r6, pc}
