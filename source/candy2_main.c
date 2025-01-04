@@ -429,13 +429,7 @@ unsigned char comprueba_jugada(char mat[][COLUMNS], unsigned char *lev,
 		{
 			recombina_elementos(mat);
 			activa_timer0(1);		// activar timer de movimientos
-			int i=0;
-			while (timer0_on){
-				 swiWaitForVBlank();
-				 printf("\x1b[10;8H %d", i);
-				 i++;
-			}	// espera final
-			printf("pasa del while timer0_on");
+			while (timer0_on)swiWaitForVBlank();	// espera final
 			escribe_matriz(mat);
 			if (!hay_combinacion(mat))  result = CJ_RNOCMB;
 			else						result = CJ_RCOMB;

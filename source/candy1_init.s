@@ -147,7 +147,13 @@ inicializa_matriz:
 	.global recombina_elementos
 recombina_elementos:
 		push {r0-r12, lr}
-		bl ini_mat_mov_s			@; inicializamos matriz en 0s 
+		
+		
+		@;2IA
+		bl ini_mat_mov_s			@; inicializamos matriz en 0s
+		@; 2IA
+
+ 
 		mov r4, r0					@; direccion base de la matriz
 		ldr r7, =mat_recomb1		@; cargamos mat_recomb1
 		ldr r8, =mat_recomb2		@; cargamos mat_recomb2
@@ -264,11 +270,14 @@ recombina_elementos:
 				ldrb r3, [r4, r6]
 				
 				@; 2IA
-				push {r1-r4}			
+				push {r0-r4}			
 												@; guardo en mat_mov_s fila, columna y si se ha modificado la posicion
-												@; r1 -> filas | r2 -> columnas | r6 -> posicion en matjoc que se modifica
+												@; r10 -> indice original del elemento a modificar
+					mov r0, r10					@; pasamos indice a r0 para la funcion
+					bl 	cal_rows_columns		@; r1 -> fila original && r2 -> columna original
+						
 					mov r3, #2
-					mul r4, r6, r3				@; r7 posicion de mat_mov_s equivalente a matjoc
+					mul r4, r6, r3				@; r4 posicion de mat_mov_s equivalente a mat1 (posicion original)
 					ldr r3, =mat_mov_s			@; cargamos mat_mov_s
 					lsl r1, r1, #4				@; fila << 4
 					orr r1, r1, r2				@; 7..4 fila | 3..0 columna
@@ -277,7 +286,7 @@ recombina_elementos:
 					mov r1, #1					@; valor para determinar que se ha modificado
 					strb r1, [r3, r4]			@; guardamos en el byte2 un 1 para saber que se ha modificado
 				
-				pop {r1-r4}
+				pop {r0-r4}
 				@; 2IA
 				
 				mov r3, r3, lsr#3			
@@ -380,6 +389,31 @@ ini_mat_mov_s:
 		bhi .L_principal			@; si r3 > 0 seguimos
 
     pop {r1-r3, pc}           
+
+
+@; cal_rows_columns(i): rutina para obtener un número aleatorio entre 0 y n-1,
+@;	utilizando la rutina random()
+@;	Restricciones:
+@;		* el parámetro n tiene que ser un natural entre 2 y 255, de otro modo,
+@;		  la rutina lo ajustará automáticamente a estos valores mínimo y máximo
+@;	Parámetros:
+@;		R0 = indice de la matriz
+@;	Resultado:
+@;		R1 = fila
+@;		R2 = columna
+cal_rows_columns:
+	push {r0, lr}
+		mov r1, #0					@; fila=0
+		.calcRow:
+			cmp r0, #COLUMNS		@; si indice < COLUMNS saltamos
+			blt .calcCol
+			sub r0, #COLUMNS
+			add	r1, #1					@;fila ++
+			b .calcRow
+		.calcCol:
+		mov r2, r0					@; la columna sera el "resto" que quede en el indice
+	
+	pop {r0, pc}
 
 
 

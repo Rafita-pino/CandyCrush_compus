@@ -219,11 +219,11 @@ rsi_timer0:
 			
 			ldr r1, =divF0
 			ldrsh r2, [r1]
-			rsb r2, r2, #0				@; negamos divisor de frecuencia actual
+			rsb r2, r2, #0			@; negamos divisor de frecuencia actual
 			ldr r4, =1663			@; 523.656 * 0,1/32 = 1636; on 0,1 es el tiempo mas bajo de desplazamiento que aceptaremos, ponemos  1663 por seguridad
 			
 			cmp r2, r4				@; si divF0 > 1663 restamos y volvemos a negar
-			subhi r2, #30			@; si añadimos 30 al divisor de frecuencia, tardara 136 repeticiones en llegar al limite (suficiente)
+			subhi r2, #100			@; si añadimos 30 al divisor de frecuencia, tardara 136 repeticiones en llegar al limite (suficiente)
 			rsb r2, r2, #0
 			
 			strh r2, [r1]			@; actualizamos divF0
