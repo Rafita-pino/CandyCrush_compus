@@ -56,10 +56,10 @@ rsi_vblank:
 		ldrh r4, [r3]			@; r4 = offsetBG3X
 		ldr r3, =0x04000038		@; 0x04000038 -> REG_BG3X
 		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
-		strh r4, [r3]
+		str r4, [r3]
 		
-		mov r5, #1
-		strb r5, [r1]			@; update_bg3 = 0
+		mov r0, #0
+		strb r0, [r1]			@; update_bg3 = 0
 		
 		.L_finalHa:
 		pop {r0-r5, pc}
