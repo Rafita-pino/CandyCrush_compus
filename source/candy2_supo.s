@@ -274,7 +274,8 @@ fija_metabaldosa:
 	@;			*(base_fila + col*MTCOLS + dc) = i_baldosa;
 					add r7, r2, r9			@; R7 = col*MTCOLS + dc
 					add r7, r8, r7, lsl #1	@; R7 = base_fila + (col*MTCOLS + dc)*2 bytes
-					strb r3, [r7]			@; Guardem en R3 (i_baldosa)
+					strh r3, [r7]			@; Guardem en R3 (i_baldosa)
+
 	@;			i_baldosa++;
 					add r3, #1
 					add r9, #1				@; dc++
