@@ -96,9 +96,9 @@ rsi_timer2:
 	.L_check_gel:
 	ldrb r2, [r0, #GEL_IM]	@;r2 = valor mat_gel[][].im
 	add r2, #1				@;actualitzar .im (baldosa)
-	cmp r2, #15				
+	cmp r2, #16				
 	beq .L_reset_double		@;si .im == 16 (màxim index per gel. dobles), resetear a 8
-	cmp r2, #7
+	cmp r2, #8
 	beq .L_reset_simple		@;sino, si .im == 8 (màxim index per gel. simple), resetar a 0
 	
 	strb r2, [r0, #GEL_IM]	@;sino, valor correcte i actualitzar mat_gel[][].im
