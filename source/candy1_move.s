@@ -247,8 +247,8 @@ baja_verticales:
 		@;Tasca 2IC - FASE 2
 		push {r0-r3}
 		and r0, r0, #7					@;r0 = filtrar bits 0..2 (el. bàsic)
+		sub r2, r1, #1					@;r2 = columna actual
 		mov r1, #-1						@;r1 = fila inicial (-1)
-		mov r2, r1						@;r2 = columna actual
 		mov r3, #0						@;r3 = prioritat
 		bl crea_elemento				
 
