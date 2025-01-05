@@ -225,13 +225,13 @@ baja_verticales:
 		strb r8, [r7]					@;Deixar nomès gelatina al d'adalt.
 		
 		@;Tasca 2IC - FASE 2 
-		push {r0-r3, lr}
+		push {r0-r3}
 		mov r0, r10						@;r0 = fila actual
 		mov r1, r1						@;r1 = columna actual
 		add r2, r10, #1						@;r2 = fila destí
 		mov r3, r1						@;r3 = columna destí
 		bl activa_elemento				@;activar animació element
-		pop {r0-r3, pc}
+		pop {r0-r3}
 		@;Tasca 2IC - FASE 2 
 		mov r11, #1						@;Moviment++
 		
@@ -245,7 +245,7 @@ baja_verticales:
 		strb r0, [r3]					@;Act. memòria amb nou el.
 		
 		@;Tasca 2IC - FASE 2
-		push {r0-r3, lr}
+		push {r0-r3}
 		mov r0, r5						@;r0 = tipus element a baixar
 		mov r2, r1						@;r2 = columna nou element
 		mov r1, #-1						@;r1 = fila nou element (-1)
@@ -257,7 +257,7 @@ baja_verticales:
 		mov r2, #0						@;r2 = fila destí (0)
 		mov r3, r1						@;r3 = columna destí (mateixa col.)
 		bl activa_elemento
-		pop {r0-r3, pc}
+		pop {r0-r3}
 		@;Tasca 2IC - FASE 2 
 		mov r11, #1						@;moviment++
 		
@@ -359,13 +359,13 @@ baja_laterales:
 		strb r8, [r7]					@;Deixar nomès gelatina a la pos. baixada
 		
 		@;Tasca 2Id - FASE 2 
-		push {r0-r3, lr}
-		mov r0, r2						@;r0 = fila inicial
-		mov r1, r1						@;r1 = columna inicial
-		add r2, #1						@;r2 = fila destí (below)
-		add r3, r1, #1					@;r3 = columna destí (right displacement)
-		bl activa_elemento
-		pop {r0-r3, pc}
+		@;push {r0-r3}
+		@;mov r0, r2						@;r0 = fila inicial
+		@;mov r1, r1						@;r1 = columna inicial
+		@;add r2, #1						@;r2 = fila destí (below)
+		@;add r3, r1, #1					@;r3 = columna destí (right displacement)
+		@;bl activa_elemento
+		@;pop {r0-r3}
 		@;Tasca 2Id - FASE 2 
 		
 		mov r11, #1						@;moviments++
@@ -383,13 +383,13 @@ baja_laterales:
 		strb r8, [r7]					@;Deixar nomès gelatina a la pos. baixada
 		
 		@;Tasca 2Id - FASE 2 
-		push {r0-r3, lr}
-		mov r0, r2						@;r0 = fila inicial
-		mov r1, r1						@;r1 = columna inicial
-		add r2, #1						@;r2 = fila destí (below)
-		sub r3, r1, #1					@;r3 = columna destí (left displacement)
-		bl activa_elemento
-		pop {r0-r3, pc}
+		@;push {r0-r3}
+		@;mov r0, r2						@;r0 = fila inicial
+		@;mov r1, r1						@;r1 = columna inicial
+		@;add r2, #1						@;r2 = fila destí (below)
+		@;sub r3, r1, #1					@;r3 = columna destí (left displacement)
+		@;bl activa_elemento
+		@;pop {r0-r3}
 		@;Tasca 2Id - FASE 2 
 		
 		mov r11, #1						@;moviments++
