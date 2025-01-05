@@ -24,22 +24,6 @@ gelatina mat_gel[ROWS][COLUMNS];	// matriz de gelatinas
 
 
 
-unsigned char crea_elemento_provisional(unsigned char tipo, unsigned char fil, unsigned char col,unsigned char prio){
-		// código extra para que funcionen las tareas 2Ab, 2E y 2F
-		unsigned char i = 0;
-		
-		while ((vect_elem[i].ii != -1) && (i < ROWS*COLUMNS))
-			i++;
-		if (i < ROWS*COLUMNS)		// si lo ha encontrado
-		{							// inicializa sus campos principales
-			SPR_crea_sprite(i, 0, 2, tipo);
-			SPR_mueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
-			SPR_fija_prioridad(i, prio);
-			SPR_muestra_sprite(i);
-		}
-		return i;
-}
-
 
 int mod_random(int rang);			//solució implicit declaration
 
@@ -51,31 +35,29 @@ int mod_random(int rang);			//solució implicit declaration
 	por parámetro (independientemente de los códigos de gelatinas).*/
 void genera_sprites(char mat[][COLUMNS])
 {
-	unsigned char i, c, f;
-	SPR_oculta_sprites(128); 					//ocultar todos los 128 sprites 
-	for(i=0; i<ROWS*COLUMNS; i++){				//recorremos ROWS*COLUMNS
-		vect_elem[i].ii=-1;						//ponemos -1 para desactivar elemento del vector
-	}
-	char el;
-	for(f=0; f<ROWS; f++){
-		for(c=0; c<COLUMNS; c++){
-			el=mat[f][c];
-			if (el==15 || el==7 || (el>0 && el<=6)){ 					//si es bloque solido (7), hueco (15) o elemento normal (1-6) creamos directo pq ya tenemos tipo
-				crea_elemento(el,f,c,1);
-				n_sprites++;
-			}else{
-				if(el>7 && el<=14) 
-					crea_elemento(el-8,f,c,1); 				//si es gelatina simple -8
-				else if(el>15 && el<=22) 
-					crea_elemento(el-16,f,c,1); 			//si es gelatina doble -16
-					
-				n_sprites++;
-			}
-		}
-	}
-	SPR_actualiza_sprites(OAM,n_sprites);
-
+	n_sprites=0;
+    unsigned char i, c, f;
+    SPR_oculta_sprites(128); // ocultar todos los 128 sprites
+    for (i = 0; i < ROWS * COLUMNS; i++) { // recorrer ROWS*COLUMNS
+        vect_elem[i].ii = -1; // desactivar elemento del vector
+    }
+    char el;
+    for (f = 0; f < ROWS; f++) {
+        for (c = 0; c < COLUMNS; c++) {
+            el = mat[f][c];
+            if (el == 15 || el == 7 || (el > 0 && el <= 6)) {
+                crea_elemento(el, f, c, 1); // crear elemento directo
+            } else if (el > 7 && el <= 14) {
+                crea_elemento(el - 8, f, c, 1); // gelatina simple
+            } else if (el > 15 && el <= 22) {
+                crea_elemento(el - 16, f, c, 1); // gelatina doble
+            } 
+            n_sprites++; // incrementar solo una vez
+        }
+    }
+    SPR_actualiza_sprites(OAM, n_sprites);
 }
+
 
 // TAREA 2Bb
 /* genera_mapa2(*mat): generar un mapa de baldosas (en la segunda base para
@@ -90,14 +72,14 @@ void genera_mapa2(char mat[][COLUMNS])
 		for (unsigned char j = 0; j < COLUMNS; j++){
 		
 			if (mat[i][j] == 15){
-				fija_metabaldosa((u16 *) 0x060000800, i, j, 19); //Metabaldosa transaparente si hay hueco
+				fija_metabaldosa((u16 *) 0x06000800, i, j, 19); //Metabaldosa transaparente si hay hueco
 				
 			} else {
 				if ((i+j) % 2 == 0){ 
-					fija_metabaldosa((u16 *) 0x060000800, i, j, 17); //Blau cel si casella parella
+					fija_metabaldosa((u16 *) 0x06000800, i, j, 17); //Blau cel si casella parella
 					
 				} else {
-					fija_metabaldosa((u16 *) 0x060000800, i, j, 18); //Blau fort si casella cenar
+					fija_metabaldosa((u16 *) 0x06000800, i, j, 18); //Blau fort si casella cenar
 				}
 			}
 		}

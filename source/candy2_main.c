@@ -101,9 +101,7 @@ void guarda_backup(char mat[][COLUMNS], short p, unsigned char m,
 */
 void actualiza_contadores_backup(short p, unsigned char m, unsigned char g)
 {
-	printf("\x1b[43m\x1b[2;8H %d  ", p);
-	printf("\x1b[43m\x1b[1;28H %d ", m);
-	printf("\x1b[43m\x1b[2;28H %d ", g);
+
 }
 
 
@@ -209,10 +207,7 @@ void control_backup()
 void actualiza_contadores(unsigned char lev, short p, unsigned char m,
 											unsigned char g)
 {
-	printf("\x1b[38m\x1b[1;8H %d", lev);
-	printf("\x1b[39m\x1b[2;8H %d  ", p);
-	printf("\x1b[38m\x1b[1;28H %d ", m);
-	printf("\x1b[37m\x1b[2;28H %d ", g);
+	printf("\x1b[38m\x1b[3;8H %d", lev);
 }
 
 
@@ -404,38 +399,35 @@ unsigned char comprueba_jugada(char mat[][COLUMNS], unsigned char *lev,
 {
 	unsigned char result = CJ_CONT;
 	
-	if (((p >= 0) && (g == 0)) || (m == 0) || !hay_combinacion(mat))
+	if ((p==0) || (m == 0) || !hay_combinacion(mat))
 	{
-		if ((p >= 0) && (g == 0)) 	printf("\x1b[39m\x1b[6;20H _SUPERADO_");
-		else if (m == 0)			printf("\x1b[39m\x1b[6;20H _REPETIR_");
-		else						printf("\x1b[39m\x1b[6;20H _BARAJAR_");
+		if (m == 0) printf("\x1b[39m\x1b[6;15H _REPETIR_");
+		else if (p == 0) printf("\x1b[39m\x1b[6;15H AVANZAR FORZADO");
+		else printf("\x1b[39m\x1b[6;15H _BARAJAR_");
 		
-		printf("\x1b[39m\x1b[8;20H (pulse A)");
+		printf("\x1b[39m\x1b[8;15H (pulse A)");
 		while (!(keysHeld() & KEY_A))
 		{	swiWaitForVBlank();
 			scanKeys();						// espera pulsación 'A'
 		}
-		printf("\x1b[6;20H           ");
-		printf("\x1b[8;20H           "); 	// borra mensajes
-		borra_puntuaciones();
-		if (((p >= 0) && (g == 0)) || (m == 0))
+		printf("\x1b[6;15H                        ");
+		printf("\x1b[8;15H                        "); 	// borra mensajes
+		
+		if ((p >= 0))
 		{
-			if ((p >= 0) && (g == 0))  			// si nivel superado
-				*lev =	(*lev + 1) % MAXLEVEL;	 	// incrementa nivel
-			printf("\x1b[2;8H      ");				// borra puntos anteriores
+			*lev =	(*lev + 1) % MAXLEVEL;	 	// incrementa nivel
 			result = CJ_LEVEL;
-		}
-		else					// si no hay combinaciones
-		{
+		}else{							// si no hay combinaciones
+		
 			recombina_elementos(mat);
 			activa_timer0(1);		// activar timer de movimientos
 			while (timer0_on)swiWaitForVBlank();	// espera final
 			escribe_matriz(mat);
 			if (!hay_combinacion(mat))  result = CJ_RNOCMB;
 			else						result = CJ_RCOMB;
-#ifdef TRUCOS
+	#ifdef TRUCOS
 			guarda_backup(mat, p, m, g);
-#endif
+	#endif
 		}
 	}
 	return(result);
@@ -505,16 +497,20 @@ int main(void)
 
 	consoleDemoInit();				// inicializa pantalla de texto
 	printf("candyNDS (version 2: graficos)\n");
-	printf("\x1b[38m\x1b[1;0H  nivel:");
-	printf("\x1b[39m\x1b[2;0H puntos:");
-	printf("\x1b[38m\x1b[1;15H movimientos:");
-	printf("\x1b[37m\x1b[2;15H   gelatinas:");
-	printf("\x1b[38m\x1b[3;0H despl.fondo (tecla Y): no");
+	printf("\x1b[38m\x1b[3;0H  nivel:");
+	printf("\x1b[39m\x1b[2;0H TESTEO DE BLOQUE 1, 2JD Y 2IA");
 
 	do								// bucle principal del juego
 	{
-		swiWaitForVBlank();
-		scanKeys();
+	
+		//while (!(keysHeld() & KEY_B))
+		//{	
+			//printf("\x1b[39m\x1b[15;0H Pulsa B melon");	
+			swiWaitForVBlank();
+		
+			scanKeys();						// espera pulsación 'B'
+		//}
+		//printf("\x1b[39m\x1b[15;0H                    ");	
 		switch (state)
 		{
 			case E_INIT:		//////	ESTADO DE INICIALIZACIÓN	//////
@@ -556,11 +552,13 @@ int main(void)
 							fall_init = 0;		// pero desactiva inicio caída para permitir la caída con aceleración
 						break;
 			case E_CHECK:		//////	ESTADO DE VERIFICACIÓN	//////
-						ret = comprueba_jugada(matrix, &level, points, moves, gelees);
-						if (ret == CJ_LEVEL)	state = E_INIT;			// nuevo nivel o reiniciar nivel
-						else if ((ret == CJ_CONT) || (ret == CJ_RCOMB))	// si no ha pasado nada especial o ha habido recombinación con posible secuencia,
-							state = E_PLAY;		//  sigue jugando
-						// si ha habido recombinación sin nueva combinación, sigue en estado E_CHECK
+						
+							ret = comprueba_jugada(matrix, &level, points, moves, gelees);
+							if (ret == CJ_LEVEL)	state = E_INIT;			// nuevo nivel o reiniciar nivel
+							else if ((ret == CJ_CONT) || (ret == CJ_RCOMB))	// si no ha pasado nada especial o ha habido recombinación con posible secuencia,
+								state = E_PLAY;		//  sigue jugando
+							// si ha habido recombinación sin nueva combinación, sigue en estado E_CHECK
+							
 						break;
 		}
 		
