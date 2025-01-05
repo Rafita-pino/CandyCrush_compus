@@ -38,85 +38,53 @@
 @;		16+:	gelatina doble (a sumarle código de elemento)
 		.global mapas
 	mapas:
-	@; Mapa 0 - Contiene elementos distribuidos aleatoriamente sin combinaciones iniciales. 
-@;         Los movimientos pueden crear combinaciones de 3 o más elementos iguales.
-        .byte 1, 2, 3, 4, 5, 6, 1, 2
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
+@; Mapa 0 - Sin combinaciones iniciales, contiene huecos, gelatinas y bloques sólidos. 
+		.byte 1, 2, 3, 4, 13, 6, 1, 2
+        .byte 2, 3, 20, 5, 6, 1, 2, 3
         .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
+        .byte 4, 5, 6, 1, 18, 3, 4, 5
+        .byte 5, 14, 1, 2, 3, 4, 5, 6
         .byte 6, 1, 2, 3, 4, 5, 6, 1
 
-@; Mapa 1 - Contiene una disposición similar a la anterior, sin combinaciones iniciales. 
-@;         Al mover los elementos, se podrán formar combinaciones.
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-
-@; Mapa 2 - El mapa sigue la misma lógica que los anteriores, sin combinaciones iniciales. 
-@;         Puede generar combinaciones con intercambios.
-        .byte 1, 2, 3, 4, 5, 6, 1, 2
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-
-@; Mapa 3 - Disposición sin combinaciones iniciales, pero con potencial para formarlas.
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-
-@; Mapa 4 - Elementos dispuestos de manera que no hay combinaciones al principio.
-@;         Se permiten combinaciones con movimientos.
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-
-@; Mapa 5 - No tiene combinaciones iniciales. Al hacer movimientos, se pueden formar.
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 1, 2, 3, 4, 5, 6, 1, 2
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-
-@; Mapa 6 - Contiene una estructura similar a la anterior, sin combinaciones al inicio.
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-
-@; Mapa 7 - Sin combinaciones iniciales, pero con las posibilidades de generarlas por movimientos.
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-
-@; Mapa 8 - Sin combinaciones iniciales, pero con las posibilidades de generarlas.
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
-        .byte 5, 6, 1, 2, 3, 4, 5, 6
-        .byte 2, 3, 4, 5, 6, 1, 2, 3
-        .byte 4, 5, 6, 1, 2, 3, 4, 5
-        .byte 6, 1, 2, 3, 4, 5, 6, 1
-        .byte 3, 4, 5, 6, 1, 2, 3, 4
 
 
+@; Mapa 1 - Contiene gelatinas simples y dobles, huecos y bloques sólidos. Sin combinaciones iniciales. 
+		.byte 2, 19, 5, 15, 6, 9, 7, 3
+		.byte 4, 15, 7, 4, 11, 5, 3, 1
+		.byte 21, 14, 6, 15, 3, 7, 1, 6
+		.byte 15, 3, 5, 18, 4, 15, 7, 2
+		.byte 6, 4, 10, 15, 17, 6, 5, 7
+		.byte 7, 15, 3, 1, 15, 14, 3, 15
 
 
+@; Mapa 2 - Incluye gelatinas dobles y huecos. Sin combinaciones iniciales. 
+        .byte 15, 6, 18, 3, 15, 6, 20, 5
+        .byte 2, 15, 7, 5, 4, 19, 2, 6
+        .byte 12, 7, 15, 6, 5, 7, 15, 4
+        .byte 5, 3, 15, 9, 7, 15, 6, 15
+        .byte 7, 6, 17, 4, 13, 15, 3, 6
+        .byte 4, 5, 15, 6, 2, 7, 10, 15
 
-.end
-	
+@; Mapa 3 - Contiene huecos, bloques sólidos y gelatinas sin combinaciones iniciales.
+        .byte 7, 4, 5, 15, 13, 15, 6, 3
+        .byte 15, 3, 19, 6, 7, 15, 5, 4
+        .byte 6, 14, 15, 7, 3, 6, 5, 15
+        .byte 4, 7, 9, 6, 15, 1, 22, 7
+        .byte 15, 6, 7, 22, 12, 4, 15, 6
+        .byte 7, 4, 15, 3, 1, 18, 11, 15
+
+@; Mapa 4 - Huecos, gelatinas dobles y bloques sólidos. No hay combinaciones iniciales. 
+        .byte 5, 18, 7, 15, 6, 15, 17, 4
+        .byte 7, 3, 15, 5, 11, 21, 15, 6
+        .byte 4, 6, 21, 7, 15, 9, 3, 5
+        .byte 7, 15, 4, 22, 6, 7, 15, 3
+        .byte 15, 12, 7, 15, 19, 4, 7, 6
+        .byte 3, 7, 15, 6, 14, 5, 15, 4
+
+@; Mapa 5 - Huecos, bloques sólidos y gelatinas dobles distribuidos. Sin combinaciones iniciales. 
+        .byte 15, 13, 17, 15, 4, 5, 7, 6
+        .byte 22, 15, 6, 4, 15, 20, 3, 7
+        .byte 5, 7, 15, 3, 18, 15, 12, 6
+        .byte 3, 9, 15, 21, 7, 4, 15, 5
+        .byte 15, 5, 11, 6, 15, 22, 7, 15
+        .byte 4, 3, 7, 15, 14, 6, 15, 5
