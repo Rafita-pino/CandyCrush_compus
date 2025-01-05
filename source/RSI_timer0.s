@@ -43,21 +43,21 @@ rsi_vblank:
 		
 		
 @;Tarea 2Ga
-		ldr r6, =update_gel		@;r0 = @update_gel (declarada RSI_timer2.s com a byte)
+		ldr r6, =update_gel		@;r6 = @update_gel (declarada RSI_timer2.s com a byte)
 		ldrb r1, [r6] 			@;r1 = valor update_gel
 		cmp r1, #0				@;update_gel desactivat?
 		beq .L_ignore			@;sí, no actualitzar gelatines
 		
-		ldr r4, =mat_gel		@;r3 = @mat_gel
+		ldr r4, =mat_gel		@;r4 = @mat_gel
 		mov r1, #0				@;r1 = index files
 		.L_row_loop:
 		mov r2, #0				@;r2 = index columnes
 		.L_col_loop:
-		ldsb r5, [r4, #GEL_II]	@;r4 = mat_gel[r1][r2].ii
+		ldsb r5, [r4, #GEL_II]	@;r5 = mat_gel[r1][r2].ii
 		cmp r5, #0	
 		bgt .L_end				@;si > 0, seguent posició
 		tst r5, #0x80			@;comparació bit mes alt (Ca2)
-		bne .L_end				@; si no es 0 (es negatiu), seguent posició
+		bne .L_end				@;si no es 0 (es negatiu), seguent posició
 		
 		@;si valor valid, fijar_metabaldosa
 		ldr r0, =0x06000000		@;r0 = (u16) map_base 	
@@ -70,7 +70,7 @@ rsi_vblank:
 		@; ACTUALITZACIÓ BUCLE
 		.L_end:	
 		add r2, #1				@;index col += 1
-		add r4, #GEL_TAM		@;desplaçament seg. gelatina mapa
+		add r4, #GEL_TAM		@;desplaçament seg. posició mapa gelatines
 		cmp r2, #COLUMNS
 		blo .L_col_loop			@;si index col < MAX_COLS, continuar
 		add r1, #1				@;sino index fila += 1 (next fila)
