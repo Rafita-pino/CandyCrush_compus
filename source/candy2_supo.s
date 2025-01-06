@@ -88,8 +88,8 @@ crea_elemento:
 		cmp r5, #-1
 		beq .Lce_finbucle			@;salir si vect_elem[i].ii == -1
 		add r4, #ELE_TAM
-		add r0, #1
 		cmp r0, #ROWS*COLUMNS
+		addlo r0, #1
 		blo .Lce_bucle				@;repetir para todos los sprites posibles
 		b .Lce_fin
 	.Lce_finbucle:
