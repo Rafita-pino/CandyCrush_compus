@@ -132,7 +132,7 @@ rsi_timer0:
 		mov r0, #0 					@; r0 = i
 		
 		.L_vect:
-			ldrh r4, [r5, #ELE_II]	
+			ldrsh r4, [r5, #ELE_II]	
 			cmp r4, #0				@; si vect_elem.ii == -1 || 0 salto
 			ble .Next_elem
 			
