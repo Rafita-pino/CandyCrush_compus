@@ -89,22 +89,6 @@ void inicializa_interrupciones()
 	irqEnable(IRQ_TIMER3);
 }
 
-/* inicializa_nivel(mat,lev,*p,*m,*g): inicializa un nivel de juego a partir
-	del parámetro lev (level), modificando la matriz y la información de juego
-	(puntos, movimientos, gelatinas) que se pasan por referencia.
-*/
-void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
-							short *p, unsigned char *m, unsigned char *g)
-{
-	inicializa_matriz(mat, lev);
-	genera_sprites(mat);
-	genera_mapa1(mat);
-	genera_mapa2(mat);
-	escribe_matriz(mat);
-	retardo(3);			// tiempo para ver matriz inicial
-}
-
-
 /* procesa_botonY(): comprueba la pulsación del botón 'Y' y activa o desactiva
 	el desplazamiento del fondo gráfico. */
 void procesa_botonY()
@@ -120,17 +104,9 @@ void procesa_botonY()
 	}
 }
 
-
-
-
 /* Programa principal: control general del juego */
 int main(void)
 {
-	unsigned char level = 0;		// nivel del juego (nivel inicial = 0)
-	short points = 0;				// contador de puntos
-	unsigned char moves = 0;		// número de movimientos restantes
-	unsigned char gelees = 0;		// número de gelatinas restantes
-
 
 	seed32 = time(NULL);			// fija semilla inicial números aleatorios
 	init_grafA();
@@ -148,7 +124,6 @@ int main(void)
 	{
 		swiWaitForVBlank();
 		scanKeys();
-		inicializa_nivel(matrix, level, &points, &moves, &gelees);
 		procesa_botonY();
 	} while (1);				// bucle infinito
 	
