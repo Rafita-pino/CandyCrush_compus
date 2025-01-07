@@ -97,14 +97,14 @@ void guarda_backup(char mat[][COLUMNS], short p, unsigned char m,
 	se pasa por parÃ¡metro, utilizando un color diferente del habitual (amarillo)
 	para dar la sensaciÃ³n al usuario que estÃ¡ visualizando un momento anterior
 	del juego.
-*/
+
 void actualiza_contadores_backup(short p, unsigned char m, unsigned char g)
 {
 	printf("\x1b[43m\x1b[2;8H %d  ", p);
 	printf("\x1b[43m\x1b[1;28H %d ", m);
 	printf("\x1b[43m\x1b[2;28H %d ", g);
 }
-
+*/
 
 
 /* muestra_recuadro(modo): permite mostrar un recuadro al tablero de juego para
@@ -114,7 +114,7 @@ void actualiza_contadores_backup(short p, unsigned char m, unsigned char g)
 		modo = 1	-> recuadro de momentos genÃ©ricos (amarillo oscuro)
 		modo = 2	-> recuadro de interacciÃ³n con usuario (verde)
 		modo = 3	-> recuadro del Ãºltimo momento disponible (rojo oscuro)
-*/
+
 void muestra_recuadro(unsigned char modo)
 {
 	unsigned char i;
@@ -135,13 +135,13 @@ void muestra_recuadro(unsigned char modo)
 	printf("\x1b[%dm\x1b[23;0H+", colors[modo]);
 	printf("\x1b[%dm\x1b[23;%dH-+", colors[modo], COLUMNS*2-1);
 }
-
+*/
 
 
 /* control_backup(): permite recuperar el estado del tablero y la informaciÃ³n
 	del juego almacenada en las variables globales b_mat y b_info, variando
 	un Ã­ndice entre -1 y -b_num.
-*/
+
 void control_backup()
 {
 	short b_ind, puntos;
@@ -192,7 +192,7 @@ void control_backup()
 		muestra_recuadro(0);				// borra recuadro (escribe en negro)
 	}
 }
-
+*/
 #endif
 
 
@@ -204,7 +204,7 @@ void control_backup()
 		p:	puntos
 		m:	movimientos
 		g:	gelatinas
-*/
+
 void actualiza_contadores(unsigned char lev, short p, unsigned char m,
 											unsigned char g)
 {
@@ -213,7 +213,7 @@ void actualiza_contadores(unsigned char lev, short p, unsigned char m,
 	printf("\x1b[38m\x1b[1;28H %d ", m);
 	printf("\x1b[37m\x1b[2;28H %d ", g);
 }
-
+*/
 
 
 /* inicializa_interrupciones(): configura las direcciones de las RSI y los bits
@@ -254,7 +254,7 @@ void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
 	*p = pun_obj[lev];
 	*m = max_mov[lev];
 	*g = cuenta_gelatinas(mat);
-	actualiza_contadores(lev, *p, *m, *g);
+	//actualiza_contadores(lev, *p, *m, *g);
 	borra_puntuaciones();
 	retardo(3);			// tiempo para ver matriz inicial
 #ifdef TRUCOS
@@ -310,7 +310,7 @@ unsigned char procesa_pulsacion(char mat[][COLUMNS],
 	la funciÃ³n puede modificar (por referencia) las variables de informaciÃ³n
 	puntos (p), movimientos restantes (m) o gelatinas (g), ademÃ¡s de la variable
 	de estado del juego, fijando E_CHECK si debe haber un reinicio de nivel.
-*/
+
 void testing(unsigned char *est, char mat[][COLUMNS], unsigned char lev,
 							short *p, unsigned char *m, unsigned char *g)
 {
@@ -330,7 +330,7 @@ void testing(unsigned char *est, char mat[][COLUMNS], unsigned char lev,
 		actualiza_contadores(lev, *p, *m, *g);
 	}
 }
-
+*/
 #endif
 
 
@@ -340,7 +340,7 @@ void testing(unsigned char *est, char mat[][COLUMNS], unsigned char lev,
 	referencia); utiliza la variable globla mat_mar[][]; tambiÃ©n se pasan
 	los parÃ¡metros lev (level) y m (moves) con el fin de llamar a la funciÃ³n
 	de actualizaciÃ³n de contadores.
-*/
+
 void procesa_rotura(char mat[][COLUMNS], unsigned char lev,
 								short *p, unsigned char m, unsigned char *g)
 {
@@ -353,7 +353,7 @@ void procesa_rotura(char mat[][COLUMNS], unsigned char lev,
 	guarda_backup(mat, *p, m, *g);
 #endif
 }
-
+*/
 
 
 /* procesa_caida(mat,p,m,g): procesa la caÃ­da de elementos; la funciÃ³n devuelve
@@ -397,7 +397,7 @@ unsigned char procesa_caida(unsigned char f_init, char mat[][COLUMNS],
 		CJ_LEVEL  (1):	el nivel se ha superado o no, hay que reiniciar nivel actual o siguiente
 		CJ_RCOMB  (2):	se ha producido una recombinaciÃ³n y se han generado nuevas combinaciones
 		CJ_RNOCMB (3):	se ha producido una recombinaciÃ³n pero no hay nuevas combinaciones
-*/
+
 unsigned char comprueba_jugada(char mat[][COLUMNS], unsigned char *lev,
 								short p, unsigned char m, unsigned char g)
 {
@@ -439,7 +439,7 @@ unsigned char comprueba_jugada(char mat[][COLUMNS], unsigned char *lev,
 	}
 	return(result);
 }
-
+*/
 
 
 /* procesa_sugerencia(mat,lap): segÃºn el valor del parÃ¡metro lap (nÃºmero de
@@ -468,7 +468,7 @@ void procesa_sugerencia(char mat[][COLUMNS], unsigned short lap)
 
 
 /* procesa_botonY(): comprueba la pulsaciÃ³n del botÃ³n 'Y' y activa o desactiva
-	el desplazamiento del fondo grÃ¡fico. */
+	el desplazamiento del fondo grÃ¡fico. 
 void procesa_botonY()
 {
 	if (keysHeld() & KEY_Y){	// activar o desactivar desplazam.
@@ -481,12 +481,13 @@ void procesa_botonY()
 		}
 	}
 }
-
+*/
 void prueba_tarea_2Ca();
 void prueba_tarea_2Cb(unsigned char *state, unsigned char *level);
 void prueba_tarea_2Ga();
-void prueba_tarea_2Gb();
+void mostrarTIMER2();
 void prueba_tarea_2Gc();
+void prueba_tarea_2Gb();
 
 
 /* Programa principal: control general del juego */
@@ -508,9 +509,9 @@ int main(void)
 
 	consoleDemoInit();				// inicializa pantalla de texto
 	printf("Juego de pruebas prog3 (version 2: graficos)\n");
-	printf("\x1b[3;0H Click 'Q' per probar 2Ca");
-	printf("\x1b[4;0H Click 'W' per probar 2Gb");
-	printf("\x1b[5;0H Click 'B' per probar 2Gc");
+	printf("\x1b[3;0H Click 'Q' Specs. BG1 (2Ca)");
+	printf("\x1b[4;0H Click 'W' activa timer2 (2Gb)");
+	printf("\x1b[5;0H Click 'B' para timer2 (2Gc)");
 	printf("\x1b[6;0H Click 'A' per probar 2Cb -> Pasar nivell i mirar Map View");
 	do								// bucle principal del juego
 	{
@@ -520,12 +521,14 @@ int main(void)
             prueba_tarea_2Ca();  // Mostrar especificaciones del fondo 1
         }
 		
+		mostrarTIMER2();		// Mostrar valores del timer 2
+		
         if (keysHeld() & KEY_R) {
-            prueba_tarea_2Gb();  // Mostrar valores del timer 2
+            prueba_tarea_2Gb();   //Activar timer2
         }
 		
         if (keysHeld() & KEY_B) {
-            prueba_tarea_2Gc();  // Detener el temporizador 2
+            prueba_tarea_2Gc();  //Parar timer2
         }
 		
         if (keysHeld() & KEY_A) {
@@ -561,8 +564,8 @@ void prueba_tarea_2Ca() {
     printf("\x1b[14;0H Tamany: %d", (bg1cnt_val >> 14) & 0x03); // Bits 15..14
 }
 
-void prueba_tarea_2Gb() {
-    printf("\x1b[22;0H TIMER2: Control = %x, Data = %x",
+void mostrarTIMER2() {
+    printf("\x1b[7;0H TIMER2: Control = %x, Data = %x",
            TIMER2_CR, TIMER2_DATA);
 }
 
@@ -579,3 +582,9 @@ void prueba_tarea_2Cb(unsigned char *state, unsigned char *level) {
 void prueba_tarea_2Ga() {
     escribe_matriz(matrix);
 }
+
+void prueba_tarea_2Gb(){
+	activa_timer2();
+	printf("\x1b[24;0H Temporizador 2 activado.");
+}
+
