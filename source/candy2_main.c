@@ -70,7 +70,8 @@ unsigned int seed32;			// semilla de nÃºmeros aleatorios
 #ifdef TRUCOS
 
 #define MAXBACKUP	36			// memoria para el 'backup' de la evoluciÃ³n del
-char b_mat[MAXBACKUP][ROWS][COLUMNS];	// tablero mÃ¡s la informaciÃ³n de juego
+char b_mat[MAXBACKUP][ROWS][COLUMNS];	// tablero más la información de juego
+char b_mat[MAXBACKUP][ROWS][COLUMNS];	// tablero más la información de juego
 unsigned int b_info[MAXBACKUP];			// (puntos, movimientos, gelatinas)
 unsigned short b_last, b_num;			// Ãºltimo Ã­ndice y nÃºmero de backups
 
@@ -78,7 +79,7 @@ unsigned short b_last, b_num;			// Ãºltimo Ã­ndice y nÃºmero de backups
 
 
 /* inicializa_interrupciones(): configura las direcciones de las RSI y los bits
-	de habilitaciÃ³n (enable) del controlador de interrupciones para que se
+	de habilitación (enable) del controlador de interrupciones para que se
 	puedan generar las interrupciones requeridas.*/ 
 void inicializa_interrupciones()
 {
@@ -99,7 +100,7 @@ void inicializa_interrupciones()
 
 
 /* inicializa_nivel(mat,lev,*p,*m,*g): inicializa un nivel de juego a partir
-	del parÃ¡metro lev (level), modificando la matriz y la informaciÃ³n de juego
+	del parámetro lev (level), modificando la matriz y la información de juego
 	(puntos, movimientos, gelatinas) que se pasan por referencia.
 */
 void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
@@ -125,22 +126,24 @@ void prueba_tarea_2Cb(unsigned char *state, unsigned char *level);
 void mostrarTIMER2();
 void prueba_tarea_2Gc();
 void prueba_tarea_2Gb();
+void prueba_fija_metabaldosa();
+int mod_random(int random);
 
-
-//Borra les lineas de text de la pantalla de instruccions
+//borra les lineas de text de la pantalla de instruccions
 void clear_instructions() {
     for (int i = 0; i < 9; i++) {
         printf("\x1b[%d;0H%.*s", i, 32, "                                "); // 32 espacios
     }
 }
 
-//Restaura las instrucciones principals de pantalla
+//restaura las instruccionns principals de pantalla
 void restore_instructions() {
     printf("\x1b[0;0H Joc proves prog3 (versio 2: grafics)\n");
 	printf("\x1b[3;0H Click 'Q' Specs. BG1 (2Ca)");
 	printf("\x1b[4;0H Click 'W' activa timer2 (2Gb)");
 	printf("\x1b[5;0H Click 'B' para timer2 (2Gc)");
 	printf("\x1b[6;0H Click 'A' pasar nivell (2Cb)");
+	printf("\x1b[7;0H Click 'X' mostrar matriu (2Jc)");
 }
 
 
@@ -153,9 +156,6 @@ int main(void)
 	unsigned char gelees = 0;		// nÃºmero de gelatinas restantes
 	
 	unsigned char state = E_INIT;	// estado actual del programa
-	//unsigned short lapse = 0;		// contador VBLs inactividad del usuario
-	//unsigned char ret;				// cÃ³digo de retorno de funciones auxiliares
-	//unsigned char fall_init = 1;	// cÃ³digo de inicio de caÃ­da
 
 	seed32 = time(NULL);			// fija semilla inicial nÃºmeros aleatorios
 	init_grafA();
@@ -167,6 +167,7 @@ int main(void)
 	printf("\x1b[4;0H Click 'W' activa timer2 (2Gb)");
 	printf("\x1b[5;0H Click 'B' para timer2 (2Gc)");
 	printf("\x1b[6;0H Click 'A' pasar nivell (2Cb)");
+	printf("\x1b[7;0H Click 'X' mostrar matriu (2Jc)");
 	do								// bucle principal del juego
 	{
 		swiWaitForVBlank();
@@ -190,6 +191,10 @@ int main(void)
             prueba_tarea_2Cb(&state, &level);  //Pasar nivell
         }
 		
+		if (keysHeld() & KEY_X) { 
+			prueba_fija_metabaldosa();  // Probar fija_metabaldosa
+		}
+		
         if (state == E_INIT) {
             inicializa_nivel(matrix, level, &points, &moves, &gelees);	//mostrar gelatines, 2Ga i 2Gd
             state = E_PLAY;
@@ -200,7 +205,7 @@ int main(void)
 }
 
 void prueba_tarea_2Ca() {
-    clear_instructions();  // Borra instrucciones
+    clear_instructions();  //borra instrucciones
     // Dirección del registro de control del fondo 1
     volatile unsigned short* bg1cnt = (volatile unsigned short*)0x0400000A;
     unsigned short bg1cnt_val = *bg1cnt;
@@ -208,9 +213,9 @@ void prueba_tarea_2Ca() {
     // Extraer y mostrar los valores relevantes
     printf("\x1b[3;0H Fondo 1:");
     printf("\x1b[4;0H Prioritat: %d", bg1cnt_val & 0x03); // Bits 1..0
-    printf("\x1b[5;0H Base de baldosas: %d", (bg1cnt_val >> 2) & 0x0F); // Bits 5..2
+    printf("\x1b[5;0H Base de baldoses: %d", (bg1cnt_val >> 2) & 0x0F); // Bits 5..2
     printf("\x1b[6;0H Base del mapa: %d", (bg1cnt_val >> 8) & 0x1F); // Bits 12..8
-    retardo(50);  // Esperar antes de restaurar
+    retardo(50);  //pausa per observar
     restore_instructions();  // Volver a mostrar las instrucciones
 }
 
@@ -220,23 +225,52 @@ void mostrarTIMER2() {
 }
 
 void prueba_tarea_2Gc() {
-    clear_instructions();  // Borra instrucciones
+    clear_instructions();  //borra instrucciones
     desactiva_timer2();
-    printf("\x1b[3;0H Temporizador 2 detenido.");
-    retardo(20);  // Esperar antes de restaurar
-    restore_instructions();
+    printf("\x1b[3;0H Timer2 STOPPED.");
+    retardo(10);  //pausa per observar
+    restore_instructions(); //borrar resultats
 }
 
 void prueba_tarea_2Cb(unsigned char *state, unsigned char *level) {
-    (*level)++;
+    if (*level > MAXLEVEL) {
+        *level = 0;
+    } 
+	(*level)++;
     *state = E_INIT;
 }
 
 void prueba_tarea_2Gb() {
-    clear_instructions();  // Borra instrucciones
+    clear_instructions();  ////borra instrucciones
     activa_timer2();
-    printf("\x1b[3;0H Temporizador 2 activado.");
-    retardo(20);  // Esperar antes de restaurar
-    restore_instructions();
+    printf("\x1b[3;0H Timer2 ACTIVE");
+    retardo(10);  //pausa per observar
+    restore_instructions(); //borrar resultats
+}
+
+//nomès les mostra de manera visual, al mapa no s'actualitzen perque no
+//es crida a crea elemento ni activa elemento
+void prueba_fija_metabaldosa() {
+    clear_instructions();  //borrar instruccions
+
+    //conf. inicial
+    unsigned short* mapbase = (u16 *) bgGetMapPtr(1); //direcció base del mapa
+	if (mapbase == NULL) {
+        printf("\x1b[3;0H Error: mapa no trobat.");
+        retardo(200);
+        restore_instructions(); //borrar resultats
+        return;
+    }
+	
+    unsigned char fil = mod_random(6);  //fila inicial aleatoria (0..ROWS)
+    unsigned char col = mod_random(8);  //columna inicial (0..COLUMNS)
+	unsigned char imeta = mod_random(20); //index de metabaldosa aleatori
+	//especificar valor que s'està mostrant
+	printf("\x1b[3;0H Bal. %d fil. %d, col. %d:", imeta, fil, col);
+    //ficar la gelatina trucant a fija_metabaldosa
+    fija_metabaldosa(mapbase, fil, col, imeta);
+
+    retardo(75);  //pausa per observar
+    restore_instructions();  //borrar resultats
 }
 
