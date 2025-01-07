@@ -1,4 +1,4 @@
-﻿/*------------------------------------------------------------------------------
+﻿	/*------------------------------------------------------------------------------
 
 	$ candy2_main.c $
 
@@ -67,15 +67,6 @@ unsigned short b_last, b_num;			// último índice y número de backups/* inicia
 void inicializa_interrupciones()
 {
 	irqSet(IRQ_VBLANK, rsi_vblank);
-	TIMER0_CR = 0x00;  		// inicialmente los timers no generan interrupciones
-	irqSet(IRQ_TIMER0, rsi_timer0);		// cargar direcciones de las RSI
-	irqEnable(IRQ_TIMER0);				// habilitar la IRQ correspondiente
-	TIMER1_CR = 0x00;
-	irqSet(IRQ_TIMER1, rsi_timer1);
-	irqEnable(IRQ_TIMER1);
-	TIMER2_CR = 0x00;
-	irqSet(IRQ_TIMER2, rsi_timer2);
-	irqEnable(IRQ_TIMER2);
 	TIMER3_CR = 0x00;
 	irqSet(IRQ_TIMER3, rsi_timer3);
 	irqEnable(IRQ_TIMER3);
