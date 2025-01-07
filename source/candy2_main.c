@@ -122,7 +122,6 @@ void inicializa_nivel(char mat[][COLUMNS], unsigned char lev,
 
 void prueba_tarea_2Ca();
 void prueba_tarea_2Cb(unsigned char *state, unsigned char *level);
-void prueba_tarea_2Ga();
 void mostrarTIMER2();
 void prueba_tarea_2Gc();
 void prueba_tarea_2Gb();
@@ -231,10 +230,6 @@ void prueba_tarea_2Gc() {
 void prueba_tarea_2Cb(unsigned char *state, unsigned char *level) {
     (*level)++;
     *state = E_INIT;
-}
-
-void prueba_tarea_2Ga() {
-    escribe_matriz(matrix);
 }
 
 void prueba_tarea_2Gb() {

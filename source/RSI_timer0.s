@@ -37,7 +37,7 @@
 @;Tarea 2H: actualiza el desplazamiento del fondo 3
 	.global rsi_vblank
 rsi_vblank:
-		push {r0-r5, lr}
+		push {r0-r6, lr}
 		
 @;Tareas 2Ea
 		
@@ -82,7 +82,7 @@ rsi_vblank:
 		.L_ignore:					@;acabar actualitzat gelatines
 		
 @;Tarea 2Ha
-		pop {r0-r5, pc}
+		pop {r0-r6, pc}
 
 
 
