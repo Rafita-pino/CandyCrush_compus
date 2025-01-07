@@ -101,7 +101,8 @@ void ajusta_imagen3(unsigned char ibg)
 				generando el fondo 3 y fijando la transparencia entre fondos.*/
 void init_grafA()
 {
-	int bg1A, bg2A;
+	//int bg1A
+	int bg2A;
 	//int bg3A;
 
 	videoSetMode(MODE_3_2D | DISPLAY_SPR_1D_LAYOUT | DISPLAY_SPR_ACTIVE);
@@ -112,10 +113,9 @@ void init_grafA()
 // Tareas 2Ba y 2Ca:
 	// reservar banco E para fondos 1 y 2, a partir de 0x06000000
 	vramSetBankE(VRAM_E_MAIN_BG);
+	
 // Tarea 2Da:
 	// reservar bancos A y B para fondo 3, a partir de 0x06020000
-
-
 
 
 // Tarea 2Aa:
@@ -124,26 +124,23 @@ void init_grafA()
 	// de paleta asociados contenidos en la variable SpritesPal[]
 
 
+// Tarea 2Ba:
+	// inicializar el fondo 2 con prioridad 2
+	bg2A = bgInit(2, BgType_Text8bpp, BgSize_T_256x256, 1, 1);
+	bgSetPriority(bg2A, 2);
+
+
+// Tarea 2Ca:
+	//inicializar el fondo 1 con prioridad 0
+
 
 // Tareas 2Ba y 2Ca:
 	// descomprimir (y cargar) las baldosas de la variable BaldosasTiles[] a
 	// partir de la dirección virtual correspondiente al primer bloque de
 	// memoria gráfica (+16 Kbytes), cargar los colores de paleta asociados
 	// contenidos en la variable BaldosasPal[]
-	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);		//carregar baldoses bg2A
-	decompress(BaldosasTiles, bgGetGfxPtr(bg1A), LZ77Vram);		//carregar baldoses bg1A		
+	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);		//carregar baldoses bg2A	
 	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal));		//carregar palette
-
-	
-// Tarea 2Ca:
-	//inicializar el fondo 1 con prioridad 0
-
-
-
-// Tarea 2Ba:
-	// inicializar el fondo 2 con prioridad 2
-	bg2A = bgInit(2, BgType_Text8bpp, BgSize_T_256x256, 1, 1);
-	bgSetPriority(bg2A, 2);
 
 	
 // Tarea 2Da:
