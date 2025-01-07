@@ -28,7 +28,7 @@ busca_elemento:
 		push {r2-r6, lr}
 		
 		ldr r6, =n_sprites
-		ldr r6, [r6]			@;R6 = número de sprites creados
+		ldrb r6, [r6]			@;R6 = número de sprites creados
 		mov r2, r1, lsl #5		@;R2 = px (columna * 32)
 		mov r3, r0, lsl #5		@;R3 = py (fila * 32)
 		mov r0, #0				@;R0 es índice de elementos
