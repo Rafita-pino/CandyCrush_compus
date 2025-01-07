@@ -113,7 +113,8 @@ void ajusta_imagen3(unsigned char ibg)
 				generando el fondo 3 y fijando la transparencia entre fondos.*/
 void init_grafA()
 {
-	int bg1A, bg2A, bg3A;
+	int bg1A, bg2A;
+	//int bg3A; -> LA COMENTO XQ. NO DONI WARNING
 
 	videoSetMode(MODE_3_2D | DISPLAY_SPR_1D_LAYOUT | DISPLAY_SPR_ACTIVE);
 	
