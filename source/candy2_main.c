@@ -59,14 +59,6 @@
 #define T_MOSUG		64		// tiempo entre mostrar sugerencias (1 seg. aprox.)
 
 
-/* variables globales */
-char matrix[ROWS][COLUMNS];		// matriz global de juego
-char mat_mar[ROWS][COLUMNS];	// matriz de marcas
-unsigned char pos_sug[6];		// posiciones de una sugerencia de combinación
-
-unsigned int seed32;			// semilla de números aleatorios
-
-
 #define MAXBACKUP	36			// memoria para el 'backup' de la evolución del
 char b_mat[MAXBACKUP][ROWS][COLUMNS];	// tablero más la información de juego
 unsigned int b_info[MAXBACKUP];			// (puntos, movimientos, gelatinas)
@@ -107,17 +99,11 @@ void procesa_botonY()
 /* Programa principal: control general del juego */
 int main(void)
 {
-
-	seed32 = time(NULL);			// fija semilla inicial números aleatorios
 	init_grafA();
 	inicializa_interrupciones();
 
 	consoleDemoInit();				// inicializa pantalla de texto
 	printf("candyNDS (version 2: graficos)\n");
-	printf("\x1b[38m\x1b[1;0H  nivel:");
-	printf("\x1b[39m\x1b[2;0H puntos:");
-	printf("\x1b[38m\x1b[1;15H movimientos:");
-	printf("\x1b[37m\x1b[2;15H   gelatinas:");
 	printf("\x1b[38m\x1b[3;0H despl.fondo (tecla Y): no");
 
 	do								// bucle principal del juego
