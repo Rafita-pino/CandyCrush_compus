@@ -31,10 +31,28 @@ gelatina mat_gel[ROWS][COLUMNS];	// matriz de gelatinas
 	por parámetro (independientemente de los códigos de gelatinas).*/
 void genera_sprites(char mat[][COLUMNS])
 {
-
-
+	n_sprites=0;
+    unsigned char i, c, f;
+    SPR_oculta_sprites(128); // ocultar todos los 128 sprites
+    for (i = 0; i < ROWS * COLUMNS; i++) { // recorrer ROWS*COLUMNS
+        vect_elem[i].ii = -1; // desactivar elemento del vector
+    }
+    char el;
+    for (f = 0; f < ROWS; f++) {
+        for (c = 0; c < COLUMNS; c++) {
+            el = mat[f][c];
+            if (el == 15 || el == 7 || (el > 0 && el <= 6)) {
+                crea_elemento(el, f, c, 1); // crear elemento directo
+            } else if (el > 7 && el <= 14) {
+                crea_elemento(el - 8, f, c, 1); // gelatina simple
+            } else if (el > 15 && el <= 22) {
+                crea_elemento(el - 16, f, c, 1); // gelatina doble
+            } 
+            n_sprites++; // incrementar solo una vez
+        }
+    }
+    SPR_actualiza_sprites(OAM, n_sprites);
 }
-
 
 
 // TAREA 2Bb
@@ -104,7 +122,7 @@ void ajusta_imagen3(unsigned char ibg)
 				generando el fondo 3 y fijando la transparencia entre fondos.*/
 void init_grafA()
 {
-	//int bg1A
+	//int bg1A;
 	int bg2A;
 	int bg3A;
 
@@ -112,7 +130,8 @@ void init_grafA()
 	
 // Tarea 2Aa:
 	// reservar banco F para sprites, a partir de 0x06400000
-
+	vramSetBankF(VRAM_F_MAIN_SPRITE_0x06400000);
+	
 // Tareas 2Ba y 2Ca:
 	// reservar banco E para fondos 1 y 2, a partir de 0x06000000
 	vramSetBankE(VRAM_E_MAIN_BG);
@@ -126,7 +145,8 @@ void init_grafA()
 	// cargar las baldosas de la variable SpritesTiles[] a partir de la
 	// dirección virtual de memoria gráfica para sprites, y cargar los colores
 	// de paleta asociados contenidos en la variable SpritesPal[]
-
+	dmaCopy(SpritesTiles, (unsigned int *)0x06400000, sizeof(SpritesTiles));
+	dmaCopy(SpritesPal, (void *)0x05000200, sizeof(SpritesPal));
 
 // Tarea 2Ba:
 	// inicializar el fondo 2 con prioridad 2

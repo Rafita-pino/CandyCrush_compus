@@ -46,6 +46,11 @@ void level_info(unsigned char level) {
 }
 
 
+void mostrar_timer0() {
+	clear_line(10);
+	//printf("\x1b[38m\x1b[10;0H  TIMER1_CR: \x1b[39m%x, \x1b[38mTIMER1_DATA \x1b[39m%x", TIMER1_CR, TIMER1_DATA);
+	//printf("\x1b[38m\x1b[10;0H  escNum: \x1b[39m%d, \x1b[38mescFac: \x1b[39m%d", escNum, escFac);
+}
 
 void inicializa_nivel(char mat[][COLUMNS], unsigned char lev)
 {
@@ -58,14 +63,21 @@ void inicializa_nivel(char mat[][COLUMNS], unsigned char lev)
 	retardo(3);			// tiempo para ver matriz inicial
 }
 
-// Espera que se pulse B
-void wait_keyB() {
-	do
-	{
-		swiWaitForVBlank();
-		scanKeys();					// esperar tecla 'B'
-	} while (!(keysHeld() & KEY_B));
-	return;
+void inicializa_interrupciones()
+{
+	irqSet(IRQ_VBLANK, rsi_vblank);
+	TIMER0_CR = 0x00;  		// inicialmente los timers no generan interrupciones
+	irqSet(IRQ_TIMER0, rsi_timer0);		// cargar direcciones de las RSI
+	irqEnable(IRQ_TIMER0);				// habilitar la IRQ correspondiente
+	TIMER1_CR = 0x00;
+	irqSet(IRQ_TIMER1, rsi_timer1);
+	irqEnable(IRQ_TIMER1);
+	TIMER2_CR = 0x00;
+	irqSet(IRQ_TIMER2, rsi_timer2);
+	irqEnable(IRQ_TIMER2);
+	TIMER3_CR = 0x00;
+	irqSet(IRQ_TIMER3, rsi_timer3);
+	irqEnable(IRQ_TIMER3);
 }
 
 /* Programa principal: control general del juego */
@@ -80,16 +92,21 @@ int main(void)
 	printf("candyNDS (version 2: graficos)\n");
 	printf("\nJuego de pruebas Tareas 2B \n");
 	printf("\x1b[39m\x1b[8;0H  Pulse '\x1b[36mB\x1b[39m' para \x1b[32mpasar nivel\x1b[39m.");
-
+	inicializa_nivel(matrix, level);
+	
 	do								// bucle principal del juego
 	{
+		
 		swiWaitForVBlank();
 		scanKeys();
-		level = (level > MAXLEVEL) ? 0:level;
-		inicializa_nivel(matrix, level);
-		wait_keyB();
-		level++;	
 		
+		
+		if(keysHeld() & KEY_B) { // Pulsar B para ver los diferentes niveles de la Tarea 2B
+			level = (level > MAXLEVEL) ? 0:level;
+			inicializa_nivel(matrix, level);
+			level++;
+		}	
+				
 		
 	} while (1);				// bucle infinito
 	
