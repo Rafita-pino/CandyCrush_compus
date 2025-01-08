@@ -139,7 +139,7 @@ hay_secuencia:
 @;		R1 = dirección de la matriz de marcas
 	.global elimina_secuencias
 elimina_secuencias:
-		push {r6, r8, lr}
+		push {r2-r8, lr}
 		
 		mov r6, #0							@; valor per la matriu de marques a 0
 		mov r8, #0							@; R8 es desplazamiento posiciones matriz
@@ -187,7 +187,7 @@ elimina_secuencias:
 			cmp r6, #ROWS*COLUMNS
 			blo .LreduceLevel
 					
-		pop {r6, r8, pc}
+		pop {r2-r8, pc}
 
 
 	

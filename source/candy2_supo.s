@@ -75,26 +75,22 @@ busca_elemento:
 	.global crea_elemento
 crea_elemento:
 		push {r1-r6,lr}
-		mov r6, r3 					@;R6 = prioridad
-		mov r3, r0					@;R3 = tipo de elemento
-	@;	unsigned char i = 0;
-		mov r0, #0					@;R0 es índice de elementos (i)
+		mov r6, r3 					@;R6 = prioritat
+		mov r3, r0					@;R3 = tipus d'element
 		
-	@;	while ((vect_elem[i].ii != -1) && (i < ROWS*COLUMNS))
-	@;		i++;
-		ldr r4, =vect_elem			@;R4 es dirección base del vector elementos
-	.Lce_bucle:
+		mov r0, #0					@;R0 = i
+		ldr r4, =vect_elem			@;R4 = @vect_elem
+	.Lce_bucle:						@;while ((vect_elem[i].ii != -1) && (i < ROWS*COLUMNS)) i++;
 		ldsh r5, [r4, #ELE_II]
 		cmp r5, #-1
-		beq .Lce_finbucle			@;salir si vect_elem[i].ii == -1
+		beq .Lce_finbucle			@;sortir si vect_elem[i].ii == -1
 		add r4, #ELE_TAM
-		add r0, #1
 		cmp r0, #ROWS*COLUMNS
-		blo .Lce_bucle				@;repetir para todos los sprites posibles
+		addlo r0, #1
+		blo .Lce_bucle				@;repetir tots sprites possibles
 		b .Lce_fin
-	.Lce_finbucle:
-	@;	if (i < ROWS*COLUMNS)		// si lo ha encontrado
-	@;	{							// inicializar sus campos principales
+		
+	.Lce_finbucle:					@;if (i < ROWS*COLUMNS)
 		mov r5, #0
 		strh r5, [r4, #ELE_II]		@;vect_elem[i].ii = 0;
 		mov r5, r2, lsl #5
@@ -102,27 +98,27 @@ crea_elemento:
 		mov r5, r1, lsl #5
 		strh r5, [r4, #ELE_PY]		@;vect_elem[i].py = fil*MTHEIGHT;
 		
-	@;		SPR_crea_Sprite(i, 0, 2, 'indice metabaldosa');
 		sub r1, r3, #1
 		mov r2, #MTOTAL
-		mul r3, r1, r2				@;indice metabaldosa = (tipo-1)*MTOTAL
+		mul r3, r1, r2				@;index metabaldosa = (tipus-1)*MTOTAL
 		mov r1, #0
 		mov r2, #2
-		bl SPR_crea_sprite
-	@;		SPR_mueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
+		bl SPR_crea_sprite			@;SPR_crea_Sprite(i, 0, 2, 'indice metabaldosa');
+	
 		ldsh r5, [r4, #ELE_PX]
 		mov r1, r5
 		ldsh r5, [r4, #ELE_PY]
 		mov r2, r5
-		bl SPR_mueve_sprite
-	@;		SPR_fija_Prioridad(i, prio);
+		bl SPR_mueve_sprite			@;SPR_mueve_sprite(i, vect_elem[i].px, vect_elem[i].py);
+	
 		mov r1, r6
-		bl SPR_fija_prioridad
-	@;		SPR_muestra_Sprite(i);
-		bl SPR_muestra_sprite
-	@;	}
+		bl SPR_fija_prioridad		@;SPR_fija_Prioridad(i, prio);
+	
+		bl SPR_muestra_sprite		@;SPR_muestra_Sprite(i);
+		
 	.Lce_fin:
 		pop {r1-r6, pc}
+
 
 @;elimina_elemento(unsigned char fil, unsigned char col);
 @;	elimina un elemento de juego, a partir de sus coordenadas fila y columna
