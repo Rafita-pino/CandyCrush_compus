@@ -182,7 +182,7 @@ int procesa_touchscreen(char mat[][COLUMNS],
 	para luego colocar un código -1  en dichas posiciones, lo cual provocará
 	que la función escribe_matriz() muestre un carácter '_' (elemento oculto);
 	inicia el timer 1 para reproducir el efecto de escalado de los sprites. */
-void oculta_elementos(char mat[][COLUMNS], unsigned char psug[6])
+void oculta_elementos(char mat[][COLUMNS], unsigned char psug[6], unsigned char init)
 {
 	unsigned char i, x, y;
 	
@@ -194,7 +194,7 @@ void oculta_elementos(char mat[][COLUMNS], unsigned char psug[6])
 		ele_sug[i] = mat[y][x];
 		mat[y][x] = -1;
 	}
-	activa_timer1(0);
+	activa_timer1(init);
 	while (timer1_on) swiWaitForVBlank();
 }
 
@@ -203,11 +203,11 @@ void oculta_elementos(char mat[][COLUMNS], unsigned char psug[6])
 	contenidos en las posiciones de la matriz de juego indicadas en el parámetro
 	psug[6], según el contenido del vector ele_sug[3] (variable global);
 	inicia el timer 1 para reproducir el efecto de escalado de los sprites. */
-void muestra_elementos(char mat[][COLUMNS], unsigned char psug[6])
+void muestra_elementos(char mat[][COLUMNS], unsigned char psug[6], unsigned char init)
 {
 	unsigned char i, x, y;
 	
-	activa_timer1(1);
+	activa_timer1(init);
 	while (timer1_on) swiWaitForVBlank();
 	for (i = 0; i < 3; i++)
 	{

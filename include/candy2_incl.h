@@ -75,6 +75,7 @@ extern void rsi_timer0();								// 2Ed
 
 	// RSI_timer1.s //
 extern unsigned char timer1_on;
+extern unsigned char factorEscalado;
 extern void activa_timer1(unsigned char init);			// 2Fb
 //extern void desactiva_timer1();						// 2Fc
 extern void rsi_timer1();								// 2Fd

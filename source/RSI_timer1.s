@@ -15,8 +15,9 @@
 	divFreq1: .hword	-5727,5			@;divisor de frecuencia para timer 1
 	@; Div_Frec = -(Frec_Entrada/ Frec_Salida)
 	@; 32 tics en 0.35s --> -(33513982/64)/(32/0.35)= -5727.48716 --> -5727.5
-
-
+		.global factorEscalado
+	factorEscalado:	.byte	2 			@; factorEscalado -> 2
+	
 
 @;-- .bss. variables (globales) no inicializadas ---
 .bss
@@ -102,8 +103,11 @@ desactiva_timer1:
 @;	desactiva el timer1.
 	.global rsi_timer1
 rsi_timer1:
-		push {r0-r2, lr}
-		
+		push {r0-r3, lr}
+			@; joc proves
+			ldr r0, =factorEscalado
+			ldrb r3, [r0]
+			@; joc proves
 			ldr r0, =escNum
 			ldrb r1, [r0]
 			add r1, #1
@@ -116,8 +120,8 @@ rsi_timer1:
 			ldr r1, =escFac
 			ldrh r2, [r1]			@; R2 = escFac
 			cmp r0, #0
-			subeq r2, #2			@; Decrementar escFac si escSen = 0		
-			addne r2, #2			@; Incrementar escFac si escSen = 1
+			subeq r2, r3			@; Decrementar escFac si escSen = 0		
+			addne r2, r3			@; Incrementar escFac si escSen = 1
 			strh r2, [r1]			@; Actualizar escFac
 			
 			mov r0, #0				@; Grupo 0
@@ -128,6 +132,6 @@ rsi_timer1:
 			mov r1, #1
 			strb r1, [r0]
 		
-		pop {r0-r2, pc}
+		pop {r0-r3, pc}
 		
 .end

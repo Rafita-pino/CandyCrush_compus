@@ -36,8 +36,8 @@ extern void retardo(unsigned short dsecs);
 extern int procesa_touchscreen(char mat[][COLUMNS],
 								unsigned char *p1X, unsigned char *p1Y,
 								unsigned char *p2X, unsigned char *p2Y);
-extern void oculta_elementos(char mat[][COLUMNS], unsigned char psug[6]);
-extern void muestra_elementos(char mat[][COLUMNS], unsigned char psug[6]);
+extern void oculta_elementos(char mat[][COLUMNS], unsigned char psug[6], unsigned char init);
+extern void muestra_elementos(char mat[][COLUMNS], unsigned char psug[6], unsigned char init);
 extern void intercambia_posiciones(char mat[][COLUMNS],
 								unsigned char p1X, unsigned char p1Y,
 								unsigned char p2X, unsigned char p2Y);
