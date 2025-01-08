@@ -62,7 +62,6 @@ desactiva_timer3:
 		pop {r0-r1, pc}
 
 
-
 @;TAREA 2Hd;
 @;rsi_timer3(); rutina de Servicio de Interrupciones del timer 3: detecta el
 @;	sentido de movimiento del fondo gráfico según el valor de sentidBG3X,
@@ -95,7 +94,6 @@ rsi_timer3:
 			strb r0, [r1]
 		
 		pop {r0-r3, pc}
-
 
 
 .end

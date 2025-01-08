@@ -40,7 +40,7 @@
 @;Tarea 2H: actualiza el desplazamiento del fondo 3
 	.global rsi_vblank
 rsi_vblank:
-		push {r0-r6, lr}
+		push {r0-r2, lr}
 @;Tareas 2Ea
 		ldr r2, =update_spr			
 		ldrb r3, [r2]				
@@ -56,64 +56,12 @@ rsi_vblank:
 		.L_notOne:
 
 @;Tarea 2Ga
-		ldr r6, =update_gel		@;r0 = @update_gel (declarada RSI_timer2.s com a byte)
-		ldrb r1, [r6] 			@;r1 = valor update_gel
-		cmp r1, #0				@;update_gel desactivat?
-		beq .L_ignore			@;sí, no actualitzar gelatines
-		
-		ldr r3, =mat_gel		@;r3 = @mat_gel
-		mov r1, #0				@;r1 = index files
-		.L_row_loop:
-		mov r2, #0				@;r2 = index columnes
-		.L_col_loop:
-		ldsb r4, [r3, #GEL_II]	@;r4 = mat_gel[r1][r2].ii
-		cmp r4, #0	
-		bgt .L_end				@;si > 0, seguent posició
-		tst r4, #0x80			@;comparació bit mes alt (Ca2)
-		bne .L_end				@; si no es 0 (es negatiu), seguent posició
-		
-		@;si valor valid, fijar_metabaldosa
-		ldr r0, =0x06000000		@;r0 = (u16) map_base 	
-		ldrb r3, [r3, #GEL_IM]	@;r3 = mat_gel[r1][r2].im
-		bl fija_metabaldosa		@;r0;r1;r2;r3 com parametres
-		
-		ldr r3, =mat_gel		@;r3 = @mat_gel de nou
-		mov r5, #10				
-		strb r5, [r4]			@;reiniciar camp mat_gel[r1][r2].ii = 10
-		
-		@; ACTUALITZACIÓ BUCLE
-		.L_end:	
-		add r2, #1				@;index col += 1
-		add r3, #GEL_TAM		@;desplaçament seg. gelatina mapa
-		cmp r2, #COLUMNS
-		blo .L_col_loop			@;si index col < MAX_COLS, continuar
-		add r1, #1				@;sino index fila += 1 (next fila)
-		cmp r1, #ROWS
-		blo .L_row_loop			@;si index files < MAX_ROWS, continuar
-		
-		mov r1, #0
-		strb r1, [r6]				@;sino, desactivar update_gel
-		.L_ignore:					@;acabar actualitzat gelatines
+
 		
 @;Tarea 2Ha
 
-		ldr r1, =update_bg3
-		ldrb r2, [r1]		@; r2 = update_bg3
-		
-		cmp r2, #0			@; si la variable update_bg3 está desactivada, 
-		beq .L_finalHa		@; ignorar todos los pasos siguientes
-		
-		ldr r3, =offsetBG3X
-		ldrh r4, [r3]			@; r4 = offsetBG3X
-		ldr r3, =0x04000038		@; 0x04000038 -> REG_BG3X
-		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
-		strh r4, [r3]
-		
-		mov r5, #1
-		strb r5, [r1]			@; update_bg3 = 0
-		
-		.L_finalHa:
-		pop {r0-r6, pc}
+
+		pop {r0-r2, pc}
 
 
 
@@ -184,7 +132,7 @@ rsi_timer0:
 		mov r0, #0 					@; r0 = i
 		
 		.L_vect:
-			ldrh r4, [r5, #ELE_II]	
+			ldrsh r4, [r5, #ELE_II]	
 			cmp r4, #0				@; si vect_elem.ii == -1 || 0 salto
 			ble .Next_elem
 			
@@ -219,8 +167,8 @@ rsi_timer0:
 			
 			ldr r1, =divF0
 			ldrsh r2, [r1]
-			rsb r2, r2, #0				@; negamos divisor de frecuencia actual
-			ldr r4, =1663			@; 523.656 * 0,1/32 = 1636; on 0,1 es el tiempo mas bajo de desplazamiento que aceptaremos, ponemos  1663 por seguridad
+			rsb r2, r2, #0			@; negamos divisor de frecuencia actual
+			ldr r4, =1636			@; 523.656 * 0,1/32 = 1636; on 0,1 es el tiempo mas bajo de desplazamiento que aceptaremos
 			
 			cmp r2, r4				@; si divF0 > 1663 restamos y volvemos a negar
 			subhi r2, #30			@; si añadimos 30 al divisor de frecuencia, tardara 136 repeticiones en llegar al limite (suficiente)
