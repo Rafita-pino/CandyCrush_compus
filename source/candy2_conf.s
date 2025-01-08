@@ -39,14 +39,6 @@
 		.global mapas
 	mapas:
 
-	@; mapa 0: todo aleatorio
-		.byte 0,0,0,0,0,0,0,0
-		.byte 0,0,0,0,0,0,0,0
-		.byte 0,0,0,0,0,0,0,0
-		.byte 0,0,0,0,0,0,0,0
-		.byte 0,0,0,0,0,0,0,0
-		.byte 0,0,0,0,0,0,0,0
-
 	@; mapa 1: paredes horizontales y verticales
 		.byte 0,0,7,7,0,0,0,0
 		.byte 0,0,0,0,0,0,0,0
