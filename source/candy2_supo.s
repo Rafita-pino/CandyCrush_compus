@@ -174,28 +174,24 @@ elimina_elemento:
 activa_elemento:
 		push {r1-r7,lr}
 		
-		mov r5, r0						@;R5 guarda valor de fila del elemento
-	@;	unsigned char i = busca_elemento(fil, col);
-		bl busca_elemento
-		
-	@;	if (i < ROWS*COLUMNS)			// si lo ha encontrado
-		cmp r0, #ROWS*COLUMNS
+		mov r5, r0						@; R5 = fila elemento
+		bl busca_elemento				@; i = busca_elemento(fil, col);
+
+		cmp r0, #ROWS*COLUMNS			@; if (i < ROWS*COLUMNS)
 		beq .Lae_fin
-	@;	{
 		ldr r4, =vect_elem
 		mov r6, #ELE_TAM
 		mul r7, r0, r6					@;R7 = i * TAMELEM;
 		add r4, r7
-	@;		vect_elem[i].vx = c2 - col;	// fija la velocidad como la diferencia
-	@;		vect_elem[i].vy = f2 - fil;	// de posiciones a desplazarse
+
 		sub r3, r1
-		strh r3, [r4, #ELE_VX]
+		strh r3, [r4, #ELE_VX]			@; vect_elem[i].vx = c2 - col;
 		sub r2, r5 
-		strh r2, [r4, #ELE_VY]
-	@;		vect_elem[i].ii = 32;		// activa el movimiento (32 interrups.)
+		strh r2, [r4, #ELE_VY]			@; vect_elem[i].vy = f2 - fil;
+	
 		mov r5, #32
-		strh r5, [r4, #ELE_II]
-	@;	}
+		strh r5, [r4, #ELE_II]			@;vect_elem[i].ii = 32. Activem el moviment;
+
 	.Lae_fin:
 		pop {r1-r7,pc}
 

@@ -1,4 +1,4 @@
-﻿/*------------------------------------------------------------------------------
+﻿	/*------------------------------------------------------------------------------
 
 	$ candy2_main.c $
 
@@ -285,7 +285,7 @@ void procesa_botonY()
 	if (keysHeld() & KEY_Y){	// activar o desactivar desplazam.
 		if (timer3_on) desactiva_timer3();	// imagen del fondo 3
 		else activa_timer3();
-		printf("\x1b[38m\x1b[11;16H Y: %s",(timer3_on ? "si" : "no"));
+		printf("\x1b[38m\x1b[3;24H%s",(timer3_on ? "si" : "no"));
 		while (keysHeld() & KEY_Y){		// esperar liberacion tecla Y
 			swiWaitForVBlank();	
 			scanKeys();		

@@ -97,7 +97,23 @@ rsi_vblank:
 		.L_ignore:					@;acabar actualitzat gelatines
 		
 @;Tarea 2Ha
-		pop {r0-r6, pc}
+		ldr r1, =update_bg3
+		ldrb r2, [r1]		@; r2 = update_bg3
+		
+		cmp r2, #0			@; si la variable update_bg3 está desactivada, 
+		beq .L_finalHa		@; ignorar todos los pasos siguientes
+		
+		ldr r3, =offsetBG3X
+		ldrh r4, [r3]			@; r4 = offsetBG3X
+		ldr r3, =0x04000038		@; 0x04000038 -> REG_BG3X
+		mov r4, r4, lsl #8		@; 0.20.8 (Parte entera: 20 bits, Parte decimal: 8 bits)
+		str r4, [r3]
+		
+		mov r0, #0
+		strb r0, [r1]			@; update_bg3 = 0
+		
+		.L_finalHa:
+		pop {r0-r6 , pc}
 
 @;TAREA 2Eb;
 @;activa_timer0(init); rutina para activar el timer 0, inicializando o no el
