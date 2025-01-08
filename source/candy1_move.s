@@ -190,6 +190,7 @@ baja_verticales:
 		sub r2, #1						@;Ajust. contador a [0..8]
 		
 	.Lmain_loop:						@;Recorre matriu
+		mov r10, r2						@;r10 = cont. fila valor buit
 		ldrb r5, [r3]					@;r5 = valor actual 
 		and r6, r5, #7					@;Filtra mascara gelatina (0..2)
 		cmp r6, #0						@;buit?
@@ -199,7 +200,6 @@ baja_verticales:
 		beq .Ltractar_superior			@;Sí, posible generació valor
 		
 		sub r7, r3, #COLUMNS			@;Sino, el. superior (r7 = @pos. adalt de la buida)
-		mov r10, r2						@;r10 = cont. fila valor buit
 		b .Lcomp_forat					@;Salta a la rutina de tractament de forats
 		
 	.Ltractar_forat:					@;Cas el. a baixar és forat
@@ -225,13 +225,13 @@ baja_verticales:
 		strb r8, [r7]					@;Deixar nomès gelatina al d'adalt.
 		
 		@;Tasca 2IC - FASE 2 
-		push {r0-r3, lr}
-		mov r0, r10						@;r0 = fila actual
-		mov r1, r1						@;r1 = columna actual
-		add r2, r10, #1						@;r2 = fila destí
+		push {r0-r3}
+		sub r0, r2, #1					@;r0 = fila actual
+		sub r1, r1, #1					@;r1 = columna actual (ajuste columna, pq ajuste de fila ja es fa abans)
+		add r2, r0, #1					@;r2 = fila destí
 		mov r3, r1						@;r3 = columna destí
 		bl activa_elemento				@;activar animació element
-		pop {r0-r3, pc}
+		pop {r0-r3}
 		@;Tasca 2IC - FASE 2 
 		mov r11, #1						@;Moviment++
 		
@@ -245,19 +245,19 @@ baja_verticales:
 		strb r0, [r3]					@;Act. memòria amb nou el.
 		
 		@;Tasca 2IC - FASE 2
-		push {r0-r3, lr}
-		mov r0, r5						@;r0 = tipus element a baixar
-		mov r2, r1						@;r2 = columna nou element
-		mov r1, #-1						@;r1 = fila nou element (-1)
-		mov r3, #0						@;r3 = prioritat (0)
-		bl crea_elemento				@;crear element a la pos. indicada
-		
-		mov r0, #-1						@;r1 = fila nou element (-1)
-		mov r1, r2						@;r1 = columna inicial
-		mov r2, #0						@;r2 = fila destí (0)
-		mov r3, r1						@;r3 = columna destí (mateixa col.)
-		bl activa_elemento
-		pop {r0-r3, pc}
+		push {r0-r3}
+		and r0, r0, #7					@;r0 = filtrar bits 0..2 (el. bàsic)
+		sub r2, r1, #1					@;r2 = columna actual (ajuste columna, pq ajuste de fila ja es fa abans)
+		mov r1, #-1						@;r1 = fila inicial (-1)
+		mov r3, #0						@;r3 = prioritat
+		bl crea_elemento				
+
+		mov r0, #-1						@;fila inicial (-1)
+		mov r1, r2						@;columna actual
+		mov r2, r10						@;fila destino (r10, fila hueco al que baixar el.)
+		mov r3, r1						@;columna destino
+		bl activa_elemento				
+		pop {r0-r3}
 		@;Tasca 2IC - FASE 2 
 		mov r11, #1						@;moviment++
 		
@@ -359,14 +359,15 @@ baja_laterales:
 		strb r8, [r7]					@;Deixar nomès gelatina a la pos. baixada
 		
 		@;Tasca 2Id - FASE 2 
-		push {r0-r3, lr}
-		mov r0, r2						@;r0 = fila inicial
-		mov r1, r1						@;r1 = columna inicial
-		add r2, #1						@;r2 = fila destí (below)
-		add r3, r1, #1					@;r3 = columna destí (right displacement)
+		push {r0-r3}
+		sub r1, r1, #1					@;ajustament index columna, la de fila ja es fà abans
+		mov r3, r1						@;r3 = columna desti (on está el 0)
+		mov r2, r2						@;r2 = fila desti (on està el 0)
+		add r1, r3, #1 					@;r1 = columna de la dreta (on està l'element a baixar)
+		sub r0, r2, #1					@;r0 = fila d'adalt (on està l'element a baixar)
 		bl activa_elemento
-		pop {r0-r3, pc}
-		@;Tasca 2Id - FASE 2 
+		pop {r0-r3}
+		@;Tasca 2Id - FASE 2
 		
 		mov r11, #1						@;moviments++
 		b .Lsaltar						@;Següent element
@@ -383,13 +384,14 @@ baja_laterales:
 		strb r8, [r7]					@;Deixar nomès gelatina a la pos. baixada
 		
 		@;Tasca 2Id - FASE 2 
-		push {r0-r3, lr}
-		mov r0, r2						@;r0 = fila inicial
-		mov r1, r1						@;r1 = columna inicial
-		add r2, #1						@;r2 = fila destí (below)
-		sub r3, r1, #1					@;r3 = columna destí (left displacement)
+		push {r0-r3}
+		sub r1, r1, #1					@;ajustament index columna, la de fila ja es fà abans
+		mov r3, r1						@;r3 = columna desti (on está el 0)
+		mov r2, r2						@;r2 = fila desti (on está el 0)
+		sub r1, r3, #1					@;r1 = columna de la esquerra adalt (on està l'element a baixar)
+		sub r0, r2, #1					@;r0 = fila adalt (on està l'element a baixar)
 		bl activa_elemento
-		pop {r0-r3, pc}
+		pop {r0-r3}
 		@;Tasca 2Id - FASE 2 
 		
 		mov r11, #1						@;moviments++

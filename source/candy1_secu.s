@@ -177,11 +177,9 @@ elimina_secuencias:
 			mov r8, r8, lsr #1				@; reduir gelatina ( >> 1 bit)
 			and r8, r8, #0x18				@; espai buit amb nivell de gelatina reduida (bits 2..0 a 0)
 			strb r8, [r4, r6] 				@; guardar element reduit a la matriu joc
+			mov r0, r6, lsr #3				@; R0 = fila -> index / COLUMNS
+			and r1, r6, #7					@; R1 = columna -> index % COLUMNS-1
 			bl elimina_elemento
-			
-			ldr r0, =update_spr
-			mov r1, #1
-			strb r1, [r0]
 			@; --- 2IB ---
 			
 			.Lignore3:
