@@ -154,16 +154,35 @@ elimina_secuencias:
 		bl marca_verticales         		@; marcar secuencias verticals
 		
 		mov r6, #0							@; posicio matriu
+		mov r4, r0							@; copia dir mat joc
+		mov r5, r1							@; copia dir mat marques
 		.LreduceLevel:
-			ldrb r8, [r1, r6]				@; carregar valor matriu marques
+			ldrb r8, [r5, r6]				@; carregar valor matriu marques
 			cmp r8, #0
 			beq .Lignore3					@; ignorar si no hi ha marca
 			@; reduir nivell
-			ldrb r8, [r0, r6]				@; carregar valor matriu joc
-			and r8, r8, #0x18				@; filtrar els bits 4..3 (2 bits alts)	
+			ldrb r8, [r4, r6]				@; carregar valor matriu joc
+			and r8, r8, #0x18				@; filtrar els bits 4..3 (2 bits alts)
+			
+			@; --- 2IB ---
+			cmp r8, #0
+			beq .LskipGel					@; Si els bits 4..3 son 0 no hi ha gelatina
+			
+			mov r0, #0x06000000				@; direccio mpbase del fondo de baldosas
+			mov r1, r6, lsr #3				@; R1 = fila -> index / COLUMNS
+			and r2, r6, #7					@; R2 = columna -> index % COLUMNS-1
+			bl elimina_gelatina
+			
+			.LskipGel:
 			mov r8, r8, lsr #1				@; reduir gelatina ( >> 1 bit)
 			and r8, r8, #0x18				@; espai buit amb nivell de gelatina reduida (bits 2..0 a 0)
-			strb r8, [r0, r6] 				@; guardar element reduit a la matriu joc
+			strb r8, [r4, r6] 				@; guardar element reduit a la matriu joc
+			bl elimina_elemento
+			
+			ldr r0, =update_spr
+			mov r1, #1
+			strb r1, [r0]
+			@; --- 2IB ---
 			
 			.Lignore3:
 			add r6, #1						@; seguent posicio

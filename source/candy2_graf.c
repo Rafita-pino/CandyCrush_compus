@@ -180,6 +180,20 @@ void init_grafA()
 	dmaCopy(SpritesTiles, (unsigned int *)0x06400000, sizeof(SpritesTiles));
 	dmaCopy(SpritesPal, (void *)0x05000200, sizeof(SpritesPal));
 
+// Tarea 2Ba:
+	// inicializar el fondo 2 con prioridad 2
+	bg2A = bgInit(2, BgType_Text8bpp, BgSize_T_256x256, 1, 1);
+	bgSetPriority(bg2A, 2);
+
+// Tarea 2Da:
+	// descomprimir (y cargar) la imagen de la variable FondoBitmap[] a partir
+	// de la dirección virtual de vídeo correspondiente al banco de vídeoRAM A
+	bg3A = bgInit(3, BgType_Bmp16, BgSize_B16_512x256, 8, 0); // Inicializa fondo 3
+	bgSetPriority(bg3A, 3);	
+	
+// Tarea 2Ca:
+	//inicializar el fondo 1 con prioridad 0
+
 
 // Tarea 2Ba:
 	// inicializar el fondo 2 con prioridad 2
@@ -196,10 +210,9 @@ void init_grafA()
 	// partir de la dirección virtual correspondiente al primer bloque de
 	// memoria gráfica (+16 Kbytes), cargar los colores de paleta asociados
 	// contenidos en la variable BaldosasPal[]
-	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);		//carregar baldoses bg2A
-	decompress(BaldosasTiles, bgGetGfxPtr(bg1A), LZ77Vram);		//carregar baldoses bg1A		
+	decompress(BaldosasTiles, bgGetGfxPtr(bg2A), LZ77Vram);		//carregar baldoses bg2A	
 	dmaCopy(BaldosasPal, BG_PALETTE, sizeof(BaldosasPal));		//carregar palette
-	
+
 // Tarea 2Da:
 	// inicializar el fondo 3 con prioridad 3
 	bg3A = bgInit(3, BgType_Bmp16, BgSize_B16_512x256, 8, 0); // Inicializa fondo 3
