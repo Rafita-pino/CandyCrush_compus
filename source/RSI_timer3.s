@@ -1,4 +1,4 @@
-﻿@;=                                                          	     	=
+﻿	@;=                                                          	     	=
 @;=== RSI_timer3.s: rutinas para desplazar el fondo 3 (imagen bitmap) ===
 @;=                                                           	    	=
 @;=== Programador tarea 2H: gerard.ros@estudiants.urv.cat				  ===
