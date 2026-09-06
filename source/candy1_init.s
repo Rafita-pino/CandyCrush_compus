@@ -75,13 +75,15 @@ inicializa_matriz:
 				b .L_fi
 				
 			.L_random:
+			@; CORRECCION 06/09/2026
 				mov r0, #6			  @; pasamos rango maximo
 				bl mod_random		 
-				tst r0, #0x00
-				addeq r0, #1			@; si es 0, sumamos 1
+				add r0, #1			  @; sumamos 1 para tener rango [1..6]
 				add r3, r7, r0		  @; sumamos al valor inicial el resultado y lo guardamos en r3
 				strb r3, [r4, r6]	  @; subimos a la matriz de juego el resultado para cuenta_repeticiones
 				
+			@;////////////////////////////77
+			
 				mov r0, r4			   @; volvemos a poner la direccion base de la matriz de juego en r0
 				mov r3, #2			   @; direccion 2
 				bl cuenta_repeticiones @; llamamos a cuenta_repeticiones para comprovar que no tenemos secuencias
@@ -229,8 +231,10 @@ recombina_elementos:
 					cmp r9, #MAX_ITERACIONES	@; MAX_ITERACIONES definido en candy1_incl.i
 					
 					movhs r0, r4				@; si tenemos que volver a empezar, cargamos direccion matjoc en r0
-					bhs recombina_elementos		@; podria crearse un bucle infinito, pero como el enunciado dice que se asume
+					@; CORRECCION 06/09/2026
+					bhs .L_IniMatJoc		@; podria crearse un bucle infinito, pero como el enunciado dice que se asume
 												@; que siempre puede haber una posible reordenacion, pues... (a veces genera bucles infinitos)
+					@;////////////////7
 					
 					cmp r5, #0					@; comparamos con un elemento ya usado (mat_recomb1 = 0)
 					beq .L_Random				@; si esta usado repetimos proceso de random
